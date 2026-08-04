@@ -1,0 +1,15 @@
+{
+  "recorded_at": "2026-08-04T21:54:14.311845+00:00",
+  "commit": "32bb42ea728b916c618b5f0ea18bcc54137318fe",
+  "git_clean": true,
+  "freeze_v1_hash": "c8b99c3fb795d3e19f64cc197283321f",
+  "freeze_v1_hash_independent_match": true,
+  "module_fingerprints_match": true,
+  "python": "3.11.15",
+  "platform": "Linux-6.18.5-fc-v18-x86_64-with-glibc2.39",
+  "test_count": 70,
+  "tests_pass": true,
+  "real_registry_exists": false,
+  "holdout_lock_real": false,
+  "note": "repo real registry/holdout untouched (sandbox smoke tests used env-overridden dirs)"
+}

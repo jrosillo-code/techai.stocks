@@ -1,0 +1,141 @@
+# Idea backlog — research ideas exist here BEFORE implementation.
+# statuses: idea | planned | implementing | testing | auditing | accepted |
+#           rejected | archived
+# expected_edge / difficulty / capacity are coarse 1-5 ratings.
+
+ideas:
+  - id: IDEA-001
+    title: Timestamped earnings-event dataset
+    hypothesis: "Post-earnings-announcement drift and gap behavior are testable only with BMO/AMC-precision timestamps; conservative next-session execution otherwise destroys the signal."
+    category: data
+    expected_edge: 3
+    required_data: "earnings announcement dates + timing (BMO/AMC), consensus estimates"
+    difficulty: 3
+    est_time: "1-2 weeks"
+    expected_capacity: 4
+    required_providers: ["paid: Wall Street Horizon / Zacks; partial: EDGAR 8-K acceptance times"]
+    references: ["Bernard & Thomas (1989) PEAD"]
+    status: planned
+    notes: "Blocks the entire event-driven family (currently Tier C by design)."
+
+  - id: IDEA-002
+    title: Delisted-name price history
+    hypothesis: "Cross-sectional results shift materially when failed firms are investable; current Tier B label can be upgraded to A only with delisting returns."
+    category: data
+    expected_edge: 4
+    required_data: "full price history + delisting returns for SUNW/EMC/YHOO/MXIM/XLNX and a broader failed-tech list"
+    difficulty: 4
+    est_time: "provider-dependent"
+    expected_capacity: 5
+    required_providers: ["CRSP", "Norgate", "EODHD"]
+    references: ["Shumway (1997) delisting bias"]
+    status: planned
+    notes: "Import path already exists (data/import/prices); only the data is missing."
+
+  - id: IDEA-003
+    title: Macro vintage series (ALFRED)
+    hypothesis: "Regime strategies degrade when first-release data replaces revised series; quantifying the gap bounds their real-time value."
+    category: data
+    expected_edge: 2
+    required_data: "ALFRED vintages for CPI, UNRATE, FEDFUNDS"
+    difficulty: 2
+    est_time: "3-5 days"
+    expected_capacity: 5
+    required_providers: ["FRED/ALFRED (free)"]
+    references: []
+    status: idea
+    notes: "Would lift regime family from B toward A."
+
+  - id: IDEA-004
+    title: Discrete dividend cash ledger
+    hypothesis: "Continuous-reinvestment modeling (AUD-012) slightly overstates compounding for payers; a cash ledger removes the assumption and enables withholding modeling for ADRs."
+    category: engine
+    expected_edge: 1
+    required_data: "per-share dividend amounts + ex-dates (Tiingo/Yahoo already deliver)"
+    difficulty: 3
+    est_time: "1 week"
+    expected_capacity: 5
+    required_providers: ["tiingo", "yahoo"]
+    references: ["audit finding AUD-012"]
+    status: planned
+    notes: "Engine change ⇒ freeze bump required."
+
+  - id: IDEA-005
+    title: Factor-exposure attribution (market/size/momentum/quality proxies)
+    hypothesis: "Apparent alpha in tech strategies is often repackaged beta; regression attribution separates them."
+    category: analytics
+    expected_edge: 3
+    required_data: "factor return series (free proxies constructible from existing data)"
+    difficulty: 2
+    est_time: "3-4 days"
+    expected_capacity: 5
+    required_providers: []
+    references: ["Fama-French", "Carhart (1997)"]
+    status: idea
+
+  - id: IDEA-006
+    title: Dependency pinning enforcement in freeze
+    hypothesis: "Recorded-but-unenforced package versions (AUD-013) leave a reproducibility gap over multi-year horizons."
+    category: governance
+    expected_edge: 1
+    required_data: ""
+    difficulty: 1
+    est_time: "1 day"
+    expected_capacity: 5
+    required_providers: []
+    references: ["audit finding AUD-013"]
+    status: planned
+
+  - id: IDEA-007
+    title: Intraday execution study for mean reversion
+    hypothesis: "RSI(2)-style reversion may survive costs with limit-order entries; daily bars cannot test this."
+    category: strategy
+    expected_edge: 2
+    required_data: "intraday bars for the liquid subset"
+    difficulty: 4
+    est_time: "2-3 weeks"
+    expected_capacity: 2
+    required_providers: ["polygon (paid)"]
+    references: []
+    status: idea
+    notes: "Family currently kept as a falsification target; do not promote without this data."
+
+  - id: IDEA-008
+    title: Historical index-constituent universe (Nasdaq-100 by date)
+    hypothesis: "A reconstitution-aware benchmark universe removes the residual current-constituent bias in universe-sensitivity tests."
+    category: data
+    expected_edge: 3
+    required_data: "dated NDX membership changes"
+    difficulty: 3
+    est_time: "1 week + source vetting"
+    expected_capacity: 5
+    required_providers: ["paid index data or curated public lists (reliability must be vetted)"]
+    references: []
+    status: idea
+
+  - id: IDEA-009
+    title: PDF / PowerPoint report export
+    hypothesis: ""
+    category: platform
+    expected_edge: 1
+    required_data: ""
+    difficulty: 2
+    est_time: "2-3 days"
+    expected_capacity: 5
+    required_providers: ["python-pptx, weasyprint (optional deps)"]
+    references: []
+    status: idea
+    notes: "HTML/Markdown/CSV exist; PDF/PPTX are optional-dependency additions."
+
+  - id: IDEA-010
+    title: Correlation-aware strategy blending rules
+    hypothesis: "Low-correlation mediocre strategies can dominate any single strategy after costs; the portfolio lab quantifies when."
+    category: portfolio
+    expected_edge: 3
+    required_data: "existing curves (none new)"
+    difficulty: 2
+    est_time: "in portfolio lab v1"
+    expected_capacity: 4
+    required_providers: []
+    references: []
+    status: implementing

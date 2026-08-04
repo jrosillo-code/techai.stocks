@@ -1,0 +1,188 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>TrendPlusVolTarget</title><style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--mut:#64748b;--acc:#2563eb;
+--good:#166534;--warn:#92400e;--bad:#991b1b;--line:#e2e8f0}
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,sans-serif;
+margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+nav{background:#0f172a;color:#e2e8f0;padding:.7rem 1.2rem;display:flex;gap:1.1rem;
+flex-wrap:wrap;position:sticky;top:0;z-index:5}
+nav a{color:#cbd5e1;text-decoration:none;font-size:.92rem}nav a:hover{color:#fff}
+nav .brand{color:#fff;font-weight:700}
+main{max-width:1180px;margin:1.4rem auto;padding:0 1.2rem}
+h1{font-size:1.5rem;margin:.4rem 0 1rem}h2{font-size:1.15rem;margin-top:1.8rem;
+border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:.7rem .9rem}.card .v{font-size:1.45rem;font-weight:700}
+.card .k{color:var(--mut);font-size:.78rem}
+table{border-collapse:collapse;width:100%;font-size:.82rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.3rem .5rem;text-align:left}
+th{background:#f1f5f9;cursor:pointer;position:sticky;top:46px}
+tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.72rem}
+.b-core{background:#dcfce7;color:var(--good)}.b-exploratory{background:#fef9c3;color:var(--warn)}
+.b-deprecated{background:#fee2e2;color:var(--bad)}.b-benchmark{background:#e0e7ff;color:#3730a3}
+.b-A{background:#dcfce7;color:var(--good)}.b-B{background:#fef9c3;color:var(--warn)}
+.b-C{background:#fee2e2;color:var(--bad)}.b-unlisted{background:#e2e8f0;color:#475569}
+.warnbox{background:#fef3c7;border-left:4px solid #f59e0b;padding:.6rem .9rem;margin:.8rem 0;font-size:.88rem}
+.note{color:var(--mut);font-size:.82rem}
+input,select{padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;margin:.15rem}
+pre{background:#0f172a;color:#e2e8f0;padding:.9rem;border-radius:8px;overflow-x:auto;font-size:.78rem}
+img{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:.4rem 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.score{display:flex;gap:.4rem;align-items:center;margin:.2rem 0;font-size:.85rem}
+.bar{height:8px;border-radius:4px;background:var(--acc);min-width:2px}
+details{margin:.3rem 0}summary{cursor:pointer;color:var(--acc)}
+.tree{border-left:3px solid var(--line);margin-left:.5rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--card);border:1px solid var(--line);
+border-radius:8px;padding:.5rem .8rem;font-size:.85rem}
+</style></head><body><nav><span class="brand">AITB Research</span>
+<a href="../index.html">Dashboard</a><a href="../experiments.html">Experiments</a>
+<a href="../strategies.html">Strategies</a><a href="../compare.html">Compare</a>
+<a href="../portfolio.html">Portfolio lab</a><a href="../ideas.html">Ideas</a>
+<a href="../roadmap.html">Roadmap</a><a href="../audit.html">Audit</a></nav><main><h1>TrendPlusVolTarget</h1>
+<div class='warnbox'><b>SYNTHETIC DATA MODE.</b> All numbers on this site are demonstrations of the machinery on generated data — not market history. The real-data study has not run yet.</div>
+<p><span class='badge b-core'>core</span> <span class='badge b-riskmanaged'>riskmanaged</span>
+ · best verdict:
+<span class='badge b-robust_candidate'>robust_candidate</span> · scorecard <b>3.6/5</b></p>
+<p><i>Trend removes the deep left tail; vol targeting smooths the path — the two address different failure modes.</i></p>
+
+<h2>Scorecard (research quality, not performance)</h2>
+<div class='score'><div style='width:220px'>implementation_quality</div><div class='bar' style='width:112.0px'></div><b>4.0</b><span class='note'> — engine-level accounting verified by hand ledgers + per-bar invariant (audit 2026-08); strategy expressed through audited primitives</span></div><div class='score'><div style='width:220px'>audit_confidence</div><div class='bar' style='width:112.0px'></div><b>4.0</b><span class='note'> — covered by the adversarial audit (no CRITICAL findings; engine cleared); residual: AUD-010 verdict-layer false discovery, AUD-012 dividend reinvestment assumption</span></div><div class='score'><div style='width:220px'>data_quality</div><div class='bar' style='width:42.0px'></div><b>1.5</b><span class='note'> — tier not yet assigned (no real-data run)</span></div><div class='score'><div style='width:220px'>evidence_tier</div><div class='bar' style='width:42.0px'></div><b>1.5</b><span class='note'> — Tier ? (synthetic only)</span></div><div class='score'><div style='width:220px'>statistical_confidence</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — mean probabilistic Sharpe 1.00 across 9 variants (deflated-Sharpe correction applied at family level)</span></div><div class='score'><div style='width:220px'>robustness</div><div class='bar' style='width:126.0px'></div><b>4.5</b><span class='note'> — mean dev→holdout Sharpe degradation 0.00 (subperiod stability also enters the composite ranking)</span></div><div class='score'><div style='width:220px'>interpretability</div><div class='bar' style='width:72.8px'></div><b>2.6</b><span class='note'> — 8 parameters; hypothesis stated: yes</span></div><div class='score'><div style='width:220px'>capacity</div><div class='bar' style='width:98.0px'></div><b>3.5</b><span class='note'> — large-cap universe, √participation impact model; see capacity.csv for size-scaled estimates (real-data capacity unverified)</span></div><div class='score'><div style='width:220px'>tradingview_compatibility</div><div class='bar' style='width:126.0px'></div><b>4.5</b><span class='note'> — trend gate + vol scaling — approximable on one symbol</span></div><div class='score'><div style='width:220px'>documentation_quality</div><div class='bar' style='width:98.0px'></div><b>3.5</b><span class='note'> — docstring+hypothesis 296 chars; full auto-generated doc page</span></div><div class='score'><div style='width:220px'>reproducibility</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — deterministic seeds, stable experiment IDs, append-only registry, freeze-v2-fingerprinted implementation</span></div>
+<p class='note'>trusted for continued research — Research-quality assessment only; says nothing about future returns. Real-data tiers pending until the first real study.</p>
+
+<h2>Documentation</h2>
+<p>Combined overlay: QQQ 200-day trend gates GROSS exposure (with</p>
+<p class='note'>Markets: US large-cap equities & ETFs (daily bars) · timeframe:
+months-years · audit: covered by adversarial audit (freeze v2)</p>
+<div class='grid2'>
+<div><h3>Strengths</h3><ul><li>economically motivated; survived the deprecation review</li><li>modifies risk, not selection — robust to ranking noise</li><li>expressible as a standalone TradingView study</li></ul></div>
+<div><h3>Weaknesses</h3><ul><li>8 parameters — sensitivity tables mandatory</li></ul></div>
+</div>
+<h3>Assumptions</h3><ul><li>volatility clusters; drawdowns cluster</li><li>de-risking costs less than the tail it removes</li></ul>
+<h3>Parameters</h3><table><tr><th>name</th><th>default</th></tr>
+<tr><td>basket</td><td>megacap_ai</td></tr><tr><td>target_vol</td><td>0.2</td></tr><tr><td>vol_window</td><td>63</td></tr><tr><td>trend_window</td><td>200</td></tr><tr><td>hysteresis</td><td>0.02</td></tr><tr><td>min_exposure</td><td>0.2</td></tr><tr><td>fallback</td><td>IEF</td></tr><tr><td>rebalance</td><td>W-FRI</td></tr></table>
+<h3>Frozen grids</h3><pre>[
+ {
+  &quot;basket&quot;: [
+   &quot;megacap_ai&quot;
+  ],
+  &quot;target_vol&quot;: [
+   0.15,
+   0.2
+  ],
+  &quot;trend_window&quot;: [
+   150,
+   200
+  ],
+  &quot;hysteresis&quot;: [
+   0.0,
+   0.02
+  ]
+ },
+ {
+  &quot;basket&quot;: [
+   &quot;target_holdings&quot;
+  ],
+  &quot;target_vol&quot;: [
+   0.2
+  ],
+  &quot;trend_window&quot;: [
+   200
+  ],
+  &quot;hysteresis&quot;: [
+   0.02
+  ]
+ }
+]</pre>
+
+<h2>Research notebook</h2>
+<p><b>Rationale:</b> Combined overlay: QQQ 200-day trend gates GROSS exposure (with
+hysteresis to cut whipsaw), volatility targeting scales it, remainder in
+Treasuries. Exposure changes are gradual, not binary.</p>
+<h3>Experiment history (9)</h3>
+<table><tr><th>date</th><th>variant</th><th>mode</th><th>dev Sharpe</th>
+<th>holdout Sharpe</th><th>maxDD</th><th>turnover</th></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.0,min_e</td><td>synthetic</td><td>0.96</td><td>2.63</td><td>-0.23</td><td>5.1</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.0,min_e</td><td>synthetic</td><td>0.97</td><td>2.63</td><td>-0.19</td><td>5.0</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.0,min_e</td><td>synthetic</td><td>0.94</td><td>2.62</td><td>-0.33</td><td>6.6</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.0,min_e</td><td>synthetic</td><td>0.95</td><td>2.62</td><td>-0.28</td><td>6.4</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.02,min_</td><td>synthetic</td><td>0.97</td><td>2.63</td><td>-0.23</td><td>4.6</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.02,min_</td><td>synthetic</td><td>0.96</td><td>2.63</td><td>-0.22</td><td>4.5</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.02,min_</td><td>synthetic</td><td>0.94</td><td>2.62</td><td>-0.33</td><td>5.8</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.02,min_</td><td>synthetic</td><td>0.94</td><td>2.62</td><td>-0.29</td><td>5.7</td></tr><tr><td>2026-08-04</td><td>TrendPlusVolTarget(basket=target_holdings,fallback=IEF,hysteresis=0.02</td><td>synthetic</td><td>0.98</td><td>2.17</td><td>-0.39</td><td>5.9</td></tr></table>
+<h3>Lessons learned</h3><ul><li>Trend gate and vol targeting address different failure modes; combined overlay dominated either alone in demos.</li></ul>
+<h3>Remaining questions</h3><ul><li>Does the (synthetic-)demonstrated behavior survive the first real-data study?</li><li>Which evidence tier does the strategy earn under the real quality gate?</li></ul>
+
+<h2>Genealogy</h2><h3>Risk-managed exposure</h3><div class='tree'><div class='node'><b>rm_v1</b> · freeze pre-v1 · vol targeting {15,20,25}%, drawdown de-risk, inverse-vol basket<br><span class='note'>why: constant-risk compounding hypothesis → strongest family in shakedown</span></div><div class='node'><b>rm_v2</b> · freeze v1 · grid widened: vol_window {21,63}, rebalance {W-FRI, ME}, dd_full {−30,−40}%<br><span class='note'>why: family flagged for deeper study; axes per §14 kept coarse → expanded core · required freeze bump</span></div><div class='node'><b>rm_v3</b> · freeze v1 · NEW combined overlay: QQQ trend gate with hysteresis × vol targeting<br><span class='note'>why: trend removes the left tail, vol targeting smooths the path — complementary failure modes → top-ranked in synthetic demos (labeled demonstration only) · required freeze bump</span></div><div class='node'><b>rm_v4</b> · freeze v2 · re-frozen under audited metrics + engine invariant hooks<br><span class='note'>why: audit remediation (AUD-006, AUD-011) → active core awaiting first real study · required freeze bump</span></div></div>
+
+<h2>TradingView</h2><p><span class='badge b-portable'>portable</span> trend gate + vol scaling — approximable on one symbol</p><p><a href='../tradingview/TrendPlusVolTarget.pine' download>Download TrendPlusVolTarget.pine</a></p><details><summary>view script</summary><pre>// TrendPlusVolTarget — research export from the aitb platform
+// APPROXIMATION of the audited Python implementation (freeze v2).
+// Differences vs the backtest engine: no next-open fill convention is
+// enforceable in a Pine study, no transaction-cost model, no Treasury
+// fallback sleeve, single symbol only. For chart study, NOT trading.
+//@version=5
+
+indicator(&quot;AITB trend+vol overlay gauge&quot;, overlay=false)
+maLen = input.int(200, &quot;Trend SMA&quot;)
+hyst = input.float(0.02, &quot;Hysteresis band&quot;)
+target = input.float(0.2, &quot;Target annual vol&quot;)
+ma = ta.sma(close, maLen)
+var bool gateOn = true
+if close &lt; ma * (1 - hyst)
+    gateOn := false
+if close &gt; ma * (1 + hyst)
+    gateOn := true
+ret = close / close[1] - 1
+realized = ta.stdev(ret, 63) * math.sqrt(252)
+volScale = math.min(target / math.max(realized, 0.0001), 1.0)
+exposure = (gateOn ? 1.0 : 0.2) * volScale
+plot(exposure, &quot;Suggested exposure (0-1)&quot;, color=color.blue, linewidth=2)
+plot(realized, &quot;Realized vol&quot;, color=color.orange)
+hline(1.0)
+</pre></details>
+
+<h2>Python implementation (freeze-v2 fingerprinted)</h2>
+<details><summary>view source</summary><pre>class TrendPlusVolTarget(Strategy):
+    &quot;&quot;&quot;Combined overlay: QQQ 200-day trend gates GROSS exposure (with
+    hysteresis to cut whipsaw), volatility targeting scales it, remainder in
+    Treasuries. Exposure changes are gradual, not binary.&quot;&quot;&quot;
+    family = &quot;riskmanaged&quot;
+    hypothesis = (&quot;Trend removes the deep left tail; vol targeting smooths the &quot;
+                  &quot;path — the two address different failure modes.&quot;)
+
+    def __init__(self, basket: str = &quot;megacap_ai&quot;, target_vol: float = 0.20,
+                 vol_window: int = 63, trend_window: int = 200,
+                 hysteresis: float = 0.02, min_exposure: float = 0.2,
+                 fallback: str = &quot;IEF&quot;, rebalance: str = &quot;W-FRI&quot;):
+        super().__init__(basket=basket, target_vol=target_vol,
+                         vol_window=vol_window, trend_window=trend_window,
+                         hysteresis=hysteresis, min_exposure=min_exposure,
+                         fallback=fallback, rebalance=rebalance)
+
+    def build(self, md: MarketData) -&gt; pd.DataFrame:
+        p = self.params
+        mask = investable_mask(md, md.universe.baskets[p[&quot;basket&quot;]])
+        w = equal_weight(mask)
+        w = vol_target(w, md.adj_close[mask.columns], p[&quot;target_vol&quot;],
+                       window=p[&quot;vol_window&quot;])
+
+        # Hysteresis trend gate on QQQ: off only below (1-h)*SMA, back on
+        # only above (1+h)*SMA — the band suppresses whipsaw at the line.
+        q = md.adj_close[&quot;QQQ&quot;]
+        sma = q.rolling(p[&quot;trend_window&quot;]).mean()
+        upper, lower = sma * (1 + p[&quot;hysteresis&quot;]), sma * (1 - p[&quot;hysteresis&quot;])
+        state = np.ones(len(q))
+        on = True
+        qv, uv, lv = q.to_numpy(), upper.to_numpy(), lower.to_numpy()
+        for i in range(len(q)):
+            if np.isnan(uv[i]):
+                state[i] = 1.0
+                continue
+            if on and qv[i] &lt; lv[i]:
+                on = False
+            elif not on and qv[i] &gt; uv[i]:
+                on = True
+            state[i] = 1.0 if on else p[&quot;min_exposure&quot;]
+        gate = pd.Series(state, index=q.index)
+
+        w = w.mul(gate, axis=0)
+        fb = p[&quot;fallback&quot;]
+        if fb in md.adj_close.columns:
+            w[fb] = ((1 - w.sum(axis=1)).clip(lower=0.0)
+                     * md.adj_close[fb].notna()).fillna(0.0)
+        return rebalance_schedule(w, p[&quot;rebalance&quot;])
+</pre></details>
+<p class='note'>Generated 2026-08-04 22:25 UTC · read-only view over the registries · research tool, not investment advice.</p></main></body></html>

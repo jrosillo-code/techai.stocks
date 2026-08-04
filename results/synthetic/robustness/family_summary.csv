@@ -1,0 +1,8 @@
+family,n_variants,best_variant,best_dev_sharpe,sharpe_ci90_lo,sharpe_ci90_hi,deflated_sharpe_prob,walkforward_oos_sharpe,mc_mdd_median,mc_mdd_p95
+breakout,5,"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.2)",1.004,0.71,1.306,1.0,0.749,-0.543,-0.688
+fundamental,5,"ValuationAwareGrowth(history_days=756,max_ps_own_pct=1.0,rebalance=QE,top_n=8)",0.856,0.538,1.15,1.0,0.798,-0.594,-0.755
+meanrev,3,"ShortTermReversal(lookback_days=5,rebalance=W-FRI,top_n=5,trend_window=200)",0.646,0.349,0.94,0.999,0.564,-0.689,-0.836
+regime,5,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.121,0.823,1.417,1.0,0.875,-0.327,-0.45
+riskmanaged,29,"TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.0,min_exposure=0.2,rebalance=W-FRI,target_vol=0.15,trend_window=200,vol_window=63)",1.169,0.896,1.442,1.0,0.956,-0.26,-0.358
+tsmom,11,"TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=250)",1.105,0.79,1.424,1.0,0.8,-0.371,-0.505
+xsmom,17,"XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=3,weighting=equal)",0.919,0.618,1.219,1.0,0.516,-0.644,-0.796

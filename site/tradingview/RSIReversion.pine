@@ -1,0 +1,18 @@
+// RSIReversion — research export from the aitb platform
+// APPROXIMATION of the audited Python implementation (freeze v2).
+// Differences vs the backtest engine: no next-open fill convention is
+// enforceable in a Pine study, no transaction-cost model, no Treasury
+// fallback sleeve, single symbol only. For chart study, NOT trading.
+//@version=5
+
+indicator("AITB RSI(2) reversion (entry<10, exit>60)", overlay=false)
+r = ta.rsi(close, 2)
+maTrend = ta.sma(close, 200)
+uptrend = close > maTrend
+buyZone = r < 10 and uptrend
+exitZone = r > 60 or not uptrend
+plot(r, "RSI(2)")
+hline(10, "entry"), hline(60, "exit")
+bgcolor(buyZone ? color.new(color.green, 85) : exitZone ? color.new(color.red, 92) : na)
+// AUDITED CAVEAT: this family's edge did NOT survive realistic costs in
+// backtests (stressed-cost Sharpe negative). Study signal, not a system.

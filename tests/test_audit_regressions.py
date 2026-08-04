@@ -1,0 +1,252 @@
+"""Adversarial audit regression tests (findings AUD-001..AUD-011).
+
+Each test reproduces an audit finding's failure mode and pins the fix.
+"""
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+sys.path.insert(0, str(Path(__file__).parents[1] / "tests"))
+from conftest import make_toy_md
+
+from aitb.backtest.engine import run_backtest
+from aitb.config import CostScenario
+
+ZERO = CostScenario("zero", "z", 0, 0, 0, 0, 0)
+BASE = CostScenario("base", "b", 0.5, 2.5, 2.5, 10.0, 50.0)
+
+
+# ---------------------------------------------------- AUD-001: freeze scope --
+def test_freeze_binds_analytics_and_data_layer():
+    """Metrics, validation, tiers, loader, importer, gate, calendar, registry
+    logic and tax must be fingerprinted — an edit to any of them can change
+    reported results."""
+    from aitb.freeze import _FROZEN_MODULES
+    required = [
+        "src/aitb/metrics.py", "src/aitb/validation.py", "src/aitb/tiers.py",
+        "src/aitb/calendar.py", "src/aitb/experiments.py", "src/aitb/tax.py",
+        "src/aitb/data/loader.py", "src/aitb/data/import_bundle.py",
+        "src/aitb/data/quality.py", "src/aitb/data/security_master.py",
+    ]
+    missing = [m for m in required if m not in _FROZEN_MODULES]
+    assert not missing, f"freeze does not bind: {missing}"
+
+
+# ------------------------------------------- AUD-002: freeze at report time --
+def test_all_real_mode_scripts_verify_freeze():
+    for script in ("run_experiments.py", "run_robustness.py", "run_capacity.py",
+                   "run_company_analysis.py", "make_report.py"):
+        src = (Path(__file__).parents[1] / "scripts" / script).read_text()
+        assert "verify_freeze" in src, f"{script} runs real mode without freeze check"
+
+
+# --------------------------------------- AUD-003: holdout tamper-evidence ----
+def test_holdout_lock_deletion_is_detected(tmp_path, monkeypatch):
+    import aitb.holdout as ho
+    monkeypatch.setattr(ho, "results_dir", lambda mode: tmp_path)
+    ho.freeze_selection([{"class": "X"}], "real", "2024-01-01")
+    ho.record_holdout_access("real", "sanctioned access")
+    assert not ho.holdout_status("real")["compromised"]
+    # Attacker deletes the lock file; the registry mirror survives.
+    (tmp_path / "holdout_lock.json").unlink()
+    st = ho.holdout_status("real")
+    assert st["compromised"], "deleting holdout_lock.json must not restore clean status"
+    assert any(v["kind"] == "lock_registry_mismatch" for v in st["violations"])
+
+
+def test_holdout_lock_rewrite_is_detected(tmp_path, monkeypatch):
+    import aitb.holdout as ho
+    monkeypatch.setattr(ho, "results_dir", lambda mode: tmp_path)
+    ho.freeze_selection([{"class": "X"}], "real", "2024-01-01")
+    ho.record_holdout_access("real", "first")
+    ho.record_holdout_access("real", "second (compromising)")
+    # Attacker rewrites the lock to show a single clean access with a fake chain.
+    lock = json.loads((tmp_path / "holdout_lock.json").read_text())
+    lock["access_log"] = [{"kind": "access", "purpose": "first", "chain": "fake"}]
+    lock["compromised"] = False
+    (tmp_path / "holdout_lock.json").write_text(json.dumps(lock))
+    assert ho.holdout_status("real")["compromised"]
+
+
+def test_holdout_events_bind_freeze_hash(tmp_path, monkeypatch):
+    import aitb.holdout as ho
+    monkeypatch.setattr(ho, "results_dir", lambda mode: tmp_path)
+    ho.freeze_selection([{"class": "X"}], "real", "2024-01-01")
+    st = ho.record_holdout_access("real", "check bindings")
+    ev = st["access_log"][0]
+    assert "freeze_hash" in ev and "store_fingerprint" in ev and "chain" in ev
+
+
+# ----------------------------------- AUD-004/005: decision brief fail-closed --
+def test_brief_fail_closed_source_contract():
+    src = (Path(__file__).parents[1] / "scripts" / "make_decision_brief.py").read_text()
+    # missing capacity row can no longer pass
+    assert "(not len(crow)) or" not in src
+    assert "cap_est is not None and cap_est >= 1e6" in src
+    # compromised holdout / bad gate / stale gate force DO NOTHING
+    assert "blocked_reason" in src and "COMPROMISED" in src
+    assert 'gate.get("status") not in ("PASS FOR RESEARCH", "PASS WITH LIMITATIONS")' in src
+    assert "store_fingerprint" in src
+    # non-finite values blocked
+    assert "_finite" in src
+
+
+# ------------------------------------------------ AUD-006: CAGR annualization --
+def test_cagr_uses_elapsed_calendar_time():
+    from aitb.metrics import cagr
+    idx = pd.bdate_range("2020-01-02", "2023-12-29")
+    years_true = (idx[-1] - idx[0]).days / 365.25
+    daily = (1.10) ** (years_true / len(idx)) - 1
+    r = pd.Series(daily, index=idx)
+    assert abs(cagr(r) - 0.10) < 1e-4, f"CAGR {cagr(r):.4%} != 10% on b-day calendar"
+
+
+# ------------------------------------------------------- AUD-007: lineage ----
+def test_real_records_carry_store_fingerprint():
+    from aitb.experiments import _lineage
+    md = make_toy_md()
+    md.data_mode = "real"
+    lin = _lineage(md)
+    assert "store_fingerprint" in lin and "freeze_hash" in lin
+    md.data_mode = "synthetic"
+    assert _lineage(md) == {}          # synthetic runs don't claim real lineage
+
+
+# ------------------------------------------------- AUD-008: DSR trial count --
+def test_failed_variants_count_as_trials():
+    src = (Path(__file__).parents[1] / "scripts" / "run_robustness.py").read_text()
+    assert "n_failed" in src and '[0.0] * n_failed' in src
+
+
+# ------------------------------------------------- AUD-009: tier fail-closed --
+def test_tier_metadata_omission_cannot_promote():
+    from aitb.tiers import assign_tier
+    clean_gate = {"limitations": []}
+    t, r = assign_tier({"family": "", "status": "ok"}, clean_gate)
+    assert t != "A" and "metadata" in r
+    t, _ = assign_tier({"family": "made_up_family", "status": "ok"}, clean_gate)
+    assert t != "A"
+    t, _ = assign_tier({}, clean_gate)          # no status at all
+    assert t == "C"
+
+
+# ------------------------------------------- AUD-011: accounting invariant ----
+def test_engine_invariant_holds_on_stress_paths():
+    md = make_toy_md(n_days=300)
+    flip = (np.arange(300) // 3) % 2
+    w = pd.DataFrame(0.0, index=md.calendar, columns=["AAA", "BBB", "CCC"])
+    w["AAA"] = np.where(flip == 0, 0.6, 0.1)
+    w["BBB"] = np.where(flip == 0, 0.1, 0.6)
+    w["CCC"] = -0.2                                     # short leg + borrow
+    res = run_backtest(md, w, BASE, check_invariants=True)   # raises on violation
+    assert res.equity.iloc[-1] > 0
+
+
+def test_engine_invariant_with_delisting():
+    md = make_toy_md(n_days=40, daily_ret=0.001)
+    for panel in (md.open, md.high, md.low, md.close, md.adj_close, md.dollar_volume):
+        panel.loc[panel.index[21]:, "AAA"] = np.nan
+    w = pd.DataFrame(0.0, index=md.calendar, columns=["AAA", "BBB"])
+    w.iloc[2:20, 0] = 0.5
+    w.iloc[2:, 1] = 0.5
+    run_backtest(md, w, ZERO, check_invariants=True)    # must not raise
+
+
+# ----------------------------------------- timing / corporate-action audits ---
+def test_split_between_signal_and_execution_no_fake_pnl():
+    """1:10 raw split overnight between signal close and execution open."""
+    md = make_toy_md(n_days=20, daily_ret=0.0)
+    raw = md.close.copy()
+    raw.loc[raw.index[6]:, "AAA"] /= 10.0
+    md.close = raw
+    w = pd.DataFrame(0.0, index=md.calendar, columns=["AAA"])
+    w.iloc[5:] = 1.0
+    res = run_backtest(md, w, ZERO)
+    assert abs(res.returns.iloc[6]) < 1e-9
+
+
+def test_weekend_filing_visible_next_session_only():
+    from aitb.config import load_universe_config
+    from aitb.data.loader import MarketData
+    from aitb.features import pit_fundamental_panel
+    cal = pd.bdate_range("2020-01-01", periods=60, name="date")
+    f = pd.DataFrame({"ticker": ["AAA"], "period_end": [pd.Timestamp("2019-12-31")],
+                      "published": [pd.Timestamp("2020-02-01")],   # a Saturday
+                      "revenue": [10.0], "eps": [1.0], "fcf": [1.0], "shares": [1.0]})
+    px = pd.DataFrame(100.0, index=cal, columns=["AAA"])
+    md = MarketData(open=px, high=px, low=px, close=px, adj_close=px,
+                    dollar_volume=px * 1e6, macro=pd.DataFrame(index=cal),
+                    fundamentals=f, universe=load_universe_config())
+    panel = pit_fundamental_panel(md, "revenue", "level")
+    assert panel.loc["2020-01-31", "AAA"] != panel.loc["2020-01-31", "AAA"] or \
+        pd.isna(panel.loc["2020-01-31", "AAA"])        # Friday before: invisible
+    assert panel.loc["2020-02-03", "AAA"] == 10.0      # Monday after: visible
+
+
+def test_close_predicting_next_open_gives_no_edge():
+    """Adversarial: all price movement happens overnight and the signal
+    'knows' tomorrow's jump. Fills at next open mean the predicted jump is
+    already in the fill price — averaged over seeds there must be NO edge,
+    while perfect capture would compound enormously."""
+    realized, perfect = [], []
+    for seed in range(20):
+        md = make_toy_md(n_days=100, daily_ret=0.0)
+        rng = np.random.default_rng(seed)
+        jumps = rng.choice([-0.02, 0.02], size=100)
+        close = pd.Series(100.0 * np.cumprod(1 + jumps), index=md.calendar)
+        open_ = close.shift(1).fillna(100.0) * (1 + jumps)
+        for panel, vals in ((md.close, close), (md.adj_close, close), (md.open, open_)):
+            panel["AAA"] = vals
+        w = pd.DataFrame(0.0, index=md.calendar, columns=["AAA"])
+        w["AAA"] = (np.roll(jumps, -1) > 0).astype(float)
+        res = run_backtest(md, w, ZERO)
+        realized.append(res.equity.iloc[-1] / 1e6)
+        perfect.append(float(np.prod(1 + jumps[jumps > 0])))
+    mean_realized = float(np.mean(realized))
+    mean_perfect = float(np.mean(perfect))
+    assert mean_perfect > 2.0                      # the leak, if any, is huge
+    assert 0.85 < mean_realized < 1.15, (          # engine captures none of it
+        f"mean realized growth {mean_realized:.3f} suggests same-bar leakage")
+
+
+# ------------------------------------------------ statistical safeguards -----
+def test_null_strategies_rarely_survive_verdict_layer():
+    """30 random-return strategies: the verdict layer must reject the vast
+    majority; the layered brief criteria (bootstrap CI, tier, capacity)
+    handle the residual."""
+    from aitb.metrics import summary
+    from aitb.ranking import rank_experiments
+    rng = np.random.default_rng(42)
+    idx = pd.bdate_range("2010-01-01", periods=3500)
+    hold = idx[-500]
+
+    def rec(name, r, family):
+        dev, ho = r[r.index < hold], r[r.index >= hold]
+        return {"status": "ok", "scenario": "base", "data_mode": "synthetic",
+                "strategy": name, "family": family,
+                "metrics_dev": summary(dev), "metrics_holdout": summary(ho),
+                "psr_dev": 0.5, "annual_turnover": 2.0,
+                "concentration": {"top_name_share": 0.2},
+                "subperiods": [{"period": p, "sharpe": float(rng.normal(0, .5))}
+                               for p in ("a", "b", "c", "d")],
+                "spec": {"class": name, "params": {"a": 1}}}
+
+    bench = pd.Series(rng.normal(0.0004, 0.011, len(idx)), index=idx)
+    records = [rec("BuyAndHold(ticker=QQQ)", bench, "benchmark")]
+    for i in range(30):
+        records.append(rec(f"Null{i}",
+                           pd.Series(rng.normal(0, 0.011, len(idx)), index=idx), "null"))
+    out = rank_experiments(pd.DataFrame(records))
+    n_robust = int((out[out["family"] == "null"]["verdict"] == "robust_candidate").sum())
+    assert n_robust <= 2, f"{n_robust}/30 null strategies passed the verdict layer"
+
+
+def test_zero_turnover_zero_trading_cost():
+    md = make_toy_md(n_days=100)
+    w = pd.DataFrame(0.0, index=md.calendar, columns=["AAA"])  # never trades
+    res = run_backtest(md, w, BASE)
+    assert res.total_costs == 0.0 and res.n_trades == 0

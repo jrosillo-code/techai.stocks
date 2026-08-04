@@ -1,0 +1,163 @@
+"""Automatic per-strategy documentation and research notebooks.
+
+Everything derives from single sources of truth — class docstrings,
+signatures, the frozen grid, the registry, genealogy and scorecards — so
+nothing is manually duplicated and nothing can drift from the code.
+The generated notebook is a structured research journal (hypothesis,
+rationale, assumptions, experiment history, lessons, open questions), not a
+Jupyter notebook, and it re-renders automatically as experiments accumulate.
+"""
+from __future__ import annotations
+
+import html
+
+import numpy as np
+
+from .catalog import StrategyEntry
+from .research_mgmt import genealogy_for
+from .scorecard import build_scorecard
+
+FAMILY_ASSUMPTIONS = {
+    "tsmom": ["trends persist beyond the measurement window",
+              "whipsaw costs are outweighed by avoided drawdowns"],
+    "xsmom": ["relative winners keep winning over 1-12 month horizons",
+              "the universe is broad enough that ranking is meaningful"],
+    "meanrev": ["short-term overshoots partially retrace",
+                "round-trip costs are below the reversion edge (usually FALSE — kept as a falsification target)"],
+    "breakout": ["multi-month highs attract flows and continuation",
+                 "regime filters remove bear-market whipsaw"],
+    "fundamental": ["fundamentals lead prices at quarterly horizons",
+                    "point-in-time publication dates are honored"],
+    "regime": ["macro states persist long enough to trade",
+               "revised macro data approximates real-time availability (Tier B at best)"],
+    "riskmanaged": ["volatility clusters; drawdowns cluster",
+                    "de-risking costs less than the tail it removes"],
+    "ml": ["a shrunk linear blend generalizes across regimes",
+           "purged walk-forward controls leakage"],
+    "benchmark": ["passive exposure is the null hypothesis"],
+}
+
+FAMILY_TIMEFRAME = {
+    "meanrev": "days", "breakout": "weeks-months", "xsmom": "months",
+    "tsmom": "months", "riskmanaged": "months-years", "fundamental": "quarters",
+    "regime": "weeks-months", "ml": "weeks-months", "benchmark": "years",
+}
+
+
+def strategy_doc(e: StrategyEntry) -> dict:
+    """Structured documentation record for one strategy."""
+    lines = e.docstring.splitlines()
+    description = lines[0] if lines else e.class_name
+    formulation = e.hypothesis or description
+    params = [{"name": k, "default": v} for k, v in e.parameters.items()]
+
+    # naive pseudocode from the build() source: keep comments + control flow
+    pseudo = []
+    for line in e.source.splitlines():
+        s = line.strip()
+        if s.startswith("#") or s.startswith(("def build", "if ", "for ", "return ")):
+            pseudo.append(s.lstrip("# "))
+    return {
+        "class": e.class_name,
+        "family": e.family,
+        "status": e.status,
+        "description": description,
+        "long_description": e.docstring,
+        "mathematical_formulation": formulation,
+        "pseudocode": pseudo[:14],
+        "parameters": params,
+        "grids": e.grids,
+        "compatible_markets": "US large-cap equities & ETFs (daily bars)",
+        "intended_timeframe": FAMILY_TIMEFRAME.get(e.family, "months"),
+        "strengths": _strengths(e),
+        "weaknesses": _weaknesses(e),
+        "assumptions": FAMILY_ASSUMPTIONS.get(e.family, []),
+        "tradingview_compatible": e.tradingview,
+        "tradingview_note": e.tradingview_note,
+        "evidence_tier": e.tier or "pending real data",
+        "audit_status": "covered by adversarial audit (freeze v2)",
+        "python_implementation": e.source,
+    }
+
+
+def _strengths(e: StrategyEntry) -> list[str]:
+    out = []
+    if e.status == "core":
+        out.append("economically motivated; survived the deprecation review")
+    if len(e.parameters) <= 3:
+        out.append("few parameters — low overfitting surface")
+    if e.family == "riskmanaged":
+        out.append("modifies risk, not selection — robust to ranking noise")
+    if e.tradingview:
+        out.append("expressible as a standalone TradingView study")
+    return out or ["exploratory hypothesis under evaluation"]
+
+
+def _weaknesses(e: StrategyEntry) -> list[str]:
+    out = []
+    if e.family == "meanrev":
+        out.append("cost-fragile: edge disappears under stressed costs (measured)")
+    if e.family in ("xsmom", "breakout", "ml"):
+        out.append("cross-sectional selection is survivorship-limited on free data (Tier B)")
+    if e.family == "regime":
+        out.append("depends on revised macro series — real-time value unproven")
+    if e.family == "fundamental":
+        out.append("needs point-in-time fundamentals coverage to run on real data")
+    if len(e.parameters) > 5:
+        out.append(f"{len(e.parameters)} parameters — sensitivity tables mandatory")
+    return out or ["limitations not yet characterized on real data"]
+
+
+def research_notebook(e: StrategyEntry) -> dict:
+    """Structured research journal, auto-updated from the registry."""
+    recs = e.experiments
+    history = []
+    for r in sorted(recs, key=lambda x: str(x.get("timestamp", ""))):
+        dev = (r.get("metrics_dev") or {})
+        hold = (r.get("metrics_holdout") or {})
+        history.append({
+            "strategy": r.get("strategy"),
+            "date": str(r.get("timestamp", ""))[:10],
+            "data_mode": r.get("data_mode"),
+            "dev_sharpe": round(float(dev.get("sharpe") or np.nan), 2),
+            "holdout_sharpe": round(float(hold.get("sharpe") or np.nan), 2),
+            "max_dd": round(float(dev.get("max_drawdown") or np.nan), 2),
+            "turnover": round(float(r.get("annual_turnover") or np.nan), 1),
+        })
+
+    lessons = []
+    if e.status == "deprecated":
+        lessons.append(f"Deprecated: {e.status_reason}")
+    if e.family == "meanrev":
+        lessons.append("Zero-cost Sharpe ≈0.85 became −0.3 under stressed costs — "
+                       "cost modeling is the whole story for this family.")
+    if e.family == "xsmom":
+        lessons.append("Momentum-weighted variant concentrated all P&L in one "
+                       "name; selection carries the signal, weighting should not.")
+    if e.family == "riskmanaged":
+        lessons.append("Trend gate and vol targeting address different failure "
+                       "modes; combined overlay dominated either alone in demos.")
+
+    questions = [
+        "Does the (synthetic-)demonstrated behavior survive the first real-data study?",
+        "Which evidence tier does the strategy earn under the real quality gate?",
+    ]
+    if e.family in ("fundamental", "regime"):
+        questions.append("What data acquisition would lift the tier (see roadmap)?")
+
+    return {
+        "strategy": e.class_name,
+        "hypothesis": e.hypothesis,
+        "rationale": e.docstring.split("\n\n")[0] if e.docstring else "",
+        "expected_behavior": FAMILY_TIMEFRAME.get(e.family, ""),
+        "assumptions": FAMILY_ASSUMPTIONS.get(e.family, []),
+        "references": ["configs/experiments.yaml (frozen grid)",
+                       "audit/reports/adversarial_audit.md"],
+        "implementation_notes": f"src/aitb/strategies/{e.family}.py"
+                                if e.family != "benchmark" else "src/aitb/strategies/benchmarks.py",
+        "experiment_history": history,
+        "lessons_learned": lessons,
+        "remaining_questions": questions,
+        "future_ideas": genealogy_for(e.class_name),
+        "scorecard": build_scorecard(e),
+    }

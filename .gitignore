@@ -1,0 +1,13 @@
+# Data and generated outputs (reproducible via scripts/run_all.py)
+data/*
+!data/real_data_manifest.md
+!data/import/
+data/import/*
+!data/import/README.md
+results/
+reports/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+.venv/
+.env

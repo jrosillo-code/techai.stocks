@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>Research dashboard</title><style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--mut:#64748b;--acc:#2563eb;
+--good:#166534;--warn:#92400e;--bad:#991b1b;--line:#e2e8f0}
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,sans-serif;
+margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+nav{background:#0f172a;color:#e2e8f0;padding:.7rem 1.2rem;display:flex;gap:1.1rem;
+flex-wrap:wrap;position:sticky;top:0;z-index:5}
+nav a{color:#cbd5e1;text-decoration:none;font-size:.92rem}nav a:hover{color:#fff}
+nav .brand{color:#fff;font-weight:700}
+main{max-width:1180px;margin:1.4rem auto;padding:0 1.2rem}
+h1{font-size:1.5rem;margin:.4rem 0 1rem}h2{font-size:1.15rem;margin-top:1.8rem;
+border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:.7rem .9rem}.card .v{font-size:1.45rem;font-weight:700}
+.card .k{color:var(--mut);font-size:.78rem}
+table{border-collapse:collapse;width:100%;font-size:.82rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.3rem .5rem;text-align:left}
+th{background:#f1f5f9;cursor:pointer;position:sticky;top:46px}
+tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.72rem}
+.b-core{background:#dcfce7;color:var(--good)}.b-exploratory{background:#fef9c3;color:var(--warn)}
+.b-deprecated{background:#fee2e2;color:var(--bad)}.b-benchmark{background:#e0e7ff;color:#3730a3}
+.b-A{background:#dcfce7;color:var(--good)}.b-B{background:#fef9c3;color:var(--warn)}
+.b-C{background:#fee2e2;color:var(--bad)}.b-unlisted{background:#e2e8f0;color:#475569}
+.warnbox{background:#fef3c7;border-left:4px solid #f59e0b;padding:.6rem .9rem;margin:.8rem 0;font-size:.88rem}
+.note{color:var(--mut);font-size:.82rem}
+input,select{padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;margin:.15rem}
+pre{background:#0f172a;color:#e2e8f0;padding:.9rem;border-radius:8px;overflow-x:auto;font-size:.78rem}
+img{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:.4rem 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.score{display:flex;gap:.4rem;align-items:center;margin:.2rem 0;font-size:.85rem}
+.bar{height:8px;border-radius:4px;background:var(--acc);min-width:2px}
+details{margin:.3rem 0}summary{cursor:pointer;color:var(--acc)}
+.tree{border-left:3px solid var(--line);margin-left:.5rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--card);border:1px solid var(--line);
+border-radius:8px;padding:.5rem .8rem;font-size:.85rem}
+</style></head><body><nav><span class="brand">AITB Research</span>
+<a href="index.html">Dashboard</a><a href="experiments.html">Experiments</a>
+<a href="strategies.html">Strategies</a><a href="compare.html">Compare</a>
+<a href="portfolio.html">Portfolio lab</a><a href="ideas.html">Ideas</a>
+<a href="roadmap.html">Roadmap</a><a href="audit.html">Audit</a></nav><main><h1>Research dashboard</h1><div class='warnbox'><b>SYNTHETIC DATA MODE.</b> All numbers on this site are demonstrations of the machinery on generated data — not market history. The real-data study has not run yet.</div><div class='cards'><div class='card'><div class='v'>25</div><div class='k'>Strategy classes</div></div><div class='card'><div class='v'>13</div><div class='k'>Core</div></div><div class='card'><div class='v'>11</div><div class='k'>Exploratory</div></div><div class='card'><div class='v'>1</div><div class='k'>Deprecated</div></div><div class='card'><div class='v'>15</div><div class='k'>Robust candidates</div></div><div class='card'><div class='v'>26</div><div class='k'>Rejected</div></div><div class='card'><div class='v'>357</div><div class='k'>Experiments OK</div></div><div class='card'><div class='v'>0</div><div class='k'>Failed runs</div></div><div class='card'><div class='v'>0</div><div class='k'>Holdout events</div></div><div class='card'><div class='v'>2026-08-04</div><div class='k'>Last experiment</div></div><div class='card'><div class='v'>v2</div><div class='k'>Freeze</div></div><div class='card'><div class='v'>READY w/ LIMITATIONS</div><div class='k'>Audit</div></div><div class='card'><div class='v'>NOT RUN</div><div class='k'>Real study</div></div><div class='card'><div class='v'>synthetic</div><div class='k'>Data mode</div></div></div><h2>Cumulative experiment timeline</h2><div><div title='2026-08-04: 361' style='display:inline-block;width:10px;height:60.0px;background:var(--acc);margin-right:2px;vertical-align:bottom'></div></div><p class='note'>experiments per day (hover for counts)</p><div class='grid2'><div><h2>Strategy families</h2><table><tr><th>family</th><th>classes</th></tr><tr><td>benchmark</td><td>5</td></tr><tr><td>riskmanaged</td><td>4</td></tr><tr><td>tsmom</td><td>3</td></tr><tr><td>meanrev</td><td>3</td></tr><tr><td>xsmom</td><td>3</td></tr><tr><td>breakout</td><td>2</td></tr><tr><td>fundamental</td><td>2</td></tr><tr><td>regime</td><td>2</td></tr><tr><td>ml</td><td>1</td></tr></table></div><div><h2>Current roadmap (top 5)</h2><ol><li><b>Audit follow-up: Verdict layer alone admits ~3% of pure-noise strategies</b> <span class='note'>(priority 2.0, governance)</span></li><li><b>Timestamped earnings-event dataset</b> <span class='note'>(priority 1.5, data)</span></li><li><b>Delisted-name price history</b> <span class='note'>(priority 1.5, data)</span></li><li><b>Macro vintage series (ALFRED)</b> <span class='note'>(priority 1.5, data)</span></li><li><b>Factor-exposure attribution (market/size/momentum/quality proxies)</b> <span class='note'>(priority 1.5, analytics)</span></li></ol><p><a href='roadmap.html'>full roadmap →</a></p></div></div><h2>Benchmark leaders</h2><table><tr><th>benchmark</th><th>score</th><th>verdict</th></tr><tr><td><a href='strategy/BuyAndHold.html'>BuyAndHold(ticker=ANET)</a></td><td>6.384</td><td><span class='badge b-benchmark'>benchmark</span></td></tr><tr><td><a href='strategy/BuyAndHold.html'>BuyAndHold(ticker=NVDA)</a></td><td>6.182</td><td><span class='badge b-benchmark'>benchmark</span></td></tr><tr><td><a href='strategy/EqualWeightUniverse.html'>EqualWeightUniverse(basket=megacap_ai,rebalance=ME)</a></td><td>6.075</td><td><span class='badge b-benchmark'>benchmark</span></td></tr><tr><td><a href='strategy/CapWeightUniverse.html'>CapWeightUniverse(basket=megacap_ai,max_weight=0.25,rebalanc</a></td><td>6.011</td><td><span class='badge b-benchmark'>benchmark</span></td></tr><tr><td><a href='strategy/CapWeightUniverse.html'>CapWeightUniverse(basket=target_holdings,max_weight=0.25,reb</a></td><td>5.534</td><td><span class='badge b-benchmark'>benchmark</span></td></tr></table><h2>Top active strategies</h2><table><tr><th>strategy</th><th>score</th><th>verdict</th></tr><tr><td><a href='strategy/TrendPlusVolTarget.html'>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis</a></td><td>6.739</td><td><span class='badge b-robust_candidate'>robust_candidate</span></td></tr><tr><td><a href='strategy/DrawdownDeRisk.html'>DrawdownDeRisk(basket=megacap_ai,dd_full=-0.4,dd_start=-0.15</a></td><td>6.724</td><td><span class='badge b-robust_candidate'>robust_candidate</span></td></tr><tr><td><a href='strategy/TrendPlusVolTarget.html'>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis</a></td><td>6.685</td><td><span class='badge b-robust_candidate'>robust_candidate</span></td></tr><tr><td><a href='strategy/DrawdownDeRisk.html'>DrawdownDeRisk(basket=megacap_ai,dd_full=-0.3,dd_start=-0.15</a></td><td>6.676</td><td><span class='badge b-robust_candidate'>robust_candidate</span></td></tr><tr><td><a href='strategy/TrendPlusVolTarget.html'>TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis</a></td><td>6.653</td><td><span class='badge b-robust_candidate'>robust_candidate</span></td></tr></table><p class='note'>Generated 2026-08-04 22:25 UTC · read-only view over the registries · research tool, not investment advice.</p></main></body></html>

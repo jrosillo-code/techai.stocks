@@ -1,0 +1,116 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>SemisLeadership</title><style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--mut:#64748b;--acc:#2563eb;
+--good:#166534;--warn:#92400e;--bad:#991b1b;--line:#e2e8f0}
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,sans-serif;
+margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+nav{background:#0f172a;color:#e2e8f0;padding:.7rem 1.2rem;display:flex;gap:1.1rem;
+flex-wrap:wrap;position:sticky;top:0;z-index:5}
+nav a{color:#cbd5e1;text-decoration:none;font-size:.92rem}nav a:hover{color:#fff}
+nav .brand{color:#fff;font-weight:700}
+main{max-width:1180px;margin:1.4rem auto;padding:0 1.2rem}
+h1{font-size:1.5rem;margin:.4rem 0 1rem}h2{font-size:1.15rem;margin-top:1.8rem;
+border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:.7rem .9rem}.card .v{font-size:1.45rem;font-weight:700}
+.card .k{color:var(--mut);font-size:.78rem}
+table{border-collapse:collapse;width:100%;font-size:.82rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.3rem .5rem;text-align:left}
+th{background:#f1f5f9;cursor:pointer;position:sticky;top:46px}
+tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.72rem}
+.b-core{background:#dcfce7;color:var(--good)}.b-exploratory{background:#fef9c3;color:var(--warn)}
+.b-deprecated{background:#fee2e2;color:var(--bad)}.b-benchmark{background:#e0e7ff;color:#3730a3}
+.b-A{background:#dcfce7;color:var(--good)}.b-B{background:#fef9c3;color:var(--warn)}
+.b-C{background:#fee2e2;color:var(--bad)}.b-unlisted{background:#e2e8f0;color:#475569}
+.warnbox{background:#fef3c7;border-left:4px solid #f59e0b;padding:.6rem .9rem;margin:.8rem 0;font-size:.88rem}
+.note{color:var(--mut);font-size:.82rem}
+input,select{padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;margin:.15rem}
+pre{background:#0f172a;color:#e2e8f0;padding:.9rem;border-radius:8px;overflow-x:auto;font-size:.78rem}
+img{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:.4rem 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.score{display:flex;gap:.4rem;align-items:center;margin:.2rem 0;font-size:.85rem}
+.bar{height:8px;border-radius:4px;background:var(--acc);min-width:2px}
+details{margin:.3rem 0}summary{cursor:pointer;color:var(--acc)}
+.tree{border-left:3px solid var(--line);margin-left:.5rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--card);border:1px solid var(--line);
+border-radius:8px;padding:.5rem .8rem;font-size:.85rem}
+</style></head><body><nav><span class="brand">AITB Research</span>
+<a href="../index.html">Dashboard</a><a href="../experiments.html">Experiments</a>
+<a href="../strategies.html">Strategies</a><a href="../compare.html">Compare</a>
+<a href="../portfolio.html">Portfolio lab</a><a href="../ideas.html">Ideas</a>
+<a href="../roadmap.html">Roadmap</a><a href="../audit.html">Audit</a></nav><main><h1>SemisLeadership</h1>
+<div class='warnbox'><b>SYNTHETIC DATA MODE.</b> All numbers on this site are demonstrations of the machinery on generated data — not market history. The real-data study has not run yet.</div>
+<p><span class='badge b-exploratory'>exploratory</span> <span class='badge b-regime'>regime</span>
+ · best verdict:
+<span class='badge b-rejected'>rejected</span> · scorecard <b>3.41/5</b></p>
+<p><i>Semiconductor relative strength leads tech risk appetite.</i></p>
+
+<h2>Scorecard (research quality, not performance)</h2>
+<div class='score'><div style='width:220px'>implementation_quality</div><div class='bar' style='width:112.0px'></div><b>4.0</b><span class='note'> — engine-level accounting verified by hand ledgers + per-bar invariant (audit 2026-08); strategy expressed through audited primitives</span></div><div class='score'><div style='width:220px'>audit_confidence</div><div class='bar' style='width:112.0px'></div><b>4.0</b><span class='note'> — covered by the adversarial audit (no CRITICAL findings; engine cleared); residual: AUD-010 verdict-layer false discovery, AUD-012 dividend reinvestment assumption</span></div><div class='score'><div style='width:220px'>data_quality</div><div class='bar' style='width:42.0px'></div><b>1.5</b><span class='note'> — tier not yet assigned (no real-data run)</span></div><div class='score'><div style='width:220px'>evidence_tier</div><div class='bar' style='width:42.0px'></div><b>1.5</b><span class='note'> — Tier ? (synthetic only)</span></div><div class='score'><div style='width:220px'>statistical_confidence</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — mean probabilistic Sharpe 1.00 across 2 variants (deflated-Sharpe correction applied at family level)</span></div><div class='score'><div style='width:220px'>robustness</div><div class='bar' style='width:126.0px'></div><b>4.5</b><span class='note'> — mean dev→holdout Sharpe degradation 0.00 (subperiod stability also enters the composite ranking)</span></div><div class='score'><div style='width:220px'>interpretability</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — 2 parameters; hypothesis stated: yes</span></div><div class='score'><div style='width:220px'>capacity</div><div class='bar' style='width:98.0px'></div><b>3.5</b><span class='note'> — large-cap universe, √participation impact model; see capacity.csv for size-scaled estimates (real-data capacity unverified)</span></div><div class='score'><div style='width:220px'>tradingview_compatibility</div><div class='bar' style='width:14.0px'></div><b>0.5</b><span class='note'> — requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</span></div><div class='score'><div style='width:220px'>documentation_quality</div><div class='bar' style='width:84.0px'></div><b>3.0</b><span class='note'> — docstring+hypothesis 243 chars; full auto-generated doc page</span></div><div class='score'><div style='width:220px'>reproducibility</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — deterministic seeds, stable experiment IDs, append-only registry, freeze-v2-fingerprinted implementation</span></div>
+<p class='note'>not yet trusted — see low-scoring dimensions — Research-quality assessment only; says nothing about future returns. Real-data tiers pending until the first real study.</p>
+
+<h2>Documentation</h2>
+<p>Overweight semis when SOXX leads QQQ, else broad tech; cash if both weak.</p>
+<p class='note'>Markets: US large-cap equities & ETFs (daily bars) · timeframe:
+weeks-months · audit: covered by adversarial audit (freeze v2)</p>
+<div class='grid2'>
+<div><h3>Strengths</h3><ul><li>few parameters — low overfitting surface</li></ul></div>
+<div><h3>Weaknesses</h3><ul><li>depends on revised macro series — real-time value unproven</li></ul></div>
+</div>
+<h3>Assumptions</h3><ul><li>macro states persist long enough to trade</li><li>revised macro data approximates real-time availability (Tier B at best)</li></ul>
+<h3>Parameters</h3><table><tr><th>name</th><th>default</th></tr>
+<tr><td>lookback_days</td><td>126</td></tr><tr><td>fallback</td><td>IEF</td></tr></table>
+<h3>Frozen grids</h3><pre>[
+ {
+  &quot;lookback_days&quot;: [
+   63,
+   126
+  ]
+ }
+]</pre>
+
+<h2>Research notebook</h2>
+<p><b>Rationale:</b> Overweight semis when SOXX leads QQQ, else broad tech; cash if both weak.</p>
+<h3>Experiment history (2)</h3>
+<table><tr><th>date</th><th>variant</th><th>mode</th><th>dev Sharpe</th>
+<th>holdout Sharpe</th><th>maxDD</th><th>turnover</th></tr><tr><td>2026-08-04</td><td>SemisLeadership(fallback=IEF,lookback_days=63)</td><td>synthetic</td><td>0.37</td><td>1.9</td><td>-0.69</td><td>4.8</td></tr><tr><td>2026-08-04</td><td>SemisLeadership(fallback=IEF,lookback_days=126)</td><td>synthetic</td><td>0.42</td><td>1.93</td><td>-0.71</td><td>3.7</td></tr></table>
+<h3>Lessons learned</h3><ul><li>—</li></ul>
+<h3>Remaining questions</h3><ul><li>Does the (synthetic-)demonstrated behavior survive the first real-data study?</li><li>Which evidence tier does the strategy earn under the real quality gate?</li><li>What data acquisition would lift the tier (see roadmap)?</li></ul>
+
+<h2>Genealogy</h2><p class='note'>no recorded version history yet</p>
+
+<h2>TradingView</h2><p><span class='badge b-not-portable'>not-portable</span> requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</p>
+
+<h2>Python implementation (freeze-v2 fingerprinted)</h2>
+<details><summary>view source</summary><pre>class SemisLeadership(Strategy):
+    &quot;&quot;&quot;Overweight semis when SOXX leads QQQ, else broad tech; cash if both weak.
+
+    Semiconductors are the cycle&#x27;s canary: their relative strength has
+    historically led broader tech risk appetite.
+    &quot;&quot;&quot;
+    family = &quot;regime&quot;
+    hypothesis = &quot;Semiconductor relative strength leads tech risk appetite.&quot;
+
+    def __init__(self, lookback_days: int = 126, fallback: str = &quot;IEF&quot;):
+        super().__init__(lookback_days=lookback_days, fallback=fallback)
+
+    def build(self, md: MarketData) -&gt; pd.DataFrame:
+        p = self.params
+        lb = p[&quot;lookback_days&quot;]
+        cols = [c for c in (&quot;SOXX&quot;, &quot;QQQ&quot;, p[&quot;fallback&quot;]) if c in md.adj_close.columns]
+        px = md.adj_close[cols]
+        soxx_rel = px[&quot;SOXX&quot;].pct_change(lb) - px[&quot;QQQ&quot;].pct_change(lb)
+        qqq_trend = px[&quot;QQQ&quot;] &gt; px[&quot;QQQ&quot;].rolling(200).mean()
+
+        w = pd.DataFrame(0.0, index=md.calendar, columns=cols)
+        semis_lead = (soxx_rel &gt; 0) &amp; qqq_trend
+        broad = (soxx_rel &lt;= 0) &amp; qqq_trend
+        w.loc[semis_lead, &quot;SOXX&quot;] = 1.0
+        w.loc[broad, &quot;QQQ&quot;] = 1.0
+        fb = p[&quot;fallback&quot;]
+        w.loc[~qqq_trend &amp; px[fb].notna(), fb] = 1.0
+        return rebalance_schedule(w, &quot;ME&quot;)
+</pre></details>
+<p class='note'>Generated 2026-08-04 22:25 UTC · read-only view over the registries · research tool, not investment advice.</p></main></body></html>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Real-data report — UNAVAILABLE</title></head>
+<body style="font-family:sans-serif;max-width:800px;margin:3rem auto">
+<h1>Real-data research report: UNAVAILABLE</h1>
+<p><b>Reason:</b> real mode blocked: no data-quality gate found. Run scripts/validate_real_data.py first.</p>
+<p>This placeholder is intentional: synthetic results are never presented as
+real-market results. To produce this report, run in a network-enabled
+environment:</p>
+<pre>
+python scripts/download_real_data.py --providers yahoo stooq fred sec --start 1998-01-01 --output data/export_bundle
+python scripts/import_data_bundle.py --input data/export_bundle
+python scripts/validate_real_data.py
+python scripts/run_all.py --data-mode real
+</pre>
+<p>Required datasets: daily OHLCV + adjusted close for the configured universe
+and benchmarks; FRED macro series; SEC EDGAR fundamentals (optional but
+recommended). See data/real_data_manifest.md for the full list.</p>
+</body></html>

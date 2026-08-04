@@ -1,0 +1,24 @@
+// TrendPlusVolTarget — research export from the aitb platform
+// APPROXIMATION of the audited Python implementation (freeze v2).
+// Differences vs the backtest engine: no next-open fill convention is
+// enforceable in a Pine study, no transaction-cost model, no Treasury
+// fallback sleeve, single symbol only. For chart study, NOT trading.
+//@version=5
+
+indicator("AITB trend+vol overlay gauge", overlay=false)
+maLen = input.int(200, "Trend SMA")
+hyst = input.float(0.02, "Hysteresis band")
+target = input.float(0.2, "Target annual vol")
+ma = ta.sma(close, maLen)
+var bool gateOn = true
+if close < ma * (1 - hyst)
+    gateOn := false
+if close > ma * (1 + hyst)
+    gateOn := true
+ret = close / close[1] - 1
+realized = ta.stdev(ret, 63) * math.sqrt(252)
+volScale = math.min(target / math.max(realized, 0.0001), 1.0)
+exposure = (gateOn ? 1.0 : 0.2) * volScale
+plot(exposure, "Suggested exposure (0-1)", color=color.blue, linewidth=2)
+plot(realized, "Realized vol", color=color.orange)
+hline(1.0)

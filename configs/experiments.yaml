@@ -1,0 +1,136 @@
+# Experiment grid. Every variant runs under every cost scenario and lands in
+# the registry — including failures. Grids stay coarse on purpose: fine grids
+# inflate the trial count the deflated Sharpe ratio must correct for.
+#
+# Governance fields (§experiment-budget discipline):
+#   status: core         economically defensible, kept in the headline suite
+#           exploratory  hypothesis worth testing, more scrutiny before trust
+#           deprecated   NOT RUN — recorded in the registry with the reason
+#   reason: required for deprecated entries
+#   hypothesis: stated before results are seen; runner stores it verbatim
+#
+# Reassessment after the synthetic shakedown (2026-08): mean-reversion variants
+# were uniformly cost-fragile (zero-cost Sharpe evaporated at base costs);
+# unfiltered breakouts were dominated by their regime-filtered twins; the
+# momentum-weighted XS variant concentrates in a single winner. Those are
+# deprecated below with reasons rather than silently dropped.
+
+benchmarks:
+  - {class: BuyAndHold, status: core, grid: {ticker: [SPY, QQQ, XLK, SOXX, SMH, IGV]}}
+  - {class: EqualWeightUniverse, status: core, grid: {rebalance: [ME]}}
+  - {class: EqualWeightUniverse, status: core, grid: {rebalance: [ME], basket: [megacap_ai, ai_compute]}}
+  - {class: CapWeightUniverse, status: core, grid: {rebalance: [QE], basket: [null, megacap_ai]}}
+  - {class: QQQMovingAverage, status: core, grid: {window: [200], fallback: [IEF, null]}}
+  - {class: SimpleMomentum12_1, status: core, grid: {top_n: [5]}}
+
+buy_and_hold_companies:
+  - {class: BuyAndHold, status: core,
+     grid: {ticker: [NVDA, MSFT, GOOGL, AMZN, META, AAPL, AVGO, AMD, TSM, ASML,
+                     ARM, PLTR, ORCL, CRM, ADBE, NOW, SNOW, CRWD, PANW, ANET,
+                     SMCI, MU, MRVL, DELL, VRT, CEG, VST, TSLA]}}
+
+tsmom:
+  - {class: TrendFollowCash, status: core,
+     hypothesis: "Per-name absolute trend cuts the deep tech drawdowns for a CAGR toll",
+     grid: {sma_window: [100, 150, 200, 250], fallback: [IEF]}}
+  - {class: TrendFollowCash, status: core,
+     grid: {sma_window: [200], fallback: [BIL], basket: [megacap_ai]}}
+  - {class: AbsoluteMomentum, status: exploratory,
+     grid: {lookback_days: [126, 252], fallback: [BIL]}}
+  - {class: DualMomentum, status: exploratory,
+     grid: {lookback_days: [63, 126, 252]}}
+
+xsmom:
+  - {class: XSMomentumTopN, status: core,
+     hypothesis: "Relative strength persists among tech leaders",
+     grid: {lookback_days: [63, 126, 252], top_n: [3, 5, 8], weighting: [equal]}}
+  - {class: XSMomentumTopN, status: exploratory,
+     grid: {lookback_days: [126], top_n: [5], weighting: [inverse_vol]}}
+  - {class: XSMomentumTopN, status: deprecated,
+     reason: "momentum-weighting concentrated ~all P&L in the single hottest name (top_name_share ≈ 1); rank information is already in selection",
+     grid: {lookback_days: [126], top_n: [5], weighting: [momentum]}}
+  - {class: XSRiskAdjMomentum, status: exploratory,
+     grid: {lookback_days: [126, 252], top_n: [5]}}
+  - {class: RelativeStrengthVsBench, status: exploratory,
+     grid: {lookback_days: [126], top_n: [5, 8]}}
+
+meanrev:
+  # Kept as exploratory falsification targets: the hypothesis is that these
+  # FAIL after realistic costs; judge them under the stressed scenario.
+  - {class: RSIReversion, status: exploratory,
+     hypothesis: "Oversold snapback exceeds round-trip costs (expected: no)",
+     grid: {entry: [5, 10], exit: [60]}}
+  - {class: ShortTermReversal, status: exploratory,
+     grid: {lookback_days: [5], top_n: [5]}}
+  - {class: RSIReversion, status: deprecated,
+     reason: "entry=15 duplicates entry=10 with more trades and worse net Sharpe in shakedown",
+     grid: {entry: [15], exit: [60]}}
+  - {class: BollingerReversion, status: deprecated,
+     reason: "mechanically duplicates RSI reversion (same oversold-in-uptrend trigger); cost-fragile in shakedown",
+     grid: {entry_z: [-2.0, -2.5]}}
+
+breakout:
+  - {class: DonchianBreakout, status: core,
+     hypothesis: "Multi-month highs with a risk-on regime filter precede continuation",
+     grid: {entry_window: [20, 55, 100], exit_window: [20], regime_filter: [true]}}
+  - {class: DonchianBreakout, status: deprecated,
+     reason: "unfiltered variant whipsawed through bear markets and was dominated by the regime-filtered twin at every entry window",
+     grid: {entry_window: [20, 55, 100], exit_window: [20], regime_filter: [false]}}
+  - {class: VolCompressionBreakout, status: exploratory,
+     grid: {entry_window: [40], squeeze_pct: [0.2, 0.3]}}
+
+fundamental:
+  # Real mode: runs only when point-in-time fundamentals pass the quality gate.
+  - {class: QualityGrowth, status: core,
+     hypothesis: "Compounding fundamentals precede compounding prices",
+     grid: {top_n: [5, 8], rebalance: [QE]}}
+  - {class: ValuationAwareGrowth, status: exploratory,
+     grid: {top_n: [8], max_ps_own_pct: [0.7, 0.85, 1.0]}}
+
+regime:
+  # Real mode: excluded automatically when VIX (or macro vintages) are absent;
+  # CPI/UNRATE flags use revised data — treat results as upper bounds.
+  - {class: RegimeSwitchedTech, status: exploratory,
+     grid: {cut: [0.2, 0.25, 0.34]}}
+  - {class: SemisLeadership, status: exploratory,
+     grid: {lookback_days: [63, 126]}}
+
+riskmanaged:
+  # Expanded after the synthetic shakedown flagged this family — grids widened
+  # along the axes §14 calls for (vol window, target, rebalance cadence,
+  # drawdown depth) while staying coarse.
+  - {class: VolTargetedBasket, status: core,
+     hypothesis: "Constant-risk sizing improves compounding vs constant-dollar",
+     grid: {basket: [megacap_ai], target_vol: [0.15, 0.20, 0.25],
+            vol_window: [21, 63], rebalance: [W-FRI, ME]}}
+  - {class: DrawdownDeRisk, status: core,
+     hypothesis: "Drawdowns cluster; scaling down into them cuts the left tail",
+     grid: {basket: [megacap_ai], dd_start: [-0.10, -0.15], dd_full: [-0.30, -0.40]}}
+  - {class: TrendPlusVolTarget, status: core,
+     hypothesis: "Trend gates tail risk, vol targeting smooths the path — complementary overlays",
+     grid: {basket: [megacap_ai], target_vol: [0.15, 0.20],
+            trend_window: [150, 200], hysteresis: [0.0, 0.02]}}
+  - {class: InverseVolBasket, status: core,
+     grid: {basket: [megacap_ai, semiconductors]}}
+
+ml:
+  - {class: MLRankStrategy, status: exploratory,
+     hypothesis: "A shrunk linear feature blend ranks forward returns better than any single momentum feature",
+     grid: {horizon: [21], top_n: [6], alpha: [10.0]}}
+
+# §"Portfolio comparison for likely investments": every construction the user
+# asked to compare, over the target_holdings shortlist, plus concentrated
+# momentum-rotation variants (top 3/5/8).
+target_holdings:
+  - {class: EqualWeightUniverse, status: core, grid: {rebalance: [ME], basket: [target_holdings]}}
+  - {class: CapWeightUniverse, status: core, grid: {rebalance: [QE], basket: [target_holdings]}}
+  - {class: InverseVolBasket, status: core, grid: {basket: [target_holdings]}}
+  - {class: TrendFollowCash, status: core,
+     grid: {sma_window: [200], fallback: [IEF], basket: [target_holdings]}}
+  - {class: VolTargetedBasket, status: core,
+     grid: {basket: [target_holdings], target_vol: [0.20], vol_window: [63]}}
+  - {class: TrendPlusVolTarget, status: core,
+     grid: {basket: [target_holdings], target_vol: [0.20], trend_window: [200], hysteresis: [0.02]}}
+  - {class: XSMomentumTopN, status: core,
+     hypothesis: "Concentrated rotation among the shortlist beats holding all of it",
+     grid: {basket: [target_holdings], lookback_days: [126], top_n: [3, 5, 8], weighting: [equal]}}

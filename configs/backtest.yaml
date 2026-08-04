@@ -1,0 +1,34 @@
+# Global backtest conventions.
+#
+# Execution convention (documented, enforced by the engine):
+#   Signals are computed from data through the close of day T.
+#   Orders are executed at the OPEN of day T+1.
+# The engine physically cannot fill an order on the bar whose close produced
+# the signal — see tests/test_no_lookahead.py.
+
+engine:
+  initial_capital: 1_000_000
+  execution: next_open          # only supported mode; documented above
+  cash_rate_series: FEDFUNDS    # macro series used to accrue interest on cash
+  default_cost_scenario: base
+
+validation:
+  # Walk-forward: expanding window, refit every `step` months, trade the next
+  # `step` months out-of-sample. The final `holdout_months` are never used for
+  # any selection or tuning; they are only evaluated once at reporting time.
+  min_train_months: 60
+  step_months: 12
+  holdout_months: 24
+  n_bootstrap: 2000
+  seed: 20260804
+
+subperiods:
+  # Named regime windows for subperiod analysis (clipped to available data).
+  dotcom_aftermath: [2000-03-01, 2003-03-31]
+  pre_gfc:          [2003-04-01, 2007-09-30]
+  gfc:              [2007-10-01, 2009-03-31]
+  qe_bull:          [2009-04-01, 2019-12-31]
+  covid_shock:      [2020-01-01, 2020-12-31]
+  speculative_2021: [2021-01-01, 2021-12-31]
+  rate_bear_2022:   [2022-01-01, 2022-12-31]
+  ai_rally:         [2023-01-01, 2026-08-01]

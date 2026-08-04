@@ -1,0 +1,138 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>BuyAndHold</title><style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--mut:#64748b;--acc:#2563eb;
+--good:#166534;--warn:#92400e;--bad:#991b1b;--line:#e2e8f0}
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,sans-serif;
+margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+nav{background:#0f172a;color:#e2e8f0;padding:.7rem 1.2rem;display:flex;gap:1.1rem;
+flex-wrap:wrap;position:sticky;top:0;z-index:5}
+nav a{color:#cbd5e1;text-decoration:none;font-size:.92rem}nav a:hover{color:#fff}
+nav .brand{color:#fff;font-weight:700}
+main{max-width:1180px;margin:1.4rem auto;padding:0 1.2rem}
+h1{font-size:1.5rem;margin:.4rem 0 1rem}h2{font-size:1.15rem;margin-top:1.8rem;
+border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:.7rem .9rem}.card .v{font-size:1.45rem;font-weight:700}
+.card .k{color:var(--mut);font-size:.78rem}
+table{border-collapse:collapse;width:100%;font-size:.82rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.3rem .5rem;text-align:left}
+th{background:#f1f5f9;cursor:pointer;position:sticky;top:46px}
+tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.72rem}
+.b-core{background:#dcfce7;color:var(--good)}.b-exploratory{background:#fef9c3;color:var(--warn)}
+.b-deprecated{background:#fee2e2;color:var(--bad)}.b-benchmark{background:#e0e7ff;color:#3730a3}
+.b-A{background:#dcfce7;color:var(--good)}.b-B{background:#fef9c3;color:var(--warn)}
+.b-C{background:#fee2e2;color:var(--bad)}.b-unlisted{background:#e2e8f0;color:#475569}
+.warnbox{background:#fef3c7;border-left:4px solid #f59e0b;padding:.6rem .9rem;margin:.8rem 0;font-size:.88rem}
+.note{color:var(--mut);font-size:.82rem}
+input,select{padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;margin:.15rem}
+pre{background:#0f172a;color:#e2e8f0;padding:.9rem;border-radius:8px;overflow-x:auto;font-size:.78rem}
+img{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:.4rem 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.score{display:flex;gap:.4rem;align-items:center;margin:.2rem 0;font-size:.85rem}
+.bar{height:8px;border-radius:4px;background:var(--acc);min-width:2px}
+details{margin:.3rem 0}summary{cursor:pointer;color:var(--acc)}
+.tree{border-left:3px solid var(--line);margin-left:.5rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--card);border:1px solid var(--line);
+border-radius:8px;padding:.5rem .8rem;font-size:.85rem}
+</style></head><body><nav><span class="brand">AITB Research</span>
+<a href="../index.html">Dashboard</a><a href="../experiments.html">Experiments</a>
+<a href="../strategies.html">Strategies</a><a href="../compare.html">Compare</a>
+<a href="../portfolio.html">Portfolio lab</a><a href="../ideas.html">Ideas</a>
+<a href="../roadmap.html">Roadmap</a><a href="../audit.html">Audit</a></nav><main><h1>BuyAndHold</h1>
+<div class='warnbox'><b>SYNTHETIC DATA MODE.</b> All numbers on this site are demonstrations of the machinery on generated data — not market history. The real-data study has not run yet.</div>
+<p><span class='badge b-core'>core</span> <span class='badge b-benchmark'>benchmark</span>
+ · best verdict:
+<span class='badge b-benchmark'>benchmark</span> · scorecard <b>3.29/5</b></p>
+<p><i>Own the asset; the baseline all timing must beat.</i></p>
+
+<h2>Scorecard (research quality, not performance)</h2>
+<div class='score'><div style='width:220px'>implementation_quality</div><div class='bar' style='width:112.0px'></div><b>4.0</b><span class='note'> — engine-level accounting verified by hand ledgers + per-bar invariant (audit 2026-08); strategy expressed through audited primitives</span></div><div class='score'><div style='width:220px'>audit_confidence</div><div class='bar' style='width:112.0px'></div><b>4.0</b><span class='note'> — covered by the adversarial audit (no CRITICAL findings; engine cleared); residual: AUD-010 verdict-layer false discovery, AUD-012 dividend reinvestment assumption</span></div><div class='score'><div style='width:220px'>data_quality</div><div class='bar' style='width:42.0px'></div><b>1.5</b><span class='note'> — tier not yet assigned (no real-data run)</span></div><div class='score'><div style='width:220px'>evidence_tier</div><div class='bar' style='width:42.0px'></div><b>1.5</b><span class='note'> — Tier ? (synthetic only)</span></div><div class='score'><div style='width:220px'>statistical_confidence</div><div class='bar' style='width:137.20000000000002px'></div><b>4.9</b><span class='note'> — mean probabilistic Sharpe 0.99 across 34 variants (deflated-Sharpe correction applied at family level)</span></div><div class='score'><div style='width:220px'>robustness</div><div class='bar' style='width:120.39999999999999px'></div><b>4.3</b><span class='note'> — mean dev→holdout Sharpe degradation 0.12 (subperiod stability also enters the composite ranking)</span></div><div class='score'><div style='width:220px'>interpretability</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — 1 parameters; hypothesis stated: yes</span></div><div class='score'><div style='width:220px'>capacity</div><div class='bar' style='width:98.0px'></div><b>3.5</b><span class='note'> — large-cap universe, √participation impact model; see capacity.csv for size-scaled estimates (real-data capacity unverified)</span></div><div class='score'><div style='width:220px'>tradingview_compatibility</div><div class='bar' style='width:14.0px'></div><b>0.5</b><span class='note'> — requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</span></div><div class='score'><div style='width:220px'>documentation_quality</div><div class='bar' style='width:56.0px'></div><b>2.0</b><span class='note'> — docstring+hypothesis 126 chars; full auto-generated doc page</span></div><div class='score'><div style='width:220px'>reproducibility</div><div class='bar' style='width:140.0px'></div><b>5.0</b><span class='note'> — deterministic seeds, stable experiment IDs, append-only registry, freeze-v2-fingerprinted implementation</span></div>
+<p class='note'>not yet trusted — see low-scoring dimensions — Research-quality assessment only; says nothing about future returns. Real-data tiers pending until the first real study.</p>
+
+<h2>Documentation</h2>
+<p>Helper class that provides a standard way to create an ABC using</p>
+<p class='note'>Markets: US large-cap equities & ETFs (daily bars) · timeframe:
+years · audit: covered by adversarial audit (freeze v2)</p>
+<div class='grid2'>
+<div><h3>Strengths</h3><ul><li>economically motivated; survived the deprecation review</li><li>few parameters — low overfitting surface</li></ul></div>
+<div><h3>Weaknesses</h3><ul><li>limitations not yet characterized on real data</li></ul></div>
+</div>
+<h3>Assumptions</h3><ul><li>passive exposure is the null hypothesis</li></ul>
+<h3>Parameters</h3><table><tr><th>name</th><th>default</th></tr>
+<tr><td>ticker</td><td>None</td></tr></table>
+<h3>Frozen grids</h3><pre>[
+ {
+  &quot;ticker&quot;: [
+   &quot;SPY&quot;,
+   &quot;QQQ&quot;,
+   &quot;XLK&quot;,
+   &quot;SOXX&quot;,
+   &quot;SMH&quot;,
+   &quot;IGV&quot;
+  ]
+ },
+ {
+  &quot;ticker&quot;: [
+   &quot;NVDA&quot;,
+   &quot;MSFT&quot;,
+   &quot;GOOGL&quot;,
+   &quot;AMZN&quot;,
+   &quot;META&quot;,
+   &quot;AAPL&quot;,
+   &quot;AVGO&quot;,
+   &quot;AMD&quot;,
+   &quot;TSM&quot;,
+   &quot;ASML&quot;,
+   &quot;ARM&quot;,
+   &quot;PLTR&quot;,
+   &quot;ORCL&quot;,
+   &quot;CRM&quot;,
+   &quot;ADBE&quot;,
+   &quot;NOW&quot;,
+   &quot;SNOW&quot;,
+   &quot;CRWD&quot;,
+   &quot;PANW&quot;,
+   &quot;ANET&quot;,
+   &quot;SMCI&quot;,
+   &quot;MU&quot;,
+   &quot;MRVL&quot;,
+   &quot;DELL&quot;,
+   &quot;VRT&quot;,
+   &quot;CEG&quot;,
+   &quot;VST&quot;,
+   &quot;TSLA&quot;
+  ]
+ }
+]</pre>
+
+<h2>Research notebook</h2>
+<p><b>Rationale:</b> Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<h3>Experiment history (34)</h3>
+<table><tr><th>date</th><th>variant</th><th>mode</th><th>dev Sharpe</th>
+<th>holdout Sharpe</th><th>maxDD</th><th>turnover</th></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=SPY)</td><td>synthetic</td><td>0.44</td><td>1.04</td><td>-0.66</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=QQQ)</td><td>synthetic</td><td>0.29</td><td>1.34</td><td>-0.83</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=XLK)</td><td>synthetic</td><td>0.35</td><td>1.32</td><td>-0.83</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=SOXX)</td><td>synthetic</td><td>0.39</td><td>2.08</td><td>-0.72</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=SMH)</td><td>synthetic</td><td>0.3</td><td>2.01</td><td>-0.86</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=IGV)</td><td>synthetic</td><td>0.39</td><td>1.44</td><td>-0.59</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=NVDA)</td><td>synthetic</td><td>0.4</td><td>2.88</td><td>-0.99</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=MSFT)</td><td>synthetic</td><td>0.56</td><td>2.05</td><td>-0.91</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=GOOGL)</td><td>synthetic</td><td>0.51</td><td>0.68</td><td>-0.56</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=AMZN)</td><td>synthetic</td><td>0.39</td><td>0.14</td><td>-0.97</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=META)</td><td>synthetic</td><td>0.28</td><td>2.03</td><td>-0.74</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=AAPL)</td><td>synthetic</td><td>0.43</td><td>1.58</td><td>-0.93</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=AVGO)</td><td>synthetic</td><td>0.46</td><td>1.87</td><td>-0.67</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=AMD)</td><td>synthetic</td><td>0.1</td><td>1.74</td><td>-1.0</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=TSM)</td><td>synthetic</td><td>0.54</td><td>1.36</td><td>-0.9</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=ASML)</td><td>synthetic</td><td>0.39</td><td>-0.36</td><td>-0.89</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=ARM)</td><td>synthetic</td><td>0.22</td><td>0.03</td><td>-0.27</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=PLTR)</td><td>synthetic</td><td>0.34</td><td>2.11</td><td>-0.85</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=ORCL)</td><td>synthetic</td><td>0.39</td><td>0.62</td><td>-0.99</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=CRM)</td><td>synthetic</td><td>0.38</td><td>0.82</td><td>-0.87</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=ADBE)</td><td>synthetic</td><td>0.44</td><td>-1.0</td><td>-0.97</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=NOW)</td><td>synthetic</td><td>0.48</td><td>1.16</td><td>-0.76</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=SNOW)</td><td>synthetic</td><td>0.13</td><td>0.16</td><td>-0.86</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=CRWD)</td><td>synthetic</td><td>0.37</td><td>-0.26</td><td>-0.67</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=PANW)</td><td>synthetic</td><td>0.35</td><td>1.15</td><td>-0.55</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=ANET)</td><td>synthetic</td><td>0.13</td><td>3.17</td><td>-0.93</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=SMCI)</td><td>synthetic</td><td>0.39</td><td>-0.49</td><td>-0.9</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=MU)</td><td>synthetic</td><td>0.35</td><td>0.78</td><td>-1.0</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=MRVL)</td><td>synthetic</td><td>0.35</td><td>1.03</td><td>-0.97</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=DELL)</td><td>synthetic</td><td>0.32</td><td>0.21</td><td>-0.56</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=VRT)</td><td>synthetic</td><td>0.32</td><td>1.06</td><td>-0.66</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=CEG)</td><td>synthetic</td><td>0.13</td><td>0.13</td><td>-0.5</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=VST)</td><td>synthetic</td><td>0.16</td><td>0.42</td><td>-0.6</td><td>0.0</td></tr><tr><td>2026-08-04</td><td>BuyAndHold(ticker=TSLA)</td><td>synthetic</td><td>0.45</td><td>1.06</td><td>-0.86</td><td>0.0</td></tr></table>
+<h3>Lessons learned</h3><ul><li>—</li></ul>
+<h3>Remaining questions</h3><ul><li>Does the (synthetic-)demonstrated behavior survive the first real-data study?</li><li>Which evidence tier does the strategy earn under the real quality gate?</li></ul>
+
+<h2>Genealogy</h2><p class='note'>no recorded version history yet</p>
+
+<h2>TradingView</h2><p><span class='badge b-not-portable'>not-portable</span> requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</p>
+
+<h2>Python implementation (freeze-v2 fingerprinted)</h2>
+<details><summary>view source</summary><pre>class BuyAndHold(Strategy):
+    family = &quot;benchmark&quot;
+    hypothesis = &quot;Own the asset; the baseline all timing must beat.&quot;
+
+    def __init__(self, ticker: str):
+        super().__init__(ticker=ticker)
+
+    def build(self, md: MarketData) -&gt; pd.DataFrame:
+        t = self.params[&quot;ticker&quot;]
+        px = md.adj_close[t]
+        w = pd.DataFrame(0.0, index=md.calendar, columns=[t])
+        w.loc[px.notna(), t] = 1.0
+        return w
+</pre></details>
+<p class='note'>Generated 2026-08-04 22:25 UTC · read-only view over the registries · research tool, not investment advice.</p></main></body></html>

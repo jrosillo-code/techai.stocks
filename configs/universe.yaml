@@ -1,0 +1,94 @@
+# Point-in-time universe definition for the US technology / AI research universe.
+#
+# Every security carries listing metadata so backtests only see names that were
+# actually investable on a given date. `ipo` is the first US-listing date
+# (month precision is acceptable; the universe builder is conservative and only
+# admits a name after this date plus `seasoning_days`). `delisted` marks the
+# last trading date for names that left the market; the backtester liquidates
+# at the delisting price. Never remove delisted names from this file — that is
+# how survivorship bias creeps in.
+
+settings:
+  min_price: 3.0                # exclude sub-$3 names at rebalance time
+  min_median_dollar_volume: 5e6 # 63-day median dollar volume floor
+  seasoning_days: 126           # no trading until ~6 months of history exists
+  max_names: 60
+
+securities:
+  # ---- AI compute & semiconductors ----
+  - {ticker: NVDA, name: NVIDIA,                 sector: semiconductors,   ipo: 1999-01-22}
+  - {ticker: AMD,  name: Advanced Micro Devices, sector: semiconductors,   ipo: 1979-10-15}
+  - {ticker: AVGO, name: Broadcom,               sector: semiconductors,   ipo: 2009-08-06}
+  - {ticker: TSM,  name: Taiwan Semiconductor ADR, sector: semiconductors, ipo: 1997-10-08}
+  - {ticker: ASML, name: ASML ADR,               sector: semi_equipment,   ipo: 1995-03-15}
+  - {ticker: ARM,  name: Arm Holdings ADR,       sector: semiconductors,   ipo: 2023-09-14}
+  - {ticker: MU,   name: Micron,                 sector: semiconductors,   ipo: 1984-06-01}
+  - {ticker: MRVL, name: Marvell,                sector: semiconductors,   ipo: 2000-06-27}
+  - {ticker: INTC, name: Intel,                  sector: semiconductors,   ipo: 1971-10-13}
+  - {ticker: QCOM, name: Qualcomm,               sector: semiconductors,   ipo: 1991-12-13}
+  - {ticker: AMAT, name: Applied Materials,      sector: semi_equipment,   ipo: 1972-10-05}
+  - {ticker: LRCX, name: Lam Research,           sector: semi_equipment,   ipo: 1984-05-04}
+
+  # ---- Megacap platforms / cloud ----
+  - {ticker: MSFT, name: Microsoft,              sector: software,         ipo: 1986-03-13}
+  - {ticker: GOOGL, name: Alphabet,              sector: internet,         ipo: 2004-08-19}
+  - {ticker: AMZN, name: Amazon,                 sector: internet,         ipo: 1997-05-15}
+  - {ticker: META, name: Meta Platforms,         sector: internet,         ipo: 2012-05-18}
+  - {ticker: AAPL, name: Apple,                  sector: hardware,         ipo: 1980-12-12}
+  - {ticker: TSLA, name: Tesla,                  sector: ai_consumer,      ipo: 2010-06-29}
+  - {ticker: ORCL, name: Oracle,                 sector: software,         ipo: 1986-03-12}
+
+  # ---- Enterprise software / AI applications ----
+  - {ticker: CRM,  name: Salesforce,             sector: software,         ipo: 2004-06-23}
+  - {ticker: ADBE, name: Adobe,                  sector: software,         ipo: 1986-08-20}
+  - {ticker: NOW,  name: ServiceNow,             sector: software,         ipo: 2012-06-29}
+  - {ticker: SNOW, name: Snowflake,              sector: software,         ipo: 2020-09-16}
+  - {ticker: PLTR, name: Palantir,               sector: software,         ipo: 2020-09-30}
+
+  # ---- Cybersecurity ----
+  - {ticker: CRWD, name: CrowdStrike,            sector: cybersecurity,    ipo: 2019-06-12}
+  - {ticker: PANW, name: Palo Alto Networks,     sector: cybersecurity,    ipo: 2012-07-20}
+  - {ticker: FTNT, name: Fortinet,               sector: cybersecurity,    ipo: 2009-11-18}
+
+  # ---- Networking / data-center infrastructure ----
+  - {ticker: ANET, name: Arista Networks,        sector: networking,       ipo: 2014-06-06}
+  - {ticker: SMCI, name: Super Micro Computer,   sector: dc_infrastructure, ipo: 2007-03-29}
+  - {ticker: DELL, name: Dell Technologies,      sector: hardware,         ipo: 2018-12-28}
+  - {ticker: VRT,  name: Vertiv,                 sector: dc_infrastructure, ipo: 2020-02-10}
+
+  # ---- Power for AI data centers ----
+  - {ticker: CEG,  name: Constellation Energy,   sector: power,            ipo: 2022-02-02}
+  - {ticker: VST,  name: Vistra,                 sector: power,            ipo: 2016-10-04}
+
+  # ---- Delisted / acquired names kept for survivorship-bias awareness.
+  #      The synthetic provider generates history for these; live providers
+  #      may only have partial history, which the loader records.
+  - {ticker: SUNW, name: Sun Microsystems,       sector: hardware,         ipo: 1986-03-04, delisted: 2010-01-27}
+  - {ticker: EMC,  name: EMC Corp,               sector: hardware,         ipo: 1986-04-04, delisted: 2016-09-07}
+  - {ticker: YHOO, name: Yahoo,                  sector: internet,         ipo: 1996-04-12, delisted: 2017-06-16}
+  - {ticker: MXIM, name: Maxim Integrated,       sector: semiconductors,   ipo: 1988-02-29, delisted: 2021-08-26}
+  - {ticker: XLNX, name: Xilinx,                 sector: semiconductors,   ipo: 1990-06-12, delisted: 2022-02-14}
+
+benchmarks:
+  - {ticker: SPY,  name: S&P 500 ETF,            ipo: 1993-01-29, expense_ratio: 0.0009}
+  - {ticker: QQQ,  name: Nasdaq-100 ETF,         ipo: 1999-03-10, expense_ratio: 0.0020}
+  - {ticker: XLK,  name: Technology Select SPDR, ipo: 1998-12-16, expense_ratio: 0.0009}
+  - {ticker: SOXX, name: iShares Semiconductor,  ipo: 2001-07-10, expense_ratio: 0.0035}
+  - {ticker: SMH,  name: VanEck Semiconductor,   ipo: 2000-05-05, expense_ratio: 0.0035}
+  - {ticker: IGV,  name: iShares Software,       ipo: 2001-07-10, expense_ratio: 0.0040}
+  - {ticker: IEF,  name: 7-10y Treasury ETF,     ipo: 2002-07-22, expense_ratio: 0.0015}
+  - {ticker: BIL,  name: 1-3m T-Bill ETF,        ipo: 2007-05-25, expense_ratio: 0.0014}
+
+# Rules-based theme baskets (tickers must exist in `securities`).
+baskets:
+  ai_compute:      [NVDA, AMD, AVGO, TSM, ARM, MRVL]
+  semiconductors:  [NVDA, AMD, AVGO, TSM, ASML, MU, MRVL, INTC, QCOM, AMAT, LRCX, XLNX, MXIM]
+  cloud_platforms: [MSFT, GOOGL, AMZN, ORCL, SNOW]
+  enterprise_ai:   [MSFT, CRM, NOW, PLTR, SNOW, ADBE, ORCL]
+  cybersecurity:   [CRWD, PANW, FTNT]
+  dc_infrastructure: [ANET, SMCI, DELL, VRT, CEG, VST]
+  megacap_ai:      [NVDA, MSFT, GOOGL, AMZN, META, AAPL, AVGO, TSLA]
+  # Shortlist of companies the user is likely to own — the §"buy it or trade
+  # it" portfolio comparisons run over this basket.
+  target_holdings: [NVDA, MSFT, GOOGL, AMZN, META, AVGO, AMD, TSM, ASML, ARM,
+                    PLTR, ORCL, CRWD, PANW, ANET, MU, VRT, CEG]

@@ -1,0 +1,43 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>Idea backlog</title><style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--mut:#64748b;--acc:#2563eb;
+--good:#166534;--warn:#92400e;--bad:#991b1b;--line:#e2e8f0}
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,sans-serif;
+margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+nav{background:#0f172a;color:#e2e8f0;padding:.7rem 1.2rem;display:flex;gap:1.1rem;
+flex-wrap:wrap;position:sticky;top:0;z-index:5}
+nav a{color:#cbd5e1;text-decoration:none;font-size:.92rem}nav a:hover{color:#fff}
+nav .brand{color:#fff;font-weight:700}
+main{max-width:1180px;margin:1.4rem auto;padding:0 1.2rem}
+h1{font-size:1.5rem;margin:.4rem 0 1rem}h2{font-size:1.15rem;margin-top:1.8rem;
+border-bottom:1px solid var(--line);padding-bottom:.25rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;
+padding:.7rem .9rem}.card .v{font-size:1.45rem;font-weight:700}
+.card .k{color:var(--mut);font-size:.78rem}
+table{border-collapse:collapse;width:100%;font-size:.82rem;background:var(--card)}
+th,td{border:1px solid var(--line);padding:.3rem .5rem;text-align:left}
+th{background:#f1f5f9;cursor:pointer;position:sticky;top:46px}
+tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.72rem}
+.b-core{background:#dcfce7;color:var(--good)}.b-exploratory{background:#fef9c3;color:var(--warn)}
+.b-deprecated{background:#fee2e2;color:var(--bad)}.b-benchmark{background:#e0e7ff;color:#3730a3}
+.b-A{background:#dcfce7;color:var(--good)}.b-B{background:#fef9c3;color:var(--warn)}
+.b-C{background:#fee2e2;color:var(--bad)}.b-unlisted{background:#e2e8f0;color:#475569}
+.warnbox{background:#fef3c7;border-left:4px solid #f59e0b;padding:.6rem .9rem;margin:.8rem 0;font-size:.88rem}
+.note{color:var(--mut);font-size:.82rem}
+input,select{padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;margin:.15rem}
+pre{background:#0f172a;color:#e2e8f0;padding:.9rem;border-radius:8px;overflow-x:auto;font-size:.78rem}
+img{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:.4rem 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.score{display:flex;gap:.4rem;align-items:center;margin:.2rem 0;font-size:.85rem}
+.bar{height:8px;border-radius:4px;background:var(--acc);min-width:2px}
+details{margin:.3rem 0}summary{cursor:pointer;color:var(--acc)}
+.tree{border-left:3px solid var(--line);margin-left:.5rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--card);border:1px solid var(--line);
+border-radius:8px;padding:.5rem .8rem;font-size:.85rem}
+</style></head><body><nav><span class="brand">AITB Research</span>
+<a href="index.html">Dashboard</a><a href="experiments.html">Experiments</a>
+<a href="strategies.html">Strategies</a><a href="compare.html">Compare</a>
+<a href="portfolio.html">Portfolio lab</a><a href="ideas.html">Ideas</a>
+<a href="roadmap.html">Roadmap</a><a href="audit.html">Audit</a></nav><main><h1>Idea backlog</h1><p class='note'>Ideas exist before implementation; statuses: idea → planned → implementing → testing → auditing → accepted/rejected/archived. Edit configs/research_ideas.yaml.</p><table><tr><th>id</th><th>idea</th><th>category</th><th>status</th><th>edge</th><th>difficulty</th><th>est. time</th><th>providers</th></tr><tr><td>IDEA-001</td><td><b>Timestamped earnings-event dataset</b><br><span class='note'>Post-earnings-announcement drift and gap behavior are testable only with BMO/AMC-precision timestamps; conservative next-session execution otherwise destroys th</span></td><td>data</td><td><span class='badge b-planned'>planned</span></td><td>3</td><td>3</td><td>1-2 weeks</td><td>paid: Wall Street Horizon / Zacks; partial: EDGAR 8-K acceptance times</td></tr><tr><td>IDEA-002</td><td><b>Delisted-name price history</b><br><span class='note'>Cross-sectional results shift materially when failed firms are investable; current Tier B label can be upgraded to A only with delisting returns.</span></td><td>data</td><td><span class='badge b-planned'>planned</span></td><td>4</td><td>4</td><td>provider-dependent</td><td>CRSP, Norgate, EODHD</td></tr><tr><td>IDEA-003</td><td><b>Macro vintage series (ALFRED)</b><br><span class='note'>Regime strategies degrade when first-release data replaces revised series; quantifying the gap bounds their real-time value.</span></td><td>data</td><td><span class='badge b-idea'>idea</span></td><td>2</td><td>2</td><td>3-5 days</td><td>FRED/ALFRED (free)</td></tr><tr><td>IDEA-004</td><td><b>Discrete dividend cash ledger</b><br><span class='note'>Continuous-reinvestment modeling (AUD-012) slightly overstates compounding for payers; a cash ledger removes the assumption and enables withholding modeling for</span></td><td>engine</td><td><span class='badge b-planned'>planned</span></td><td>1</td><td>3</td><td>1 week</td><td>tiingo, yahoo</td></tr><tr><td>IDEA-005</td><td><b>Factor-exposure attribution (market/size/momentum/quality proxies)</b><br><span class='note'>Apparent alpha in tech strategies is often repackaged beta; regression attribution separates them.</span></td><td>analytics</td><td><span class='badge b-idea'>idea</span></td><td>3</td><td>2</td><td>3-4 days</td><td></td></tr><tr><td>IDEA-006</td><td><b>Dependency pinning enforcement in freeze</b><br><span class='note'>Recorded-but-unenforced package versions (AUD-013) leave a reproducibility gap over multi-year horizons.</span></td><td>governance</td><td><span class='badge b-planned'>planned</span></td><td>1</td><td>1</td><td>1 day</td><td></td></tr><tr><td>IDEA-007</td><td><b>Intraday execution study for mean reversion</b><br><span class='note'>RSI(2)-style reversion may survive costs with limit-order entries; daily bars cannot test this.</span></td><td>strategy</td><td><span class='badge b-idea'>idea</span></td><td>2</td><td>4</td><td>2-3 weeks</td><td>polygon (paid)</td></tr><tr><td>IDEA-008</td><td><b>Historical index-constituent universe (Nasdaq-100 by date)</b><br><span class='note'>A reconstitution-aware benchmark universe removes the residual current-constituent bias in universe-sensitivity tests.</span></td><td>data</td><td><span class='badge b-idea'>idea</span></td><td>3</td><td>3</td><td>1 week + source vetting</td><td>paid index data or curated public lists (reliability must be vetted)</td></tr><tr><td>IDEA-009</td><td><b>PDF / PowerPoint report export</b><br><span class='note'></span></td><td>platform</td><td><span class='badge b-idea'>idea</span></td><td>1</td><td>2</td><td>2-3 days</td><td>python-pptx, weasyprint (optional deps)</td></tr><tr><td>IDEA-010</td><td><b>Correlation-aware strategy blending rules</b><br><span class='note'>Low-correlation mediocre strategies can dominate any single strategy after costs; the portfolio lab quantifies when.</span></td><td>portfolio</td><td><span class='badge b-implementing'>implementing</span></td><td>3</td><td>2</td><td>in portfolio lab v1</td><td></td></tr></table><p class='note'>Generated 2026-08-04 22:25 UTC · read-only view over the registries · research tool, not investment advice.</p></main></body></html>

@@ -1,0 +1,83 @@
+# Strategy genealogy: versioned history per research line.
+# Every node records what changed, why, and whether the change required a
+# freeze version bump. History is append-only — rejected versions stay.
+
+lines:
+  momentum_cross_sectional:
+    title: "Cross-sectional momentum"
+    versions:
+      - {id: xsmom_v1, strategy: XSMomentumTopN,
+         date: 2026-08-04, freeze: pre-v1,
+         change: "initial grid: lookback {63,126,252} × top_n {3,5,8} × weighting {equal, inverse_vol, momentum}",
+         why: "textbook relative-strength hypothesis", outcome: "shakedown run"}
+      - {id: xsmom_v2, strategy: XSMomentumTopN,
+         date: 2026-08-04, freeze: v1,
+         change: "momentum-weighting variant deprecated",
+         why: "concentrated ~all P&L in the single hottest name (top_name_share ≈ 1)",
+         outcome: "deprecated variant retained in registry", requires_freeze_bump: false}
+      - {id: xsmom_v3, strategy: XSMomentumTopN,
+         date: 2026-08-04, freeze: v2,
+         change: "re-frozen under audited metrics (AUD-006 CAGR fix); target_holdings basket variants added",
+         why: "audit remediation + shortlist comparisons",
+         outcome: "active core", requires_freeze_bump: true}
+
+  mean_reversion:
+    title: "Short-horizon mean reversion"
+    versions:
+      - {id: meanrev_v1, strategy: RSIReversion,
+         date: 2026-08-04, freeze: pre-v1,
+         change: "RSI(2) entry {5,10,15}, Bollinger reversion, 5/10-day reversal",
+         why: "liquidity-provision hypothesis", outcome: "shakedown run"}
+      - {id: meanrev_v2, strategy: RSIReversion,
+         date: 2026-08-04, freeze: v1,
+         change: "entry=15 and BollingerReversion deprecated",
+         why: "entry=15 duplicated entry=10 with worse net Sharpe; Bollinger mechanically duplicates RSI trigger; all variants cost-fragile (zero-cost Sharpe 0.85 → stressed −0.30)",
+         outcome: "kept as exploratory falsification targets", requires_freeze_bump: false}
+
+  breakout:
+    title: "Breakout / volatility expansion"
+    versions:
+      - {id: breakout_v1, strategy: DonchianBreakout,
+         date: 2026-08-04, freeze: pre-v1,
+         change: "Donchian {20,55,100} with and without regime filter",
+         why: "trend-initiation hypothesis", outcome: "shakedown run"}
+      - {id: breakout_v2, strategy: DonchianBreakout,
+         date: 2026-08-04, freeze: v1,
+         change: "unfiltered variants deprecated",
+         why: "whipsawed through bear markets; dominated by regime-filtered twin at every window",
+         outcome: "regime-filtered variants promoted to core", requires_freeze_bump: false}
+
+  risk_managed:
+    title: "Risk-managed exposure"
+    versions:
+      - {id: rm_v1, strategy: VolTargetedBasket,
+         date: 2026-08-04, freeze: pre-v1,
+         change: "vol targeting {15,20,25}%, drawdown de-risk, inverse-vol basket",
+         why: "constant-risk compounding hypothesis", outcome: "strongest family in shakedown"}
+      - {id: rm_v2, strategy: VolTargetedBasket,
+         date: 2026-08-04, freeze: v1,
+         change: "grid widened: vol_window {21,63}, rebalance {W-FRI, ME}, dd_full {−30,−40}%",
+         why: "family flagged for deeper study; axes per §14 kept coarse",
+         outcome: "expanded core", requires_freeze_bump: true}
+      - {id: rm_v3, strategy: TrendPlusVolTarget,
+         date: 2026-08-04, freeze: v1,
+         change: "NEW combined overlay: QQQ trend gate with hysteresis × vol targeting",
+         why: "trend removes the left tail, vol targeting smooths the path — complementary failure modes",
+         outcome: "top-ranked in synthetic demos (labeled demonstration only)",
+         requires_freeze_bump: true}
+      - {id: rm_v4, strategy: TrendPlusVolTarget,
+         date: 2026-08-04, freeze: v2,
+         change: "re-frozen under audited metrics + engine invariant hooks",
+         why: "audit remediation (AUD-006, AUD-011)",
+         outcome: "active core awaiting first real study", requires_freeze_bump: true}
+
+  platform_metrics:
+    title: "(cross-cutting) metric definitions"
+    versions:
+      - {id: metrics_v1, strategy: "-", date: 2026-08-04, freeze: v1,
+         change: "CAGR = growth^(252/len)−1", why: "initial implementation",
+         outcome: "superseded"}
+      - {id: metrics_v2, strategy: "-", date: 2026-08-04, freeze: v2,
+         change: "CAGR over elapsed calendar time (audit AUD-006)",
+         why: "row-count/252 understated CAGR ~35bp/yr on business-day calendars",
+         outcome: "all demo artifacts regenerated", requires_freeze_bump: true}

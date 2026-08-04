@@ -1,0 +1,15 @@
+// QQQMovingAverage — research export from the aitb platform
+// APPROXIMATION of the audited Python implementation (freeze v2).
+// Differences vs the backtest engine: no next-open fill convention is
+// enforceable in a Pine study, no transaction-cost model, no Treasury
+// fallback sleeve, single symbol only. For chart study, NOT trading.
+//@version=5
+
+indicator("AITB QQQ 200d trend gate", overlay=true)
+sma_len = input.int(200, "SMA window")
+ma = ta.sma(close, sma_len)
+riskOn = close > ma
+plot(ma, "SMA", color=riskOn ? color.green : color.red, linewidth=2)
+bgcolor(riskOn ? color.new(color.green, 92) : color.new(color.red, 92))
+alertcondition(ta.crossover(close, ma), "Risk ON", "Price crossed above SMA")
+alertcondition(ta.crossunder(close, ma), "Risk OFF", "Price crossed below SMA")

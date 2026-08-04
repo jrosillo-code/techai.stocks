@@ -1,0 +1,22 @@
+// DonchianBreakout — research export from the aitb platform
+// APPROXIMATION of the audited Python implementation (freeze v2).
+// Differences vs the backtest engine: no next-open fill convention is
+// enforceable in a Pine study, no transaction-cost model, no Treasury
+// fallback sleeve, single symbol only. For chart study, NOT trading.
+//@version=5
+
+indicator("AITB Donchian breakout 55/20", overlay=true)
+entryLen = input.int(55, "Entry channel")
+exitLen = input.int(20, "Exit channel")
+hi = ta.highest(high[1], entryLen)
+lo = ta.lowest(low[1], exitLen)
+plot(hi, "Entry high", color=color.teal)
+plot(lo, "Exit low", color=color.orange)
+longSignal = close > hi
+exitSignal = close < lo
+plotshape(longSignal, style=shape.triangleup, location=location.belowbar,
+          color=color.green, size=size.tiny)
+plotshape(exitSignal, style=shape.triangledown, location=location.abovebar,
+          color=color.red, size=size.tiny)
+// Python version additionally requires QQQ above its 200d SMA (regime filter)
+// and caps concurrent positions.

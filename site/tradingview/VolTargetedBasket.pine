@@ -1,0 +1,17 @@
+// VolTargetedBasket — research export from the aitb platform
+// APPROXIMATION of the audited Python implementation (freeze v2).
+// Differences vs the backtest engine: no next-open fill convention is
+// enforceable in a Pine study, no transaction-cost model, no Treasury
+// fallback sleeve, single symbol only. For chart study, NOT trading.
+//@version=5
+
+indicator("AITB vol-target exposure gauge (20% ann)", overlay=false)
+volWin = input.int(63, "Vol window")
+target = input.float(0.2, "Target annual vol")
+ret = close / close[1] - 1
+realized = ta.stdev(ret, volWin) * math.sqrt(252)
+exposure = math.min(target / math.max(realized, 0.0001), 1.0)
+plot(realized, "Realized vol", color=color.orange)
+plot(exposure, "Suggested exposure (0-1)", color=color.blue, linewidth=2)
+hline(1.0)
+// Python version applies this at the BASKET level with an IEF sleeve.

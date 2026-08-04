@@ -1,0 +1,38 @@
+# Transaction-cost scenarios. Every experiment is evaluated under all four.
+# one_way costs are expressed in decimal (0.0005 = 5 bp per side).
+#
+#   effective one-way cost = commission_bps + half_spread_bps + slippage_bps
+#                            + impact_coeff * sqrt(participation)
+#
+# participation = trade dollar volume / 21-day average daily dollar volume.
+# borrow_bps applies annually to short market value.
+
+scenarios:
+  zero:
+    label: "Zero cost (theoretical upper bound)"
+    commission_bps: 0.0
+    half_spread_bps: 0.0
+    slippage_bps: 0.0
+    impact_coeff_bps: 0.0
+    borrow_bps: 0.0
+  low:
+    label: "Low cost (liquid large-cap, small size)"
+    commission_bps: 0.0
+    half_spread_bps: 1.0
+    slippage_bps: 1.0
+    impact_coeff_bps: 5.0
+    borrow_bps: 25.0
+  base:
+    label: "Base case (realistic retail/small institutional)"
+    commission_bps: 0.5
+    half_spread_bps: 2.5
+    slippage_bps: 2.5
+    impact_coeff_bps: 10.0
+    borrow_bps: 50.0
+  stressed:
+    label: "Stressed (wide spreads, poor fills)"
+    commission_bps: 1.0
+    half_spread_bps: 7.5
+    slippage_bps: 7.5
+    impact_coeff_bps: 25.0
+    borrow_bps: 150.0

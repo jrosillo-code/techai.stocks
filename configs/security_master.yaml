@@ -1,0 +1,117 @@
+# Canonical security master.
+#
+# `sid` is the permanent internal identifier — ticker text is NEVER a
+# permanent key. `tickers` lists {symbol, from, to} history (to: null = still
+# current). `successor` records what absorbed a delisted security. Provider
+# symbol overrides live under `provider_symbols` (e.g. Stooq wants aapl.us —
+# handled by the adapter — but class-share punctuation differs by vendor:
+# BRK.B vs BRK-B style).
+#
+# Identifier fields (cusip/isin/figi) are optional and filled as sources
+# provide them; absence is recorded as null rather than guessed.
+
+securities:
+  - sid: SEC_NVDA
+    name: NVIDIA
+    tickers: [{symbol: NVDA, from: 1999-01-22, to: null}]
+    exchange: XNAS
+    sector: semiconductors
+    theme: ai_compute
+  - sid: SEC_META
+    name: Meta Platforms (formerly Facebook)
+    tickers:
+      - {symbol: FB,   from: 2012-05-18, to: 2022-06-08}
+      - {symbol: META, from: 2022-06-09, to: null}
+    exchange: XNAS
+    sector: internet
+    theme: ai_applications
+  - sid: SEC_GOOGL
+    name: Alphabet Class A
+    tickers:
+      - {symbol: GOOG,  from: 2004-08-19, to: 2014-04-02}   # pre share-split single class
+      - {symbol: GOOGL, from: 2014-04-03, to: null}
+    exchange: XNAS
+    sector: internet
+    theme: ai_platforms
+    notes: "Class C trades separately as GOOG post 2014; only Class A is in the universe."
+  - sid: SEC_XLNX
+    name: Xilinx
+    tickers: [{symbol: XLNX, from: 1990-06-12, to: 2022-02-14}]
+    exchange: XNAS
+    sector: semiconductors
+    successor: {sid: SEC_AMD, kind: acquisition, date: 2022-02-14}
+  - sid: SEC_AMD
+    name: Advanced Micro Devices
+    tickers: [{symbol: AMD, from: 1979-10-15, to: null}]
+    exchange: XNAS
+    sector: semiconductors
+    theme: ai_compute
+  - sid: SEC_MXIM
+    name: Maxim Integrated
+    tickers: [{symbol: MXIM, from: 1988-02-29, to: 2021-08-26}]
+    exchange: XNAS
+    sector: semiconductors
+    successor: {sid: null, kind: acquisition, date: 2021-08-26,
+                notes: "acquired by Analog Devices (ADI, outside universe)"}
+  - sid: SEC_EMC
+    name: EMC Corp
+    tickers: [{symbol: EMC, from: 1986-04-04, to: 2016-09-07}]
+    exchange: XNYS
+    sector: hardware
+    successor: {sid: SEC_DELL, kind: acquisition, date: 2016-09-07}
+  - sid: SEC_DELL
+    name: Dell Technologies
+    tickers: [{symbol: DELL, from: 2018-12-28, to: null}]
+    exchange: XNYS
+    sector: hardware
+    theme: dc_infrastructure
+    notes: "Re-listed 2018; prior Dell Inc. history (delisted 2013) is a distinct security."
+  - sid: SEC_SUNW
+    name: Sun Microsystems
+    tickers:
+      - {symbol: SUNW, from: 1986-03-04, to: 2007-08-23}
+      - {symbol: JAVA, from: 2007-08-24, to: 2010-01-27}
+    exchange: XNAS
+    sector: hardware
+    successor: {sid: SEC_ORCL, kind: acquisition, date: 2010-01-27}
+  - sid: SEC_ORCL
+    name: Oracle
+    tickers: [{symbol: ORCL, from: 1986-03-12, to: null}]
+    exchange: XNYS
+    sector: software
+    theme: cloud_platforms
+  - sid: SEC_YHOO
+    name: Yahoo
+    tickers: [{symbol: YHOO, from: 1996-04-12, to: 2017-06-16}]
+    exchange: XNAS
+    sector: internet
+    successor: {sid: null, kind: asset_sale, date: 2017-06-16,
+                notes: "operating business to Verizon; remainder became Altaba (AABA)"}
+  # ---- remaining current universe (single unchanged listing) ----
+  - {sid: SEC_MSFT, name: Microsoft,          tickers: [{symbol: MSFT, from: 1986-03-13, to: null}], exchange: XNAS, sector: software,          theme: ai_platforms}
+  - {sid: SEC_AMZN, name: Amazon,             tickers: [{symbol: AMZN, from: 1997-05-15, to: null}], exchange: XNAS, sector: internet,          theme: cloud_platforms}
+  - {sid: SEC_AAPL, name: Apple,              tickers: [{symbol: AAPL, from: 1980-12-12, to: null}], exchange: XNAS, sector: hardware,          theme: ai_consumer}
+  - {sid: SEC_AVGO, name: Broadcom,           tickers: [{symbol: AVGO, from: 2009-08-06, to: null}], exchange: XNAS, sector: semiconductors,    theme: ai_compute}
+  - {sid: SEC_TSM,  name: Taiwan Semiconductor ADR, tickers: [{symbol: TSM, from: 1997-10-08, to: null}], exchange: XNYS, sector: semiconductors, theme: ai_compute, security_type: ADR}
+  - {sid: SEC_ASML, name: ASML ADR,           tickers: [{symbol: ASML, from: 1995-03-15, to: null}], exchange: XNAS, sector: semi_equipment,    theme: ai_compute, security_type: ADR}
+  - {sid: SEC_ARM,  name: Arm Holdings ADR,   tickers: [{symbol: ARM,  from: 2023-09-14, to: null}], exchange: XNAS, sector: semiconductors,    theme: ai_compute, security_type: ADR}
+  - {sid: SEC_MU,   name: Micron,             tickers: [{symbol: MU,   from: 1984-06-01, to: null}], exchange: XNAS, sector: semiconductors,    theme: ai_compute}
+  - {sid: SEC_MRVL, name: Marvell,            tickers: [{symbol: MRVL, from: 2000-06-27, to: null}], exchange: XNAS, sector: semiconductors,    theme: networking}
+  - {sid: SEC_INTC, name: Intel,              tickers: [{symbol: INTC, from: 1971-10-13, to: null}], exchange: XNAS, sector: semiconductors,    theme: ai_compute}
+  - {sid: SEC_QCOM, name: Qualcomm,           tickers: [{symbol: QCOM, from: 1991-12-13, to: null}], exchange: XNAS, sector: semiconductors,    theme: ai_consumer}
+  - {sid: SEC_AMAT, name: Applied Materials,  tickers: [{symbol: AMAT, from: 1972-10-05, to: null}], exchange: XNAS, sector: semi_equipment,    theme: ai_compute}
+  - {sid: SEC_LRCX, name: Lam Research,       tickers: [{symbol: LRCX, from: 1984-05-04, to: null}], exchange: XNAS, sector: semi_equipment,    theme: ai_compute}
+  - {sid: SEC_TSLA, name: Tesla,              tickers: [{symbol: TSLA, from: 2010-06-29, to: null}], exchange: XNAS, sector: ai_consumer,       theme: robotics}
+  - {sid: SEC_CRM,  name: Salesforce,         tickers: [{symbol: CRM,  from: 2004-06-23, to: null}], exchange: XNYS, sector: software,          theme: enterprise_ai}
+  - {sid: SEC_ADBE, name: Adobe,              tickers: [{symbol: ADBE, from: 1986-08-20, to: null}], exchange: XNAS, sector: software,          theme: enterprise_ai}
+  - {sid: SEC_NOW,  name: ServiceNow,         tickers: [{symbol: NOW,  from: 2012-06-29, to: null}], exchange: XNYS, sector: software,          theme: enterprise_ai}
+  - {sid: SEC_SNOW, name: Snowflake,          tickers: [{symbol: SNOW, from: 2020-09-16, to: null}], exchange: XNYS, sector: software,          theme: cloud_platforms}
+  - {sid: SEC_PLTR, name: Palantir,           tickers: [{symbol: PLTR, from: 2020-09-30, to: null}], exchange: XNAS, sector: software,          theme: enterprise_ai}
+  - {sid: SEC_CRWD, name: CrowdStrike,        tickers: [{symbol: CRWD, from: 2019-06-12, to: null}], exchange: XNAS, sector: cybersecurity,     theme: cybersecurity}
+  - {sid: SEC_PANW, name: Palo Alto Networks, tickers: [{symbol: PANW, from: 2012-07-20, to: null}], exchange: XNAS, sector: cybersecurity,     theme: cybersecurity}
+  - {sid: SEC_FTNT, name: Fortinet,           tickers: [{symbol: FTNT, from: 2009-11-18, to: null}], exchange: XNAS, sector: cybersecurity,     theme: cybersecurity}
+  - {sid: SEC_ANET, name: Arista Networks,    tickers: [{symbol: ANET, from: 2014-06-06, to: null}], exchange: XNYS, sector: networking,        theme: networking}
+  - {sid: SEC_SMCI, name: Super Micro Computer, tickers: [{symbol: SMCI, from: 2007-03-29, to: null}], exchange: XNAS, sector: dc_infrastructure, theme: dc_infrastructure}
+  - {sid: SEC_VRT,  name: Vertiv,             tickers: [{symbol: VRT,  from: 2020-02-10, to: null}], exchange: XNYS, sector: dc_infrastructure, theme: power_cooling}
+  - {sid: SEC_CEG,  name: Constellation Energy, tickers: [{symbol: CEG, from: 2022-02-02, to: null}], exchange: XNAS, sector: power,            theme: power_cooling}
+  - {sid: SEC_VST,  name: Vistra,             tickers: [{symbol: VST,  from: 2016-10-04, to: null}], exchange: XNYS, sector: power,             theme: power_cooling}
