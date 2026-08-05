@@ -1,0 +1,31 @@
+step,selected,train_score
+1995-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",47.92930911110969
+1996-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",52.292797385601055
+1997-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",56.7538462514445
+1998-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",60.805585552147065
+1999-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",64.22523516201485
+2000-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",67.37462230249875
+2001-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",69.02931686465668
+2002-02-01,"SemisLeadership(fallback=IEF,lookback_days=63)",61.518471716128474
+2003-02-01,"SemisLeadership(fallback=IEF,lookback_days=126)",2.1521741882033845
+2004-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.6712513235076576
+2005-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.7207917658102752
+2006-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.7420890268001727
+2007-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.6872527503132941
+2008-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.3811325657489577
+2009-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1396398957110887
+2010-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.029171753869247
+2011-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",0.9793931646014136
+2012-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",0.9845104270778977
+2013-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.0334067576596764
+2014-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.0049073550575063
+2015-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.0201277038246557
+2016-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1020612876094513
+2017-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.0950994067992015
+2018-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1551178889684097
+2019-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1675341697418333
+2020-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1452507583522973
+2021-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.0946722056398184
+2022-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1149803533472158
+2023-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.076963070729666
+2024-02-01,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1038106675378794

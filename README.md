@@ -74,6 +74,45 @@ catalog/site automatically. A plugin cannot enter a REAL study without being
 added to the frozen grid and fingerprint list, which forces a freeze bump
 (tested).
 
+### Publishing the site (Vercel)
+
+`site/` is committed, fully self-contained (no external assets, no CDN, no
+build step) and is what gets served. `vercel.json` configures it:
+
+1. [vercel.com](https://vercel.com) → **Add New → Project** → import
+   `jrosillo-code/techai.stocks`.
+2. Leave **Root Directory** at the repository root (`./`). `vercel.json`
+   already sets Framework = *Other*, an empty Build Command, and Output
+   Directory = `site`. There is nothing to install and no Python runs on
+   Vercel — the site is static HTML generated locally and committed.
+3. **Deploy.** No environment variables are required.
+
+The config sends `X-Robots-Tag: noindex` on every page. **Keep it that way
+until the first real-data study has run** — every number on the site is
+currently generated from a simulated market, and the pages say so. Remove
+that header only when the site shows real results you intend to publish.
+
+To refresh the site after new experiments:
+
+```bash
+python scripts/research.py dashboard   # rewrites site/
+git add site results/synthetic/experiments.jsonl && git commit && git push
+```
+
+Vercel redeploys on push, so the published dashboard always matches the
+committed research record.
+
+### What is version-controlled, and why
+
+`results/synthetic/experiments.jsonl` (the append-only experiment registry)
+and the derived summary tables **are committed** — they are the research
+record, and without them a fresh clone cannot reconstruct what was tested or
+reproduce a ranking. Equity curves (`results/*/curves/`, ~125 MB) are **not**
+committed: they are fully regenerable from the registry plus the frozen code
+via `python scripts/run_all.py --data-mode synthetic`. Until you regenerate
+them, the portfolio-lab page renders empty on a fresh clone; everything else
+works from the registry.
+
 ## The first frozen real-data study (one command)
 
 The first real run is governed by a **research freeze**
