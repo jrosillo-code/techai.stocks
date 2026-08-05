@@ -33,6 +33,33 @@ from aitb.validation import (block_bootstrap_ci, deflated_sharpe,
 log = get_logger("run_robustness")
 
 
+def recover_failed_trials(all_df: pd.DataFrame, cohort: pd.DataFrame) -> pd.DataFrame:
+    """Failed runs belonging to the current cohort, with `family` restored.
+
+    AUD-020. A failed run IS a trial — it consumed a degree of freedom and must
+    enter the deflated-Sharpe battery (AUD-008). But failure records carry only
+    `spec`: no family, no universe_hash, no freeze_version. So the cohort filter
+    drops them, and the AUD-008 fix matched on a `family` column that is always
+    absent, making n_failed permanently zero. The correction has been
+    understated in every study since.
+
+    Family comes from the spec; membership comes from the execution window,
+    which is exact because a study runs as one batch.
+    """
+    if all_df.empty or "status" not in all_df.columns:
+        return pd.DataFrame(columns=["family"])
+    failures = all_df[all_df["status"] == "failed"].copy()
+    if failures.empty:
+        return failures.assign(family=pd.Series(dtype=object))
+    if not cohort.empty and "timestamp" in cohort.columns:
+        lo = pd.to_datetime(cohort["timestamp"], errors="coerce", utc=True).min()
+        ts = pd.to_datetime(failures["timestamp"], errors="coerce", utc=True)
+        failures = failures[ts >= lo]
+    failures["family"] = failures["spec"].map(
+        lambda s: (s or {}).get("family") if isinstance(s, dict) else None)
+    return failures
+
+
 def main() -> int:
     import argparse
     ap = argparse.ArgumentParser()
@@ -48,7 +75,32 @@ def main() -> int:
     # would corrupt the trial battery, the walk-forward selection and every
     # comparison downstream. Older cohorts stay on the permanent record.
     from aitb.ranking import current_cohort
+    all_df = df
     df = current_cohort(df)
+
+    # AUD-020. Failed runs must still count as trials, but their records carry
+    # no family, universe_hash or freeze_version — only `spec` — so the cohort
+    # filter drops them and the AUD-008 battery fix matched nothing. Recover
+    # them here: same family (read from the spec), and inside the current
+    # cohort's execution window, which is exact because a study runs in one
+    # batch.
+    failures = recover_failed_trials(all_df, df)
+    log.info("recovered %d failed trials for the multiple-testing correction",
+             len(failures))
+
+    # Equity curves are gitignored (340 MB, regenerable). Without them every
+    # family yields no curves, the loop writes an EMPTY summary, and the run
+    # exits 0 — which is how a real robustness summary got overwritten with
+    # nothing from a checkout that had the results but not the curves.
+    curve_dir = registry.root / "curves"
+    n_curves = len(list(curve_dir.glob("*.parquet"))) if curve_dir.exists() else 0
+    if n_curves == 0:
+        log.error("no equity curves in %s — robustness needs them and would "
+                  "otherwise write an empty summary over a good one. Run this "
+                  "where the study ran, or regenerate with "
+                  "scripts/run_experiments.py --data-mode %s",
+                  curve_dir, args.data_mode)
+        return 1
     if df.empty:
         log.error("no experiments found — run scripts/run_experiments.py first")
         return 1
@@ -85,9 +137,9 @@ def main() -> int:
         # EVERY variant attempted in the family — errored runs enter as
         # zero-Sharpe trials so the multiple-testing correction is not
         # understated by dropping failures.
-        n_failed = int((df[(df["status"] == "failed")
-                           & (df.get("family", pd.Series(dtype=object)) == family)]
-                        ).shape[0]) if "family" in df.columns else 0
+        n_failed = int((failures["family"] == family).sum()) if len(failures) else 0
+        if n_failed:
+            log.info("family %-12s +%d failed trials in the battery", family, n_failed)
         trial_sharpes = ([sharpe(v.dropna()) for v in dev_curves.values()]
                          + [0.0] * n_failed)
         best_name = max(dev_curves, key=lambda k: sharpe(dev_curves[k].dropna()))

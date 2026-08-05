@@ -428,3 +428,50 @@ def test_registry_families_match_the_current_classes():
         assert not bad, (
             f"{mode}: records whose family contradicts the class definition — "
             f"{sorted(set(bad))[:5]}")
+
+
+# ------- AUD-020: failed trials must still enter the correction battery -------
+def test_failed_trials_are_recovered_for_the_multiple_testing_correction():
+    """A failed run is still a trial and must count against significance.
+
+    AUD-008 established this. The fix then silently died: failure records carry
+    only `spec` — no family, no universe_hash, no freeze_version — so the
+    cohort filter dropped them and the battery matched on a `family` column
+    that is never present on a failure. n_failed was permanently zero, and
+    every family's deflated Sharpe was overstated as a result.
+
+    Observed live: the first freeze-v4 real study had 48 failed runs, 33 of
+    them in the current cohort, every one invisible to the correction.
+    """
+    import importlib.util
+    from pathlib import Path
+
+    spec_ = importlib.util.spec_from_file_location(
+        "run_robustness", Path(__file__).parents[1] / "scripts" / "run_robustness.py")
+    mod = importlib.util.module_from_spec(spec_)
+    spec_.loader.exec_module(mod)
+
+    cohort = pd.DataFrame([
+        {"status": "ok", "family": "longshort", "timestamp": "2026-08-05T10:00:00Z"},
+        {"status": "ok", "family": "quality", "timestamp": "2026-08-05T10:05:00Z"},
+    ])
+    all_df = pd.concat([cohort, pd.DataFrame([
+        # current cohort, failed — must be recovered, family read from spec
+        {"status": "failed", "timestamp": "2026-08-05T10:02:00Z",
+         "spec": {"class": "ResearchIntensity", "family": "quality"}},
+        {"status": "failed", "timestamp": "2026-08-05T10:03:00Z",
+         "spec": {"class": "AccrualQuality", "family": "quality"}},
+        # an OLDER cohort's failure — must NOT be counted against this study
+        {"status": "failed", "timestamp": "2026-08-01T09:00:00Z",
+         "spec": {"class": "OldThing", "family": "quality"}},
+    ])], ignore_index=True)
+
+    rec = mod.recover_failed_trials(all_df, cohort)
+    assert len(rec) == 2, f"expected 2 in-cohort failures, got {len(rec)}"
+    assert set(rec["family"]) == {"quality"}
+    assert int((rec["family"] == "quality").sum()) == 2
+    assert int((rec["family"] == "longshort").sum()) == 0
+
+    # No failures at all must not explode.
+    empty = mod.recover_failed_trials(cohort, cohort)
+    assert len(empty) == 0
