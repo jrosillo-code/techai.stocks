@@ -428,8 +428,28 @@ def _dashboard(mode, stats, cat, registry) -> str:
 
     from ..config import load_universe_config
     u = load_universe_config()
-    n_live = sum(1 for s in u.securities if s.delisted is None)
-    n_dead = len(u.securities) - n_live
+    # Count what the study ACTUALLY had, not what the config asked for. In real
+    # mode some names have no history at any provider; they were never in a
+    # backtest, and claiming them here would overstate the coverage on the one
+    # page most people read.
+    securities = list(u.securities)
+    n_absent = 0
+    if mode == "real":
+        try:
+            from ..data import realstore
+            have = set(realstore.available("prices"))
+            securities = [s for s in u.securities if s.ticker in have]
+            n_absent = len(u.securities) - len(securities)
+        except Exception:
+            pass
+    n_live = sum(1 for s in securities if s.delisted is None)
+    n_dead = len(securities) - n_live
+
+    absent_note = (f" A further {n_absent} were in the plan but no data provider "
+                   f"carries their history, so they were left out entirely."
+                   if n_absent else "")
+    absent_short = (f" {n_absent} more had no data and were excluded."
+                    if n_absent else "")
 
     hero = f"""<div class='hero'>
 <h1>AI &amp; Technology Strategy Research</h1>
@@ -443,7 +463,7 @@ honest when they aren’t.</p>
 <p class='lede'>It runs over <b>{n_live} technology companies</b> plus
 <b>{n_dead} that no longer exist</b> — bankrupt, bought or taken private.
 Including the dead ones is the difference between a backtest that means
-something and one that just rediscovers which stocks went up.
+something and one that just rediscovers which stocks went up.{absent_note}
 <a href='data.html'>See the full list →</a></p>
 </div>"""
 
@@ -460,9 +480,9 @@ something and one that just rediscovers which stocks went up.
 <div class='stat'><div class='v'>{n_exp:,}</div><div class='k'>test runs recorded</div>
 <div class='d'>Every run is kept forever — including the failures, so nothing is
 quietly retried.</div></div>
-<div class='stat'><div class='v'>{len(u.securities)}</div><div class='k'>companies in the test</div>
+<div class='stat'><div class='v'>{len(securities)}</div><div class='k'>companies in the test</div>
 <div class='d'>{n_live} still trading, {n_dead} that died. Across 36 years of
-market history.</div></div>
+market history.{absent_short}</div></div>
 <div class='stat'><div class='v'>{robust}</div><div class='k'>beat the benchmark</div>
 <div class='d'>Passed every check. Still only a <i>candidate</i>, and only on
 simulated data.</div></div>

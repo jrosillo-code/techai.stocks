@@ -229,3 +229,30 @@ def test_real_research_record_is_version_controlled():
 
     not_ignored = [p for p in must_ignore if not ignored(p)]
     assert not not_ignored, f"equity curves must stay out of git: {not_ignored}"
+
+
+def test_dashboard_reports_actual_coverage_not_configured(monkeypatch):
+    """The headline "companies in the test" must be what the study had.
+
+    The dashboard is the page most people read and the least likely to be
+    checked against the gate. Reporting the configured roster there while the
+    run only had a subset overstates coverage on the most visible number on the
+    site — and does it in the direction that flatters.
+    """
+    from aitb.data import realstore
+    from aitb.platform import site
+    from aitb.platform.catalog import build_catalog, platform_stats
+    from aitb.experiments import ExperimentRegistry
+    from aitb.config import load_universe_config
+
+    kept = ["NVDA", "MSFT", "AAPL", "SPY", "QQQ"]
+    monkeypatch.setattr(realstore, "available",
+                        lambda kind, root=None: kept if kind == "prices" else [])
+
+    html_out = site._dashboard("real", platform_stats("real"),
+                               build_catalog("real"),
+                               ExperimentRegistry.for_mode("real"))
+    configured = len(load_universe_config().securities)
+    assert f">{configured}</div><div class='k'>companies in the test" not in html_out, (
+        "dashboard claims the full configured roster was tested")
+    assert "had no data and were excluded" in html_out

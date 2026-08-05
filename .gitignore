@@ -56,3 +56,4 @@ __pycache__/
 .pytest_cache/
 .venv/
 .env
+first_real_study_*.tar.gz
