@@ -13,9 +13,13 @@ from __future__ import annotations
 import argparse
 import itertools
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
+
+import contextlib
+import os
 
 from aitb.config import load_cost_scenarios, load_yaml
 from aitb.data.loader import load_market_data
@@ -24,6 +28,49 @@ from aitb.strategies import STRATEGY_CLASSES as CLASSES
 from aitb.utils import get_logger
 
 log = get_logger("run_experiments")
+
+
+@contextlib.contextmanager
+def registry_lock(root: Path):
+    """Refuse to start while another runner holds this registry (AUD-017).
+
+    The registry is append-only and its de-duplication check reads existing IDs
+    ONCE at entry, so two concurrent runners both see "not present" and both
+    append. This has now happened twice — once on synthetic data, once on the
+    first real study, where three overlapping runs wrote 1,644 records for 646
+    experiments. Values were identical every time because the pipeline is
+    deterministic, so nothing was WRONG, but every count was inflated ~2.5x and
+    concurrent parquet writes to one curve path are not atomic.
+
+    The proper fix belongs in ExperimentRegistry.append(), which is bound by the
+    research freeze — changing it would supersede the freeze the real study just
+    ran under, and force a full re-run to fix a bookkeeping bug. Locking here
+    costs nothing and prevents the only way the condition arises.
+    """
+    lock = root / ".runner.lock"
+    root.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        try:
+            holder = lock.read_text().strip()
+        except OSError:
+            holder = "unknown"
+        raise SystemExit(
+            f"\nAnother experiment runner is already using {root}.\n"
+            f"  lock: {lock}\n"
+            f"  held by: {holder}\n\n"
+            "Two runners appending to one registry duplicate every record.\n"
+            "Wait for it to finish, or if no runner is actually alive "
+            "(check with: ps aux | grep run_experiments), delete the lock file "
+            "and re-run — the registry is resumable and loses nothing.\n")
+    try:
+        os.write(fd, f"pid {os.getpid()} started {datetime.now(timezone.utc).isoformat()}".encode())
+        os.close(fd)
+        yield
+    finally:
+        with contextlib.suppress(OSError):
+            lock.unlink()
 
 
 def expand_grid(entry: dict):
@@ -96,41 +143,42 @@ def main() -> int:
             skip_families.add("regime")
             log.warning("skipping 'regime' family: no VIX series in real store")
 
-    families = args.families.split(",") if args.families else list(spec)
-    n = 0
-    deprecated_logged = {r.get("id") for r in
-                         (registry.load().to_dict("records") if registry.path.exists() else [])}
-    for family in families:
-        if family in skip_families:
-            continue
-        for entry in spec.get(family, []):
-            if entry.get("status") == "deprecated":
-                # Deprecated variants are never run but stay visible in the
-                # registry with their reason (research-integrity requirement).
-                from datetime import datetime, timezone
-                from aitb.utils import stable_hash
-                dep_id = "dep_" + stable_hash({"class": entry["class"],
-                                               "grid": entry.get("grid", {}),
-                                               "mode": args.data_mode})
-                if dep_id not in deprecated_logged:
-                    registry.append({
-                        "id": dep_id, "status": "deprecated",
-                        "strategy": entry["class"], "family": family,
-                        "spec": {"class": entry["class"], "family": family,
-                                 "params": entry.get("grid", {})},
-                        "reason": entry.get("reason", "unspecified"),
-                        "data_mode": args.data_mode, "scenario": "n/a",
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                    })
+    with registry_lock(registry.root):
+        families = args.families.split(",") if args.families else list(spec)
+        n = 0
+        deprecated_logged = {r.get("id") for r in
+                             (registry.load().to_dict("records") if registry.path.exists() else [])}
+        for family in families:
+            if family in skip_families:
                 continue
-            for strat in expand_grid(entry):
-                run_experiment(md, strat, scens, registry,
-                               notes=(f"family_group={family};mode={args.data_mode};"
-                                      f"status={entry.get('status', 'exploratory')};"
-                                      f"hypothesis={entry.get('hypothesis', '')}"))
-                n += 1
-    log.info("completed %d strategy variants × %d scenarios [%s mode]",
-             n, len(scens), args.data_mode)
+            for entry in spec.get(family, []):
+                if entry.get("status") == "deprecated":
+                    # Deprecated variants are never run but stay visible in the
+                    # registry with their reason (research-integrity requirement).
+                    from datetime import datetime, timezone
+                    from aitb.utils import stable_hash
+                    dep_id = "dep_" + stable_hash({"class": entry["class"],
+                                                   "grid": entry.get("grid", {}),
+                                                   "mode": args.data_mode})
+                    if dep_id not in deprecated_logged:
+                        registry.append({
+                            "id": dep_id, "status": "deprecated",
+                            "strategy": entry["class"], "family": family,
+                            "spec": {"class": entry["class"], "family": family,
+                                     "params": entry.get("grid", {})},
+                            "reason": entry.get("reason", "unspecified"),
+                            "data_mode": args.data_mode, "scenario": "n/a",
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                        })
+                    continue
+                for strat in expand_grid(entry):
+                    run_experiment(md, strat, scens, registry,
+                                   notes=(f"family_group={family};mode={args.data_mode};"
+                                          f"status={entry.get('status', 'exploratory')};"
+                                          f"hypothesis={entry.get('hypothesis', '')}"))
+                    n += 1
+        log.info("completed %d strategy variants × %d scenarios [%s mode]",
+                 n, len(scens), args.data_mode)
     return 0
 
 

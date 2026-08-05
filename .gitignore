@@ -50,6 +50,7 @@ results/real/robustness/*
 !results/real/robustness/*.json
 
 reports/
+.runner.lock
 *.egg-info/
 __pycache__/
 .pytest_cache/
