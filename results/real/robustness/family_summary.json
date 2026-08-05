@@ -78,7 +78,7 @@
     "best_dev_sharpe":0.608,
     "sharpe_ci90_lo":0.264,
     "sharpe_ci90_hi":0.938,
-    "deflated_sharpe_prob":0.994,
+    "deflated_sharpe_prob":0.925,
     "walkforward_oos_sharpe":0.674,
     "mc_mdd_median":-0.615,
     "mc_mdd_p95":-0.774
