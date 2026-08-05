@@ -15,18 +15,18 @@
  .robust{color:#166534;font-weight:600}.inconclusive{color:#92400e}.rejected{color:#991b1b}
 </style></head><body>
 <h1>AI & Technology Strategy Research Report [SYNTHETIC DATA]</h1>
-<p class="note">Generated 2026-08-05 22:02 UTC · data provider: <b>synthetic</b> ·
-data span 1990-01-02 – 2026-07-31 · git 2ba5d6b</p>
+<p class="note">Generated 2026-08-05 23:14 UTC · data provider: <b>synthetic</b> ·
+data span 1990-01-02 – 2026-07-31 · git 0bae593</p>
 <div class="warn">SYNTHETIC DATA: this environment blocks all market-data hosts, so every result below is computed on a deterministic, regime-realistic SYNTHETIC dataset. Numbers demonstrate the research machinery — they are NOT historical market results and must not inform investment decisions. Re-run with --provider stooq/yahoo in a networked environment for real data.</div><div class="warn">Historical results — real or synthetic — are not predictive of future performance. This is a research tool, not investment advice.</div>
 
 <h2>1. Executive summary</h2>
 
-<p>299 strategy variants were evaluated across 14 families
+<p>333 strategy variants were evaluated across 14 families
 under 3 cost scenarios, with a chronological development /
 holdout split at <b>2024-07-31</b> (holdout never used for
 selection). Composite ranking yields <b>18 robust candidates</b>,
-58 inconclusive strategies, and
-125 rejected strategies.</p><table class="dataframe">
+62 inconclusive strategies, and
+155 rejected strategies.</p><table class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>strategy</th>
@@ -1847,6 +1847,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=0.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>5.95</td>
+      <td>0.84</td>
+      <td>2.65</td>
+      <td>27.7%</td>
+      <td>129.0%</td>
+      <td>-67.1%</td>
+      <td>0.41</td>
+      <td>1.00</td>
+      <td>15.02</td>
+      <td>0.21</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.78</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>InverseVolBasket(basket=megacap_ai,rebalance=ME)</td>
       <td>riskmanaged</td>
       <td>5.91</td>
@@ -1885,6 +1904,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=megacap_ai,confirm_days=5,min_hold=20,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>5.85</td>
+      <td>0.94</td>
+      <td>2.50</td>
+      <td>31.4%</td>
+      <td>114.5%</td>
+      <td>-75.2%</td>
+      <td>0.42</td>
+      <td>1.00</td>
+      <td>7.84</td>
+      <td>0.24</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.92</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>ThemeRotation(lookback_days=252,rebalance=ME,top_themes=4)</td>
       <td>factor</td>
       <td>5.82</td>
@@ -1920,6 +1958,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.82</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=megacap_ai,confirm_days=5,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>5.75</td>
+      <td>0.92</td>
+      <td>2.50</td>
+      <td>30.4%</td>
+      <td>114.5%</td>
+      <td>-82.0%</td>
+      <td>0.37</td>
+      <td>1.00</td>
+      <td>7.98</td>
+      <td>0.25</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.90</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -1996,6 +2053,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.80</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=1.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>5.63</td>
+      <td>0.84</td>
+      <td>2.50</td>
+      <td>27.5%</td>
+      <td>119.0%</td>
+      <td>-70.9%</td>
+      <td>0.39</td>
+      <td>1.00</td>
+      <td>11.72</td>
+      <td>0.23</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.79</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2227,6 +2303,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=megacap_ai,min_hold=20)</td>
+      <td>chartable</td>
+      <td>5.39</td>
+      <td>0.59</td>
+      <td>2.49</td>
+      <td>19.0%</td>
+      <td>119.6%</td>
+      <td>-96.4%</td>
+      <td>0.20</td>
+      <td>1.00</td>
+      <td>26.22</td>
+      <td>0.35</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.50</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=250)</td>
       <td>tsmom</td>
       <td>5.39</td>
@@ -2417,23 +2512,23 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
-      <td>BuyAndHold(ticker=CDNS)</td>
-      <td>benchmark</td>
-      <td>5.26</td>
-      <td>0.37</td>
-      <td>2.37</td>
-      <td>10.5%</td>
-      <td>180.6%</td>
-      <td>-96.5%</td>
-      <td>0.11</td>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
+      <td>chartable</td>
+      <td>5.29</td>
+      <td>0.54</td>
+      <td>2.57</td>
+      <td>16.1%</td>
+      <td>134.0%</td>
+      <td>-83.3%</td>
+      <td>0.19</td>
       <td>1.00</td>
-      <td>0.03</td>
-      <td>1.00</td>
-      <td>0.75</td>
+      <td>14.73</td>
+      <td>0.23</td>
+      <td>0.62</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.37</td>
-      <td>benchmark</td>
+      <td>0.49</td>
+      <td>inconclusive</td>
     </tr>
     <tr>
       <td>ThemeRotation(lookback_days=126,rebalance=ME,top_themes=4)</td>
@@ -2453,6 +2548,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.93</td>
       <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>BuyAndHold(ticker=CDNS)</td>
+      <td>benchmark</td>
+      <td>5.26</td>
+      <td>0.37</td>
+      <td>2.37</td>
+      <td>10.5%</td>
+      <td>180.6%</td>
+      <td>-96.5%</td>
+      <td>0.11</td>
+      <td>1.00</td>
+      <td>0.03</td>
+      <td>1.00</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.37</td>
+      <td>benchmark</td>
     </tr>
     <tr>
       <td>EqualWeightUniverse(basket=target_holdings,rebalance=ME)</td>
@@ -2531,25 +2645,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=megacap_ai,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>5.20</td>
-      <td>0.64</td>
-      <td>2.45</td>
-      <td>20.7%</td>
-      <td>112.1%</td>
-      <td>-91.7%</td>
-      <td>0.23</td>
-      <td>1.00</td>
-      <td>10.95</td>
-      <td>0.31</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.60</td>
-      <td>inconclusive</td>
-    </tr>
-    <tr>
       <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)</td>
       <td>chartable</td>
       <td>5.19</td>
@@ -2588,22 +2683,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,period=40,poles=4)</td>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=megacap_ai,min_hold=20)</td>
       <td>chartable</td>
-      <td>5.18</td>
-      <td>0.82</td>
-      <td>2.23</td>
-      <td>26.9%</td>
-      <td>84.9%</td>
-      <td>-94.4%</td>
-      <td>0.28</td>
+      <td>5.17</td>
+      <td>0.60</td>
+      <td>2.29</td>
+      <td>19.6%</td>
+      <td>104.6%</td>
+      <td>-93.7%</td>
+      <td>0.21</td>
       <td>1.00</td>
-      <td>62.42</td>
-      <td>0.04</td>
+      <td>19.48</td>
+      <td>0.30</td>
       <td>0.75</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.57</td>
+      <td>0.53</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2626,25 +2721,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=None,period=40,poles=4)</td>
-      <td>chartable</td>
-      <td>5.13</td>
-      <td>0.72</td>
-      <td>2.26</td>
-      <td>23.4%</td>
-      <td>89.7%</td>
-      <td>-94.7%</td>
-      <td>0.25</td>
-      <td>1.00</td>
-      <td>61.15</td>
-      <td>0.04</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.48</td>
-      <td>inconclusive</td>
-    </tr>
-    <tr>
       <td>ATRTrailingStop(atr_mult=4.0,atr_window=22,basket=None,entry_window=55)</td>
       <td>chartable</td>
       <td>5.12</td>
@@ -2664,22 +2740,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=None)</td>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=1.0,min_hold=0,period=100,poles=4)</td>
       <td>chartable</td>
       <td>5.12</td>
-      <td>0.76</td>
-      <td>2.20</td>
-      <td>24.1%</td>
-      <td>83.0%</td>
-      <td>-95.2%</td>
-      <td>0.25</td>
+      <td>0.77</td>
+      <td>2.23</td>
+      <td>25.8%</td>
+      <td>104.0%</td>
+      <td>-74.4%</td>
+      <td>0.35</td>
       <td>1.00</td>
-      <td>28.72</td>
-      <td>0.04</td>
-      <td>0.62</td>
+      <td>16.85</td>
+      <td>0.27</td>
+      <td>0.75</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.64</td>
+      <td>0.71</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2816,25 +2892,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=megacap_ai)</td>
-      <td>chartable</td>
-      <td>5.05</td>
-      <td>0.65</td>
-      <td>2.11</td>
-      <td>21.5%</td>
-      <td>94.2%</td>
-      <td>-81.4%</td>
-      <td>0.26</td>
-      <td>1.00</td>
-      <td>23.26</td>
-      <td>0.32</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.58</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>RelativeStrengthNewHigh(basket=megacap_ai,bench=QQQ,entry_window=126,exit_window=21,trend_window=200)</td>
       <td>chartable</td>
       <td>5.04</td>
@@ -2892,6 +2949,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=None,min_hold=0)</td>
+      <td>chartable</td>
+      <td>5.02</td>
+      <td>0.76</td>
+      <td>2.20</td>
+      <td>24.1%</td>
+      <td>83.0%</td>
+      <td>-95.2%</td>
+      <td>0.25</td>
+      <td>1.00</td>
+      <td>28.72</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.64</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>RelativeStrengthNewHigh(basket=semiconductors,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)</td>
       <td>chartable</td>
       <td>5.02</td>
@@ -2908,25 +2984,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.43</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>ThemeRotation(lookback_days=126,rebalance=ME,top_themes=3)</td>
-      <td>factor</td>
-      <td>5.01</td>
-      <td>0.93</td>
-      <td>1.83</td>
-      <td>32.7%</td>
-      <td>64.3%</td>
-      <td>-65.2%</td>
-      <td>0.50</td>
-      <td>1.00</td>
-      <td>10.91</td>
-      <td>0.10</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.90</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -2949,22 +3006,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=None,period=40,poles=4)</td>
-      <td>chartable</td>
+      <td>ThemeRotation(lookback_days=126,rebalance=ME,top_themes=3)</td>
+      <td>factor</td>
       <td>5.01</td>
-      <td>0.80</td>
-      <td>2.15</td>
-      <td>26.1%</td>
-      <td>80.0%</td>
-      <td>-95.0%</td>
-      <td>0.27</td>
+      <td>0.93</td>
+      <td>1.83</td>
+      <td>32.7%</td>
+      <td>64.3%</td>
+      <td>-65.2%</td>
+      <td>0.50</td>
       <td>1.00</td>
-      <td>67.59</td>
-      <td>0.04</td>
+      <td>10.91</td>
+      <td>0.10</td>
       <td>0.75</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.52</td>
+      <td>0.90</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3025,6 +3082,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=0.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.98</td>
+      <td>0.82</td>
+      <td>2.23</td>
+      <td>26.9%</td>
+      <td>84.9%</td>
+      <td>-94.4%</td>
+      <td>0.28</td>
+      <td>1.00</td>
+      <td>62.42</td>
+      <td>0.04</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.57</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>EqualWeightUniverse(basket=ai_compute,rebalance=ME)</td>
       <td>benchmark</td>
       <td>4.98</td>
@@ -3044,25 +3120,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=megacap_ai,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.98</td>
-      <td>0.66</td>
-      <td>2.29</td>
-      <td>21.7%</td>
-      <td>103.6%</td>
-      <td>-84.4%</td>
-      <td>0.26</td>
-      <td>1.00</td>
-      <td>17.37</td>
-      <td>0.30</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.61</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=3,rebalance=ME,top_n=5,weighting=equal)</td>
       <td>factor</td>
       <td>4.97</td>
@@ -3079,6 +3136,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.81</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=megacap_ai,confirm_days=5,min_hold=0,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.96</td>
+      <td>0.69</td>
+      <td>2.33</td>
+      <td>22.8%</td>
+      <td>104.5%</td>
+      <td>-89.9%</td>
+      <td>0.25</td>
+      <td>1.00</td>
+      <td>13.75</td>
+      <td>0.28</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.65</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=megacap_ai,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.95</td>
+      <td>0.65</td>
+      <td>2.11</td>
+      <td>21.5%</td>
+      <td>94.2%</td>
+      <td>-81.4%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>23.26</td>
+      <td>0.32</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.58</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3120,6 +3215,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=0.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.92</td>
+      <td>0.74</td>
+      <td>2.29</td>
+      <td>23.6%</td>
+      <td>86.2%</td>
+      <td>-91.5%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>21.40</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.66</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>EqualWeightUniverse(basket=None,rebalance=ME)</td>
       <td>benchmark</td>
       <td>4.91</td>
@@ -3137,6 +3251,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.72</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=1.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.91</td>
+      <td>0.82</td>
+      <td>2.19</td>
+      <td>26.7%</td>
+      <td>83.3%</td>
+      <td>-93.0%</td>
+      <td>0.29</td>
+      <td>1.00</td>
+      <td>37.63</td>
+      <td>0.05</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>InverseVolBasket(basket=semiconductors,rebalance=ME)</td>
@@ -3193,6 +3326,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.69</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=megacap_ai,confirm_days=5,min_hold=20,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.86</td>
+      <td>0.66</td>
+      <td>2.31</td>
+      <td>21.6%</td>
+      <td>103.1%</td>
+      <td>-92.9%</td>
+      <td>0.23</td>
+      <td>1.00</td>
+      <td>13.21</td>
+      <td>0.28</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.62</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3253,6 +3405,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>ShortSqueezeCandidate(basket=semiconductors,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.75,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.85</td>
+      <td>0.64</td>
+      <td>2.06</td>
+      <td>17.1%</td>
+      <td>105.3%</td>
+      <td>-49.5%</td>
+      <td>0.34</td>
+      <td>1.00</td>
+      <td>37.17</td>
+      <td>0.19</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.47</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>ShortSqueezeCandidate(basket=None,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.75,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.84</td>
+      <td>0.64</td>
+      <td>2.06</td>
+      <td>15.0%</td>
+      <td>79.0%</td>
+      <td>-48.2%</td>
+      <td>0.31</td>
+      <td>1.00</td>
+      <td>36.44</td>
+      <td>0.07</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.45</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>RegimeSwitchedTech(cut=0.25,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)</td>
       <td>regime</td>
       <td>4.84</td>
@@ -3269,6 +3459,82 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.89</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
+      <td>chartable</td>
+      <td>4.82</td>
+      <td>0.50</td>
+      <td>2.33</td>
+      <td>15.5%</td>
+      <td>130.9%</td>
+      <td>-94.1%</td>
+      <td>0.16</td>
+      <td>1.00</td>
+      <td>21.06</td>
+      <td>0.13</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.43</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=semiconductors,min_hold=20)</td>
+      <td>chartable</td>
+      <td>4.81</td>
+      <td>0.71</td>
+      <td>2.11</td>
+      <td>25.1%</td>
+      <td>92.6%</td>
+      <td>-95.7%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>23.32</td>
+      <td>0.11</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.64</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=None,min_hold=20)</td>
+      <td>chartable</td>
+      <td>4.81</td>
+      <td>0.75</td>
+      <td>2.11</td>
+      <td>23.8%</td>
+      <td>78.1%</td>
+      <td>-95.9%</td>
+      <td>0.25</td>
+      <td>1.00</td>
+      <td>19.57</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=1.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.81</td>
+      <td>0.80</td>
+      <td>2.22</td>
+      <td>25.5%</td>
+      <td>83.8%</td>
+      <td>-93.5%</td>
+      <td>0.27</td>
+      <td>1.00</td>
+      <td>22.82</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.71</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3291,22 +3557,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=None)</td>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=semiconductors,min_hold=20)</td>
       <td>chartable</td>
-      <td>4.79</td>
-      <td>0.73</td>
-      <td>1.99</td>
-      <td>23.1%</td>
-      <td>73.0%</td>
-      <td>-94.5%</td>
-      <td>0.24</td>
+      <td>4.80</td>
+      <td>0.71</td>
+      <td>2.11</td>
+      <td>24.9%</td>
+      <td>94.6%</td>
+      <td>-95.3%</td>
+      <td>0.26</td>
       <td>1.00</td>
-      <td>47.03</td>
-      <td>0.04</td>
-      <td>0.75</td>
+      <td>29.20</td>
+      <td>0.11</td>
+      <td>0.62</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.56</td>
+      <td>0.62</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3386,6 +3652,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=1.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.76</td>
+      <td>0.77</td>
+      <td>2.19</td>
+      <td>27.7%</td>
+      <td>100.0%</td>
+      <td>-91.9%</td>
+      <td>0.30</td>
+      <td>1.00</td>
+      <td>23.44</td>
+      <td>0.14</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.68</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=0.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.76</td>
+      <td>0.77</td>
+      <td>2.20</td>
+      <td>24.8%</td>
+      <td>82.7%</td>
+      <td>-92.5%</td>
+      <td>0.27</td>
+      <td>1.00</td>
+      <td>33.40</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.65</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>BuyAndHold(ticker=PLTR)</td>
       <td>benchmark</td>
       <td>4.75</td>
@@ -3424,25 +3728,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=megacap_ai)</td>
-      <td>chartable</td>
-      <td>4.74</td>
-      <td>0.56</td>
-      <td>2.01</td>
-      <td>17.6%</td>
-      <td>91.7%</td>
-      <td>-87.3%</td>
-      <td>0.20</td>
-      <td>1.00</td>
-      <td>39.34</td>
-      <td>0.30</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.43</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>BuyAndHold(ticker=MSFT)</td>
       <td>benchmark</td>
       <td>4.74</td>
@@ -3460,25 +3745,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.55</td>
       <td>benchmark</td>
-    </tr>
-    <tr>
-      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=semiconductors)</td>
-      <td>chartable</td>
-      <td>4.73</td>
-      <td>0.72</td>
-      <td>1.96</td>
-      <td>25.1%</td>
-      <td>84.2%</td>
-      <td>-96.3%</td>
-      <td>0.26</td>
-      <td>1.00</td>
-      <td>30.00</td>
-      <td>0.12</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.62</td>
-      <td>rejected</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=8,weighting=equal)</td>
@@ -3557,6 +3823,63 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=0.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.70</td>
+      <td>0.83</td>
+      <td>2.11</td>
+      <td>30.3%</td>
+      <td>96.1%</td>
+      <td>-90.3%</td>
+      <td>0.34</td>
+      <td>1.00</td>
+      <td>20.56</td>
+      <td>0.10</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.75</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=None,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.69</td>
+      <td>0.73</td>
+      <td>1.99</td>
+      <td>23.1%</td>
+      <td>73.0%</td>
+      <td>-94.5%</td>
+      <td>0.24</td>
+      <td>1.00</td>
+      <td>47.03</td>
+      <td>0.04</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.56</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=None,min_hold=20)</td>
+      <td>chartable</td>
+      <td>4.68</td>
+      <td>0.72</td>
+      <td>2.06</td>
+      <td>23.0%</td>
+      <td>74.9%</td>
+      <td>-94.5%</td>
+      <td>0.24</td>
+      <td>1.00</td>
+      <td>25.07</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.63</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=252,rebalance=ME,skip_days=21,top_n=8)</td>
       <td>factor</td>
       <td>4.68</td>
@@ -3573,6 +3896,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.41</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>ADXTrendStrength(adx_exit=15.0,adx_min=20.0,adx_window=14,basket=None,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.68</td>
+      <td>0.64</td>
+      <td>2.14</td>
+      <td>20.6%</td>
+      <td>82.1%</td>
+      <td>-97.0%</td>
+      <td>0.21</td>
+      <td>1.00</td>
+      <td>54.31</td>
+      <td>-0.05</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.46</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>ShortSqueezeCandidate(basket=megacap_ai,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.9,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.68</td>
+      <td>0.68</td>
+      <td>1.94</td>
+      <td>17.3%</td>
+      <td>93.2%</td>
+      <td>-49.3%</td>
+      <td>0.35</td>
+      <td>1.00</td>
+      <td>16.11</td>
+      <td>0.28</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.61</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3595,6 +3956,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=1.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.66</td>
+      <td>0.82</td>
+      <td>2.11</td>
+      <td>29.5%</td>
+      <td>94.5%</td>
+      <td>-92.5%</td>
+      <td>0.32</td>
+      <td>1.00</td>
+      <td>16.45</td>
+      <td>0.08</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.76</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=100)</td>
       <td>tsmom</td>
       <td>4.65</td>
@@ -3614,6 +3994,82 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=supertrend)</td>
+      <td>chartable</td>
+      <td>4.65</td>
+      <td>0.65</td>
+      <td>2.11</td>
+      <td>21.5%</td>
+      <td>94.2%</td>
+      <td>-81.4%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>23.26</td>
+      <td>0.32</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.58</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=megacap_ai,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.64</td>
+      <td>0.56</td>
+      <td>2.01</td>
+      <td>17.6%</td>
+      <td>91.7%</td>
+      <td>-87.3%</td>
+      <td>0.20</td>
+      <td>1.00</td>
+      <td>39.34</td>
+      <td>0.30</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.43</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=1.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.63</td>
+      <td>0.73</td>
+      <td>2.18</td>
+      <td>23.1%</td>
+      <td>81.1%</td>
+      <td>-94.5%</td>
+      <td>0.24</td>
+      <td>1.00</td>
+      <td>15.61</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=semiconductors,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.63</td>
+      <td>0.72</td>
+      <td>1.96</td>
+      <td>25.1%</td>
+      <td>84.2%</td>
+      <td>-96.3%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>30.00</td>
+      <td>0.12</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.62</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>LowVolatilityTech(basket=None,rebalance=ME,top_n=20,trend_filter=True,vol_window=126)</td>
       <td>factor</td>
       <td>4.61</td>
@@ -3630,25 +4086,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.77</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=20.0,adx_window=14,basket=None,di_window=14)</td>
-      <td>chartable</td>
-      <td>4.61</td>
-      <td>0.62</td>
-      <td>2.07</td>
-      <td>19.9%</td>
-      <td>78.4%</td>
-      <td>-95.0%</td>
-      <td>0.21</td>
-      <td>1.00</td>
-      <td>65.30</td>
-      <td>-0.04</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.41</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3709,6 +4146,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=1.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.57</td>
+      <td>0.62</td>
+      <td>2.12</td>
+      <td>19.5%</td>
+      <td>100.4%</td>
+      <td>-75.8%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>28.48</td>
+      <td>0.22</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.52</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=0.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.56</td>
+      <td>0.66</td>
+      <td>2.10</td>
+      <td>21.0%</td>
+      <td>97.0%</td>
+      <td>-79.3%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>23.44</td>
+      <td>0.22</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.57</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)</td>
       <td>chartable</td>
       <td>4.56</td>
@@ -3747,6 +4222,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
+      <td>chartable</td>
+      <td>4.54</td>
+      <td>0.27</td>
+      <td>2.31</td>
+      <td>6.6%</td>
+      <td>70.5%</td>
+      <td>-55.0%</td>
+      <td>0.12</td>
+      <td>0.99</td>
+      <td>21.40</td>
+      <td>-1.56</td>
+      <td>0.50</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.13</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>CapWeightUniverse(basket=ai_broad,max_weight=0.25,rebalance=QE)</td>
       <td>benchmark</td>
       <td>4.53</td>
@@ -3766,25 +4260,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=semiconductors)</td>
-      <td>chartable</td>
-      <td>4.53</td>
-      <td>0.77</td>
-      <td>1.81</td>
-      <td>27.0%</td>
-      <td>74.7%</td>
-      <td>-94.1%</td>
-      <td>0.29</td>
-      <td>1.00</td>
-      <td>45.94</td>
-      <td>0.11</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.58</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>ValuationAwareGrowth(history_days=756,max_ps_own_pct=0.85,rebalance=QE,top_n=8)</td>
       <td>fundamental</td>
       <td>4.52</td>
@@ -3801,25 +4276,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.76</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=None,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.51</td>
-      <td>0.74</td>
-      <td>2.05</td>
-      <td>23.4%</td>
-      <td>75.7%</td>
-      <td>-94.1%</td>
-      <td>0.25</td>
-      <td>1.00</td>
-      <td>19.41</td>
-      <td>0.04</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.67</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4051,6 +4507,63 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>ShortSqueezeCandidate(basket=None,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.9,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.44</td>
+      <td>0.61</td>
+      <td>1.93</td>
+      <td>14.7%</td>
+      <td>74.5%</td>
+      <td>-63.4%</td>
+      <td>0.23</td>
+      <td>1.00</td>
+      <td>30.91</td>
+      <td>0.07</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.46</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=0.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.44</td>
+      <td>0.79</td>
+      <td>2.01</td>
+      <td>28.4%</td>
+      <td>88.9%</td>
+      <td>-92.1%</td>
+      <td>0.31</td>
+      <td>1.00</td>
+      <td>31.81</td>
+      <td>0.14</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=semiconductors,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.42</td>
+      <td>0.77</td>
+      <td>1.81</td>
+      <td>27.0%</td>
+      <td>74.7%</td>
+      <td>-94.1%</td>
+      <td>0.29</td>
+      <td>1.00</td>
+      <td>45.94</td>
+      <td>0.11</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.58</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.85,rebalance=ME,top_n=15,window=252)</td>
       <td>chartable</td>
       <td>4.42</td>
@@ -4067,6 +4580,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.81</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>ADXTrendStrength(adx_exit=None,adx_min=20.0,adx_window=14,basket=None,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.41</td>
+      <td>0.62</td>
+      <td>2.07</td>
+      <td>19.9%</td>
+      <td>78.4%</td>
+      <td>-95.0%</td>
+      <td>0.21</td>
+      <td>1.00</td>
+      <td>65.30</td>
+      <td>-0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.41</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4108,6 +4640,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>ShortSqueezeCandidate(basket=semiconductors,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.9,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.38</td>
+      <td>0.64</td>
+      <td>1.81</td>
+      <td>17.4%</td>
+      <td>100.8%</td>
+      <td>-47.0%</td>
+      <td>0.37</td>
+      <td>1.00</td>
+      <td>27.71</td>
+      <td>0.19</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.51</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>ADXTrendStrength(adx_exit=15.0,adx_min=20.0,adx_window=14,basket=semiconductors,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.37</td>
+      <td>0.74</td>
+      <td>1.82</td>
+      <td>26.9%</td>
+      <td>76.8%</td>
+      <td>-93.4%</td>
+      <td>0.29</td>
+      <td>1.00</td>
+      <td>47.99</td>
+      <td>0.10</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.58</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>EqualRiskContribution(basket=target_holdings,cov_window=252,max_weight=0.25,rebalance=ME)</td>
       <td>allocation</td>
       <td>4.37</td>
@@ -4124,6 +4694,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.71</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=1.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.37</td>
+      <td>0.84</td>
+      <td>1.89</td>
+      <td>30.4%</td>
+      <td>72.2%</td>
+      <td>-94.2%</td>
+      <td>0.32</td>
+      <td>1.00</td>
+      <td>34.10</td>
+      <td>0.13</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.70</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4165,22 +4754,41 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>ADXTrendStrength(adx_min=25.0,adx_window=14,basket=None,di_window=14)</td>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=0,period=200,poles=4)</td>
       <td>chartable</td>
-      <td>4.33</td>
-      <td>0.65</td>
-      <td>1.89</td>
-      <td>20.7%</td>
-      <td>72.5%</td>
-      <td>-89.1%</td>
-      <td>0.23</td>
+      <td>4.34</td>
+      <td>0.73</td>
+      <td>2.03</td>
+      <td>23.8%</td>
+      <td>73.7%</td>
+      <td>-96.7%</td>
+      <td>0.25</td>
       <td>1.00</td>
-      <td>58.88</td>
-      <td>0.06</td>
+      <td>10.72</td>
+      <td>0.04</td>
       <td>0.62</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.46</td>
+      <td>0.69</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=supertrend)</td>
+      <td>chartable</td>
+      <td>4.33</td>
+      <td>0.72</td>
+      <td>1.96</td>
+      <td>25.1%</td>
+      <td>84.2%</td>
+      <td>-96.3%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>30.00</td>
+      <td>0.12</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.62</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4203,44 +4811,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=None,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.31</td>
-      <td>0.74</td>
-      <td>1.96</td>
-      <td>23.2%</td>
-      <td>70.6%</td>
-      <td>-95.4%</td>
-      <td>0.24</td>
-      <td>1.00</td>
-      <td>10.63</td>
-      <td>0.04</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.70</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=semiconductors,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.30</td>
-      <td>0.71</td>
-      <td>1.97</td>
-      <td>24.6%</td>
-      <td>84.2%</td>
-      <td>-95.9%</td>
-      <td>0.26</td>
-      <td>1.00</td>
-      <td>13.44</td>
-      <td>0.11</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.67</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=5,weighting=equal)</td>
       <td>xsmom</td>
       <td>4.29</td>
@@ -4257,6 +4827,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.66</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=20,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.29</td>
+      <td>0.69</td>
+      <td>2.04</td>
+      <td>22.2%</td>
+      <td>74.0%</td>
+      <td>-97.8%</td>
+      <td>0.23</td>
+      <td>1.00</td>
+      <td>10.53</td>
+      <td>-0.06</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.65</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4336,6 +4925,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=0,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.26</td>
+      <td>0.76</td>
+      <td>1.97</td>
+      <td>24.0%</td>
+      <td>71.6%</td>
+      <td>-95.1%</td>
+      <td>0.25</td>
+      <td>1.00</td>
+      <td>14.38</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.70</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>ResearchIntensity(basket=None,rebalance=QE,require_profitable=False,top_n=10)</td>
       <td>quality</td>
       <td>4.25</td>
@@ -4393,25 +5001,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=semiconductors,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.22</td>
-      <td>0.65</td>
-      <td>1.95</td>
-      <td>21.9%</td>
-      <td>84.1%</td>
-      <td>-94.7%</td>
-      <td>0.23</td>
-      <td>1.00</td>
-      <td>22.03</td>
-      <td>0.14</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.58</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>EqualRiskContribution(basket=ai_broad,cov_window=126,max_weight=0.25,rebalance=ME)</td>
       <td>allocation</td>
       <td>4.21</td>
@@ -4450,6 +5039,63 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=20,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.19</td>
+      <td>0.73</td>
+      <td>1.96</td>
+      <td>23.0%</td>
+      <td>71.1%</td>
+      <td>-96.0%</td>
+      <td>0.24</td>
+      <td>1.00</td>
+      <td>13.41</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.68</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=20,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.17</td>
+      <td>0.72</td>
+      <td>1.95</td>
+      <td>25.7%</td>
+      <td>83.4%</td>
+      <td>-96.5%</td>
+      <td>0.27</td>
+      <td>1.00</td>
+      <td>12.01</td>
+      <td>0.10</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.69</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.17</td>
+      <td>0.76</td>
+      <td>1.91</td>
+      <td>27.2%</td>
+      <td>81.5%</td>
+      <td>-94.5%</td>
+      <td>0.29</td>
+      <td>1.00</td>
+      <td>12.05</td>
+      <td>0.10</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.72</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>AccrualQuality(basket=None,rebalance=QE,top_n=15)</td>
       <td>quality</td>
       <td>4.17</td>
@@ -4469,41 +5115,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,period=40,poles=4)</td>
-      <td>chartable</td>
-      <td>4.17</td>
-      <td>0.51</td>
-      <td>1.85</td>
-      <td>15.4%</td>
-      <td>88.7%</td>
-      <td>-66.8%</td>
-      <td>0.23</td>
-      <td>1.00</td>
-      <td>41.10</td>
-      <td>0.23</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.37</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=ai_compute,period=40,poles=4)</td>
+      <td>ADXTrendStrength(adx_exit=15.0,adx_min=20.0,adx_window=14,basket=megacap_ai,di_window=14,min_hold=0)</td>
       <td>chartable</td>
       <td>4.14</td>
-      <td>0.40</td>
-      <td>1.94</td>
-      <td>11.6%</td>
-      <td>116.5%</td>
-      <td>-92.7%</td>
-      <td>0.13</td>
+      <td>0.73</td>
+      <td>1.65</td>
+      <td>23.7%</td>
+      <td>73.4%</td>
+      <td>-62.9%</td>
+      <td>0.38</td>
       <td>1.00</td>
-      <td>29.91</td>
-      <td>0.41</td>
+      <td>33.15</td>
+      <td>0.21</td>
       <td>0.75</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.32</td>
+      <td>0.62</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4602,22 +5229,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=megacap_ai,period=40,poles=4)</td>
+      <td>ShortSqueezeCandidate(basket=megacap_ai,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.75,trend_window=100)</td>
       <td>chartable</td>
       <td>4.08</td>
-      <td>0.59</td>
-      <td>1.80</td>
-      <td>18.5%</td>
-      <td>82.9%</td>
-      <td>-78.0%</td>
-      <td>0.24</td>
+      <td>0.72</td>
+      <td>1.64</td>
+      <td>18.9%</td>
+      <td>77.4%</td>
+      <td>-55.0%</td>
+      <td>0.34</td>
       <td>1.00</td>
-      <td>48.80</td>
-      <td>0.21</td>
-      <td>0.62</td>
+      <td>27.39</td>
+      <td>0.39</td>
+      <td>0.88</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.42</td>
+      <td>0.59</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4656,25 +5283,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.49</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=ai_compute,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.05</td>
-      <td>0.46</td>
-      <td>1.94</td>
-      <td>14.7%</td>
-      <td>105.3%</td>
-      <td>-88.3%</td>
-      <td>0.17</td>
-      <td>1.00</td>
-      <td>13.59</td>
-      <td>0.38</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.42</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4735,25 +5343,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=semiconductors,period=40,poles=4)</td>
-      <td>chartable</td>
-      <td>4.02</td>
-      <td>0.81</td>
-      <td>1.64</td>
-      <td>28.9%</td>
-      <td>58.8%</td>
-      <td>-95.4%</td>
-      <td>0.30</td>
-      <td>1.00</td>
-      <td>56.51</td>
-      <td>0.10</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.62</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>BuyAndHold(ticker=SKYY)</td>
       <td>benchmark</td>
       <td>4.00</td>
@@ -4773,44 +5362,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=ai_compute,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>3.98</td>
-      <td>0.48</td>
-      <td>1.91</td>
-      <td>15.7%</td>
-      <td>98.5%</td>
-      <td>-95.0%</td>
-      <td>0.17</td>
-      <td>1.00</td>
-      <td>9.34</td>
-      <td>0.41</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.46</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=20.0,adx_window=14,basket=semiconductors,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.98</td>
-      <td>0.72</td>
-      <td>1.65</td>
-      <td>26.0%</td>
-      <td>68.7%</td>
-      <td>-90.4%</td>
-      <td>0.29</td>
-      <td>1.00</td>
-      <td>55.89</td>
-      <td>0.12</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.52</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>BuyAndHold(ticker=SUNW)</td>
       <td>benchmark</td>
       <td>3.97</td>
@@ -4828,6 +5379,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.14</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=0.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>3.97</td>
+      <td>0.51</td>
+      <td>1.85</td>
+      <td>15.4%</td>
+      <td>88.7%</td>
+      <td>-66.8%</td>
+      <td>0.23</td>
+      <td>1.00</td>
+      <td>41.10</td>
+      <td>0.23</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.37</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
+      <td>chartable</td>
+      <td>3.97</td>
+      <td>0.51</td>
+      <td>1.85</td>
+      <td>15.4%</td>
+      <td>88.7%</td>
+      <td>-66.8%</td>
+      <td>0.23</td>
+      <td>1.00</td>
+      <td>41.10</td>
+      <td>0.23</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.37</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>DonchianBreakout(entry_window=20,exit_window=20,max_positions=6,regime_filter=True)</td>
@@ -4868,6 +5457,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=20,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>3.92</td>
+      <td>0.64</td>
+      <td>1.87</td>
+      <td>21.6%</td>
+      <td>78.7%</td>
+      <td>-97.3%</td>
+      <td>0.22</td>
+      <td>1.00</td>
+      <td>16.22</td>
+      <td>0.13</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.59</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>LowVolatilityTech(basket=None,rebalance=ME,top_n=10,trend_filter=False,vol_window=126)</td>
       <td>factor</td>
       <td>3.90</td>
@@ -4887,41 +5495,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=ai_compute,period=40,poles=4)</td>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=0,period=60,poles=4)</td>
       <td>chartable</td>
-      <td>3.89</td>
-      <td>0.44</td>
-      <td>1.79</td>
-      <td>13.5%</td>
-      <td>104.6%</td>
-      <td>-94.5%</td>
+      <td>3.88</td>
+      <td>0.68</td>
+      <td>1.82</td>
+      <td>23.2%</td>
+      <td>76.3%</td>
+      <td>-96.4%</td>
+      <td>0.24</td>
+      <td>1.00</td>
+      <td>16.93</td>
       <td>0.14</td>
-      <td>1.00</td>
-      <td>37.11</td>
-      <td>0.34</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.34</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=25.0,adx_window=14,basket=semiconductors,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.89</td>
-      <td>0.72</td>
-      <td>1.56</td>
-      <td>25.5%</td>
-      <td>61.5%</td>
-      <td>-78.8%</td>
-      <td>0.32</td>
-      <td>1.00</td>
-      <td>43.14</td>
-      <td>0.10</td>
       <td>0.62</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.53</td>
+      <td>0.63</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -5039,6 +5628,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
+      <td>chartable</td>
+      <td>3.81</td>
+      <td>0.29</td>
+      <td>1.94</td>
+      <td>7.4%</td>
+      <td>68.4%</td>
+      <td>-73.2%</td>
+      <td>0.10</td>
+      <td>0.99</td>
+      <td>27.64</td>
+      <td>-1.43</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.13</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>BuyAndHold(ticker=AAPL)</td>
       <td>benchmark</td>
       <td>3.81</td>
@@ -5058,41 +5666,22 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=semiconductors,period=40,poles=4)</td>
+      <td>ADXTrendStrength(adx_exit=None,adx_min=20.0,adx_window=14,basket=semiconductors,di_window=14,min_hold=0)</td>
       <td>chartable</td>
-      <td>3.81</td>
-      <td>0.80</td>
-      <td>1.54</td>
-      <td>28.9%</td>
-      <td>51.4%</td>
-      <td>-95.4%</td>
-      <td>0.30</td>
+      <td>3.78</td>
+      <td>0.72</td>
+      <td>1.65</td>
+      <td>26.0%</td>
+      <td>68.7%</td>
+      <td>-90.4%</td>
+      <td>0.29</td>
       <td>1.00</td>
-      <td>45.86</td>
-      <td>0.10</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.64</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=20.0,adx_window=14,basket=megacap_ai,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.75</td>
-      <td>0.63</td>
-      <td>1.49</td>
-      <td>19.8%</td>
-      <td>66.0%</td>
-      <td>-63.2%</td>
-      <td>0.31</td>
-      <td>1.00</td>
-      <td>39.30</td>
-      <td>0.22</td>
+      <td>55.89</td>
+      <td>0.12</td>
       <td>0.62</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.49</td>
+      <td>0.52</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -5248,6 +5837,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>ADXTrendStrength(adx_exit=None,adx_min=20.0,adx_window=14,basket=megacap_ai,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>3.55</td>
+      <td>0.63</td>
+      <td>1.49</td>
+      <td>19.8%</td>
+      <td>66.0%</td>
+      <td>-63.2%</td>
+      <td>0.31</td>
+      <td>1.00</td>
+      <td>39.30</td>
+      <td>0.22</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.49</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>BuyAndHold(ticker=IGV)</td>
       <td>benchmark</td>
       <td>3.53</td>
@@ -5305,25 +5913,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,period=40,poles=4)</td>
-      <td>chartable</td>
-      <td>3.52</td>
-      <td>0.82</td>
-      <td>1.43</td>
-      <td>29.3%</td>
-      <td>47.6%</td>
-      <td>-92.9%</td>
-      <td>0.32</td>
-      <td>1.00</td>
-      <td>49.28</td>
-      <td>0.10</td>
-      <td>0.62</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.64</td>
-      <td>rejected</td>
-    </tr>
-    <tr>
       <td>BuyAndHold(ticker=MPWR)</td>
       <td>benchmark</td>
       <td>3.48</td>
@@ -5343,41 +5932,60 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=ai_compute,period=40,poles=4)</td>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=supertrend)</td>
       <td>chartable</td>
-      <td>3.40</td>
-      <td>0.38</td>
-      <td>1.60</td>
-      <td>10.9%</td>
-      <td>94.7%</td>
-      <td>-86.5%</td>
-      <td>0.13</td>
+      <td>3.37</td>
+      <td>0.45</td>
+      <td>1.61</td>
+      <td>11.5%</td>
+      <td>40.6%</td>
+      <td>-57.9%</td>
+      <td>0.20</td>
       <td>1.00</td>
-      <td>23.15</td>
-      <td>0.42</td>
-      <td>0.62</td>
+      <td>30.81</td>
+      <td>-1.07</td>
+      <td>0.50</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.31</td>
+      <td>0.27</td>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=megacap_ai,period=40,poles=4)</td>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=0.0,min_hold=0,period=40,poles=4)</td>
       <td>chartable</td>
-      <td>3.39</td>
-      <td>0.42</td>
-      <td>1.51</td>
-      <td>12.1%</td>
-      <td>69.3%</td>
-      <td>-67.0%</td>
-      <td>0.18</td>
+      <td>3.32</td>
+      <td>0.82</td>
+      <td>1.43</td>
+      <td>29.3%</td>
+      <td>47.6%</td>
+      <td>-92.9%</td>
+      <td>0.32</td>
       <td>1.00</td>
-      <td>34.68</td>
-      <td>0.30</td>
+      <td>49.28</td>
+      <td>0.10</td>
       <td>0.62</td>
       <td>0.00</td>
       <td>False</td>
-      <td>0.31</td>
+      <td>0.64</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
+      <td>chartable</td>
+      <td>3.32</td>
+      <td>0.82</td>
+      <td>1.43</td>
+      <td>29.3%</td>
+      <td>47.6%</td>
+      <td>-92.9%</td>
+      <td>0.32</td>
+      <td>1.00</td>
+      <td>49.28</td>
+      <td>0.10</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.64</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -5454,6 +6062,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.56</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=supertrend)</td>
+      <td>chartable</td>
+      <td>3.15</td>
+      <td>0.67</td>
+      <td>1.39</td>
+      <td>17.9%</td>
+      <td>32.0%</td>
+      <td>-70.4%</td>
+      <td>0.25</td>
+      <td>1.00</td>
+      <td>36.72</td>
+      <td>-0.64</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.48</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -5569,25 +6196,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.29</td>
       <td>benchmark</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=25.0,adx_window=14,basket=megacap_ai,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.03</td>
-      <td>0.50</td>
-      <td>1.17</td>
-      <td>14.2%</td>
-      <td>54.0%</td>
-      <td>-67.7%</td>
-      <td>0.21</td>
-      <td>1.00</td>
-      <td>27.56</td>
-      <td>0.29</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.40</td>
-      <td>rejected</td>
     </tr>
     <tr>
       <td>BuyAndHold(ticker=PANW)</td>
@@ -5835,6 +6443,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.32</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
+      <td>chartable</td>
+      <td>2.71</td>
+      <td>0.30</td>
+      <td>1.33</td>
+      <td>7.6%</td>
+      <td>41.3%</td>
+      <td>-67.5%</td>
+      <td>0.11</td>
+      <td>0.99</td>
+      <td>54.63</td>
+      <td>-0.85</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.04</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>BuyAndHold(ticker=INTU)</td>
@@ -6443,6 +7070,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.16</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
+      <td>chartable</td>
+      <td>1.22</td>
+      <td>0.71</td>
+      <td>0.52</td>
+      <td>20.3%</td>
+      <td>15.0%</td>
+      <td>-68.1%</td>
+      <td>0.30</td>
+      <td>1.00</td>
+      <td>65.00</td>
+      <td>-0.51</td>
+      <td>0.50</td>
+      <td>0.18</td>
+      <td>False</td>
+      <td>0.45</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>BuyAndHold(ticker=NFLX)</td>
@@ -7059,13 +7705,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
     </tr>
     <tr>
       <td>chartable</td>
-      <td>66</td>
+      <td>100</td>
       <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)</td>
       <td>1.10</td>
       <td>0.82</td>
       <td>1.38</td>
       <td>1.00</td>
-      <td>0.55</td>
+      <td>0.86</td>
       <td>-0.49</td>
       <td>-0.64</td>
     </tr>
@@ -9016,15 +9662,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=megacap_ai)</td>
-      <td>chartable</td>
-      <td>5.05</td>
-      <td>0.65</td>
-      <td>2.11</td>
-      <td>23.26</td>
-      <td>0.32</td>
-    </tr>
-    <tr>
       <td>RelativeStrengthNewHigh(basket=megacap_ai,bench=QQQ,entry_window=126,exit_window=21,trend_window=200)</td>
       <td>chartable</td>
       <td>5.04</td>
@@ -9052,6 +9689,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.04</td>
     </tr>
     <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=None,min_hold=0)</td>
+      <td>chartable</td>
+      <td>5.02</td>
+      <td>0.76</td>
+      <td>2.20</td>
+      <td>28.72</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
       <td>RelativeStrengthNewHigh(basket=semiconductors,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)</td>
       <td>chartable</td>
       <td>5.02</td>
@@ -9059,15 +9705,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>2.33</td>
       <td>21.06</td>
       <td>0.13</td>
-    </tr>
-    <tr>
-      <td>ThemeRotation(lookback_days=126,rebalance=ME,top_themes=3)</td>
-      <td>factor</td>
-      <td>5.01</td>
-      <td>0.93</td>
-      <td>1.83</td>
-      <td>10.91</td>
-      <td>0.10</td>
     </tr>
     <tr>
       <td>RelativeStrengthNewHigh(basket=None,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)</td>
@@ -9079,13 +9716,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=None,period=40,poles=4)</td>
-      <td>chartable</td>
+      <td>ThemeRotation(lookback_days=126,rebalance=ME,top_themes=3)</td>
+      <td>factor</td>
       <td>5.01</td>
-      <td>0.80</td>
-      <td>2.15</td>
-      <td>67.59</td>
-      <td>0.04</td>
+      <td>0.93</td>
+      <td>1.83</td>
+      <td>10.91</td>
+      <td>0.10</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=252,rebalance=ME,skip_days=21,top_n=8,weighting=equal)</td>
@@ -9106,13 +9743,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.06</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=megacap_ai,confirm_days=5,period=60,poles=4)</td>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=0.0,min_hold=0,period=40,poles=4)</td>
       <td>chartable</td>
       <td>4.98</td>
-      <td>0.66</td>
-      <td>2.29</td>
-      <td>17.37</td>
-      <td>0.30</td>
+      <td>0.82</td>
+      <td>2.23</td>
+      <td>62.42</td>
+      <td>0.04</td>
     </tr>
     <tr>
       <td>MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=3,rebalance=ME,top_n=5,weighting=equal)</td>
@@ -9122,6 +9759,42 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>2.16</td>
       <td>13.83</td>
       <td>0.07</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=megacap_ai,confirm_days=5,min_hold=0,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.96</td>
+      <td>0.69</td>
+      <td>2.33</td>
+      <td>13.75</td>
+      <td>0.28</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=megacap_ai,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.95</td>
+      <td>0.65</td>
+      <td>2.11</td>
+      <td>23.26</td>
+      <td>0.32</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=0.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.92</td>
+      <td>0.74</td>
+      <td>2.29</td>
+      <td>21.40</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=1.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.91</td>
+      <td>0.82</td>
+      <td>2.19</td>
+      <td>37.63</td>
+      <td>0.05</td>
     </tr>
     <tr>
       <td>InverseVolBasket(basket=semiconductors,rebalance=ME)</td>
@@ -9151,6 +9824,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.06</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=megacap_ai,confirm_days=5,min_hold=20,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.86</td>
+      <td>0.66</td>
+      <td>2.31</td>
+      <td>13.21</td>
+      <td>0.28</td>
+    </tr>
+    <tr>
       <td>AbsoluteMomentum(basket=None,fallback=BIL,lookback_days=126,rebalance=ME)</td>
       <td>tsmom</td>
       <td>4.86</td>
@@ -9169,6 +9851,24 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.04</td>
     </tr>
     <tr>
+      <td>ShortSqueezeCandidate(basket=semiconductors,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.75,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.85</td>
+      <td>0.64</td>
+      <td>2.06</td>
+      <td>37.17</td>
+      <td>0.19</td>
+    </tr>
+    <tr>
+      <td>ShortSqueezeCandidate(basket=None,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.75,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.84</td>
+      <td>0.64</td>
+      <td>2.06</td>
+      <td>36.44</td>
+      <td>0.07</td>
+    </tr>
+    <tr>
       <td>RegimeSwitchedTech(cut=0.25,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)</td>
       <td>regime</td>
       <td>4.84</td>
@@ -9176,6 +9876,42 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.79</td>
       <td>6.02</td>
       <td>0.03</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
+      <td>chartable</td>
+      <td>4.82</td>
+      <td>0.50</td>
+      <td>2.33</td>
+      <td>21.06</td>
+      <td>0.13</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=semiconductors,min_hold=20)</td>
+      <td>chartable</td>
+      <td>4.81</td>
+      <td>0.71</td>
+      <td>2.11</td>
+      <td>23.32</td>
+      <td>0.11</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=None,min_hold=20)</td>
+      <td>chartable</td>
+      <td>4.81</td>
+      <td>0.75</td>
+      <td>2.11</td>
+      <td>19.57</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=1.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.81</td>
+      <td>0.80</td>
+      <td>2.22</td>
+      <td>22.82</td>
+      <td>0.04</td>
     </tr>
     <tr>
       <td>DispersionTimedSelection(basket=None,disp_pct=0.5,disp_window=63,lookback_days=126,rebalance=ME,top_n=8)</td>
@@ -9187,13 +9923,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=None)</td>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=semiconductors,min_hold=20)</td>
       <td>chartable</td>
-      <td>4.79</td>
-      <td>0.73</td>
-      <td>1.99</td>
-      <td>47.03</td>
-      <td>0.04</td>
+      <td>4.80</td>
+      <td>0.71</td>
+      <td>2.11</td>
+      <td>29.20</td>
+      <td>0.11</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=252,rebalance=ME,skip_days=21,top_n=3,weighting=equal)</td>
@@ -9232,6 +9968,24 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=1.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.76</td>
+      <td>0.77</td>
+      <td>2.19</td>
+      <td>23.44</td>
+      <td>0.14</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=0.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.76</td>
+      <td>0.77</td>
+      <td>2.20</td>
+      <td>33.40</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
       <td>QuietTrend(basket=None,lookback=504,trend_window=150,vol_quantile=0.75,vol_window=21)</td>
       <td>chartable</td>
       <td>4.74</td>
@@ -9239,24 +9993,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>2.04</td>
       <td>46.08</td>
       <td>0.06</td>
-    </tr>
-    <tr>
-      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=megacap_ai)</td>
-      <td>chartable</td>
-      <td>4.74</td>
-      <td>0.56</td>
-      <td>2.01</td>
-      <td>39.34</td>
-      <td>0.30</td>
-    </tr>
-    <tr>
-      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=semiconductors)</td>
-      <td>chartable</td>
-      <td>4.73</td>
-      <td>0.72</td>
-      <td>1.96</td>
-      <td>30.00</td>
-      <td>0.12</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=8,weighting=equal)</td>
@@ -9286,6 +10022,33 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.10</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=0.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.70</td>
+      <td>0.83</td>
+      <td>2.11</td>
+      <td>20.56</td>
+      <td>0.10</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=None,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.69</td>
+      <td>0.73</td>
+      <td>1.99</td>
+      <td>47.03</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=None,min_hold=20)</td>
+      <td>chartable</td>
+      <td>4.68</td>
+      <td>0.72</td>
+      <td>2.06</td>
+      <td>25.07</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
       <td>ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=252,rebalance=ME,skip_days=21,top_n=8)</td>
       <td>factor</td>
       <td>4.68</td>
@@ -9293,6 +10056,33 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>2.22</td>
       <td>8.15</td>
       <td>0.10</td>
+    </tr>
+    <tr>
+      <td>ADXTrendStrength(adx_exit=15.0,adx_min=20.0,adx_window=14,basket=None,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.68</td>
+      <td>0.64</td>
+      <td>2.14</td>
+      <td>54.31</td>
+      <td>-0.05</td>
+    </tr>
+    <tr>
+      <td>ShortSqueezeCandidate(basket=megacap_ai,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.9,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.68</td>
+      <td>0.68</td>
+      <td>1.94</td>
+      <td>16.11</td>
+      <td>0.28</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=1.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.66</td>
+      <td>0.82</td>
+      <td>2.11</td>
+      <td>16.45</td>
+      <td>0.08</td>
     </tr>
     <tr>
       <td>TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=100)</td>
@@ -9304,6 +10094,42 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=supertrend)</td>
+      <td>chartable</td>
+      <td>4.65</td>
+      <td>0.65</td>
+      <td>2.11</td>
+      <td>23.26</td>
+      <td>0.32</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=megacap_ai,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.64</td>
+      <td>0.56</td>
+      <td>2.01</td>
+      <td>39.34</td>
+      <td>0.30</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=None,exit_mult=1.0,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.63</td>
+      <td>0.73</td>
+      <td>2.18</td>
+      <td>15.61</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=3.0,atr_window=10,basket=semiconductors,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.63</td>
+      <td>0.72</td>
+      <td>1.96</td>
+      <td>30.00</td>
+      <td>0.12</td>
+    </tr>
+    <tr>
       <td>LowVolatilityTech(basket=None,rebalance=ME,top_n=20,trend_filter=True,vol_window=126)</td>
       <td>factor</td>
       <td>4.61</td>
@@ -9311,15 +10137,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.96</td>
       <td>8.99</td>
       <td>0.06</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=20.0,adx_window=14,basket=None,di_window=14)</td>
-      <td>chartable</td>
-      <td>4.61</td>
-      <td>0.62</td>
-      <td>2.07</td>
-      <td>65.30</td>
-      <td>-0.04</td>
     </tr>
     <tr>
       <td>ResearchIntensity(basket=None,rebalance=QE,require_profitable=False,top_n=15)</td>
@@ -9340,6 +10157,24 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=1.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.57</td>
+      <td>0.62</td>
+      <td>2.12</td>
+      <td>28.48</td>
+      <td>0.22</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=0.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.56</td>
+      <td>0.66</td>
+      <td>2.10</td>
+      <td>23.44</td>
+      <td>0.22</td>
+    </tr>
+    <tr>
       <td>QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)</td>
       <td>chartable</td>
       <td>4.56</td>
@@ -9358,13 +10193,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.07</td>
     </tr>
     <tr>
-      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=semiconductors)</td>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
       <td>chartable</td>
-      <td>4.53</td>
-      <td>0.77</td>
-      <td>1.81</td>
-      <td>45.94</td>
-      <td>0.11</td>
+      <td>4.54</td>
+      <td>0.27</td>
+      <td>2.31</td>
+      <td>21.40</td>
+      <td>-1.56</td>
     </tr>
     <tr>
       <td>ValuationAwareGrowth(history_days=756,max_ps_own_pct=0.85,rebalance=QE,top_n=8)</td>
@@ -9374,15 +10209,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.79</td>
       <td>7.05</td>
       <td>0.08</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=None,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.51</td>
-      <td>0.74</td>
-      <td>2.05</td>
-      <td>19.41</td>
-      <td>0.04</td>
     </tr>
     <tr>
       <td>RelativeStrengthNewHigh(basket=semiconductors,bench=QQQ,entry_window=126,exit_window=21,trend_window=200)</td>
@@ -9484,6 +10310,33 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.07</td>
     </tr>
     <tr>
+      <td>ShortSqueezeCandidate(basket=None,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.9,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.44</td>
+      <td>0.61</td>
+      <td>1.93</td>
+      <td>30.91</td>
+      <td>0.07</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=0.0,min_hold=0,period=100,poles=4)</td>
+      <td>chartable</td>
+      <td>4.44</td>
+      <td>0.79</td>
+      <td>2.01</td>
+      <td>31.81</td>
+      <td>0.14</td>
+    </tr>
+    <tr>
+      <td>Supertrend(atr_mult=2.0,atr_window=10,basket=semiconductors,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.42</td>
+      <td>0.77</td>
+      <td>1.81</td>
+      <td>45.94</td>
+      <td>0.11</td>
+    </tr>
+    <tr>
       <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.85,rebalance=ME,top_n=15,window=252)</td>
       <td>chartable</td>
       <td>4.42</td>
@@ -9491,6 +10344,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.83</td>
       <td>13.92</td>
       <td>0.04</td>
+    </tr>
+    <tr>
+      <td>ADXTrendStrength(adx_exit=None,adx_min=20.0,adx_window=14,basket=None,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.41</td>
+      <td>0.62</td>
+      <td>2.07</td>
+      <td>65.30</td>
+      <td>-0.04</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=5,weighting=inverse_vol)</td>
@@ -9511,6 +10373,24 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.09</td>
     </tr>
     <tr>
+      <td>ShortSqueezeCandidate(basket=semiconductors,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.9,trend_window=100)</td>
+      <td>chartable</td>
+      <td>4.38</td>
+      <td>0.64</td>
+      <td>1.81</td>
+      <td>27.71</td>
+      <td>0.19</td>
+    </tr>
+    <tr>
+      <td>ADXTrendStrength(adx_exit=15.0,adx_min=20.0,adx_window=14,basket=semiconductors,di_window=14,min_hold=0)</td>
+      <td>chartable</td>
+      <td>4.37</td>
+      <td>0.74</td>
+      <td>1.82</td>
+      <td>47.99</td>
+      <td>0.10</td>
+    </tr>
+    <tr>
       <td>EqualRiskContribution(basket=target_holdings,cov_window=252,max_weight=0.25,rebalance=ME)</td>
       <td>allocation</td>
       <td>4.37</td>
@@ -9518,6 +10398,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.73</td>
       <td>4.63</td>
       <td>0.24</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=1.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>4.37</td>
+      <td>0.84</td>
+      <td>1.89</td>
+      <td>34.10</td>
+      <td>0.13</td>
     </tr>
     <tr>
       <td>EqualRiskContribution(basket=target_holdings,cov_window=126,max_weight=0.25,rebalance=ME)</td>
@@ -9529,13 +10418,22 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.22</td>
     </tr>
     <tr>
-      <td>ADXTrendStrength(adx_min=25.0,adx_window=14,basket=None,di_window=14)</td>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.34</td>
+      <td>0.73</td>
+      <td>2.03</td>
+      <td>10.72</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=supertrend)</td>
       <td>chartable</td>
       <td>4.33</td>
-      <td>0.65</td>
-      <td>1.89</td>
-      <td>58.88</td>
-      <td>0.06</td>
+      <td>0.72</td>
+      <td>1.96</td>
+      <td>30.00</td>
+      <td>0.12</td>
     </tr>
     <tr>
       <td>ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=126,rebalance=ME,skip_days=21,top_n=8)</td>
@@ -9547,24 +10445,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.09</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=None,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.31</td>
-      <td>0.74</td>
-      <td>1.96</td>
-      <td>10.63</td>
-      <td>0.04</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=semiconductors,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.30</td>
-      <td>0.71</td>
-      <td>1.97</td>
-      <td>13.44</td>
-      <td>0.11</td>
-    </tr>
-    <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=5,weighting=equal)</td>
       <td>xsmom</td>
       <td>4.29</td>
@@ -9572,6 +10452,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.95</td>
       <td>15.49</td>
       <td>0.08</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=20,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.29</td>
+      <td>0.69</td>
+      <td>2.04</td>
+      <td>10.53</td>
+      <td>-0.06</td>
     </tr>
     <tr>
       <td>SemisLeadership(fallback=IEF,lookback_days=63)</td>
@@ -9601,6 +10490,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.83</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=0,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.26</td>
+      <td>0.76</td>
+      <td>1.97</td>
+      <td>14.38</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
       <td>ResearchIntensity(basket=None,rebalance=QE,require_profitable=False,top_n=10)</td>
       <td>quality</td>
       <td>4.25</td>
@@ -9628,15 +10526,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.09</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=semiconductors,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.22</td>
-      <td>0.65</td>
-      <td>1.95</td>
-      <td>22.03</td>
-      <td>0.14</td>
-    </tr>
-    <tr>
       <td>EqualRiskContribution(basket=ai_broad,cov_window=126,max_weight=0.25,rebalance=ME)</td>
       <td>allocation</td>
       <td>4.21</td>
@@ -9655,6 +10544,33 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.13</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=None,confirm_days=5,min_hold=20,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>4.19</td>
+      <td>0.73</td>
+      <td>1.96</td>
+      <td>13.41</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=20,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.17</td>
+      <td>0.72</td>
+      <td>1.95</td>
+      <td>12.01</td>
+      <td>0.10</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=0,period=200,poles=4)</td>
+      <td>chartable</td>
+      <td>4.17</td>
+      <td>0.76</td>
+      <td>1.91</td>
+      <td>12.05</td>
+      <td>0.10</td>
+    </tr>
+    <tr>
       <td>AccrualQuality(basket=None,rebalance=QE,top_n=15)</td>
       <td>quality</td>
       <td>4.17</td>
@@ -9664,22 +10580,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,period=40,poles=4)</td>
-      <td>chartable</td>
-      <td>4.17</td>
-      <td>0.51</td>
-      <td>1.85</td>
-      <td>41.10</td>
-      <td>0.23</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=ai_compute,period=40,poles=4)</td>
+      <td>ADXTrendStrength(adx_exit=15.0,adx_min=20.0,adx_window=14,basket=megacap_ai,di_window=14,min_hold=0)</td>
       <td>chartable</td>
       <td>4.14</td>
-      <td>0.40</td>
-      <td>1.94</td>
-      <td>29.91</td>
-      <td>0.41</td>
+      <td>0.73</td>
+      <td>1.65</td>
+      <td>33.15</td>
+      <td>0.21</td>
     </tr>
     <tr>
       <td>FundamentalAcceleration(basket=None,rebalance=QE,require_positive_growth=True,top_n=8)</td>
@@ -9727,13 +10634,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.09</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=megacap_ai,period=40,poles=4)</td>
+      <td>ShortSqueezeCandidate(basket=megacap_ai,exit_pctile=0.5,lookback=252,min_hold=0,pctile=0.75,trend_window=100)</td>
       <td>chartable</td>
       <td>4.08</td>
-      <td>0.59</td>
-      <td>1.80</td>
-      <td>48.80</td>
-      <td>0.21</td>
+      <td>0.72</td>
+      <td>1.64</td>
+      <td>27.39</td>
+      <td>0.39</td>
     </tr>
     <tr>
       <td>MinCorrelationSleeve(basket=None,corr_window=252,rebalance=QE,top_n=15)</td>
@@ -9752,15 +10659,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.64</td>
       <td>6.95</td>
       <td>0.64</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=2.0,basket=ai_compute,confirm_days=5,period=60,poles=4)</td>
-      <td>chartable</td>
-      <td>4.05</td>
-      <td>0.46</td>
-      <td>1.94</td>
-      <td>13.59</td>
-      <td>0.38</td>
     </tr>
     <tr>
       <td>GrossProfitability(basket=None,min_history_q=8,rebalance=QE,top_n=12)</td>
@@ -9790,31 +10688,22 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=semiconductors,period=40,poles=4)</td>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=megacap_ai,exit_mult=0.0,min_hold=0,period=40,poles=4)</td>
       <td>chartable</td>
-      <td>4.02</td>
-      <td>0.81</td>
-      <td>1.64</td>
-      <td>56.51</td>
-      <td>0.10</td>
+      <td>3.97</td>
+      <td>0.51</td>
+      <td>1.85</td>
+      <td>41.10</td>
+      <td>0.23</td>
     </tr>
     <tr>
-      <td>GaussianTrendHold(atr_window=22,band_mult=3.0,basket=ai_compute,confirm_days=5,period=60,poles=4)</td>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
       <td>chartable</td>
-      <td>3.98</td>
-      <td>0.48</td>
-      <td>1.91</td>
-      <td>9.34</td>
-      <td>0.41</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=20.0,adx_window=14,basket=semiconductors,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.98</td>
-      <td>0.72</td>
-      <td>1.65</td>
-      <td>55.89</td>
-      <td>0.12</td>
+      <td>3.97</td>
+      <td>0.51</td>
+      <td>1.85</td>
+      <td>41.10</td>
+      <td>0.23</td>
     </tr>
     <tr>
       <td>DonchianBreakout(entry_window=20,exit_window=20,max_positions=6,regime_filter=True)</td>
@@ -9826,6 +10715,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.06</td>
     </tr>
     <tr>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=20,period=60,poles=4)</td>
+      <td>chartable</td>
+      <td>3.92</td>
+      <td>0.64</td>
+      <td>1.87</td>
+      <td>16.22</td>
+      <td>0.13</td>
+    </tr>
+    <tr>
       <td>LowVolatilityTech(basket=None,rebalance=ME,top_n=10,trend_filter=False,vol_window=126)</td>
       <td>factor</td>
       <td>3.90</td>
@@ -9835,22 +10733,13 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.11</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.0,basket=ai_compute,period=40,poles=4)</td>
+      <td>GaussianTrendHold(atr_window=22,band_mult=2.5,basket=semiconductors,confirm_days=5,min_hold=0,period=60,poles=4)</td>
       <td>chartable</td>
-      <td>3.89</td>
-      <td>0.44</td>
-      <td>1.79</td>
-      <td>37.11</td>
-      <td>0.34</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=25.0,adx_window=14,basket=semiconductors,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.89</td>
-      <td>0.72</td>
-      <td>1.56</td>
-      <td>43.14</td>
-      <td>0.10</td>
+      <td>3.88</td>
+      <td>0.68</td>
+      <td>1.82</td>
+      <td>16.93</td>
+      <td>0.14</td>
     </tr>
     <tr>
       <td>DonchianBreakout(entry_window=55,exit_window=20,max_positions=6,regime_filter=True)</td>
@@ -9889,22 +10778,22 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.06</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=semiconductors,period=40,poles=4)</td>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=rs_new_high)</td>
       <td>chartable</td>
       <td>3.81</td>
-      <td>0.80</td>
-      <td>1.54</td>
-      <td>45.86</td>
-      <td>0.10</td>
+      <td>0.29</td>
+      <td>1.94</td>
+      <td>27.64</td>
+      <td>-1.43</td>
     </tr>
     <tr>
-      <td>ADXTrendStrength(adx_min=20.0,adx_window=14,basket=megacap_ai,di_window=14)</td>
+      <td>ADXTrendStrength(adx_exit=None,adx_min=20.0,adx_window=14,basket=semiconductors,di_window=14,min_hold=0)</td>
       <td>chartable</td>
-      <td>3.75</td>
-      <td>0.63</td>
-      <td>1.49</td>
-      <td>39.30</td>
-      <td>0.22</td>
+      <td>3.78</td>
+      <td>0.72</td>
+      <td>1.65</td>
+      <td>55.89</td>
+      <td>0.12</td>
     </tr>
     <tr>
       <td>RelativeStrengthVsBench(bench=QQQ,lookback_days=126,rebalance=ME,top_n=5)</td>
@@ -9952,31 +10841,40 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.07</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,period=40,poles=4)</td>
+      <td>ADXTrendStrength(adx_exit=None,adx_min=20.0,adx_window=14,basket=megacap_ai,di_window=14,min_hold=0)</td>
       <td>chartable</td>
-      <td>3.52</td>
+      <td>3.55</td>
+      <td>0.63</td>
+      <td>1.49</td>
+      <td>39.30</td>
+      <td>0.22</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=supertrend)</td>
+      <td>chartable</td>
+      <td>3.37</td>
+      <td>0.45</td>
+      <td>1.61</td>
+      <td>30.81</td>
+      <td>-1.07</td>
+    </tr>
+    <tr>
+      <td>GaussianTrendBands(atr_window=22,band_mult=1.5,basket=semiconductors,exit_mult=0.0,min_hold=0,period=40,poles=4)</td>
+      <td>chartable</td>
+      <td>3.32</td>
       <td>0.82</td>
       <td>1.43</td>
       <td>49.28</td>
       <td>0.10</td>
     </tr>
     <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=ai_compute,period=40,poles=4)</td>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=0.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
       <td>chartable</td>
-      <td>3.40</td>
-      <td>0.38</td>
-      <td>1.60</td>
-      <td>23.15</td>
-      <td>0.42</td>
-    </tr>
-    <tr>
-      <td>GaussianTrendBands(atr_window=22,band_mult=2.0,basket=megacap_ai,period=40,poles=4)</td>
-      <td>chartable</td>
-      <td>3.39</td>
-      <td>0.42</td>
-      <td>1.51</td>
-      <td>34.68</td>
-      <td>0.30</td>
+      <td>3.32</td>
+      <td>0.82</td>
+      <td>1.43</td>
+      <td>49.28</td>
+      <td>0.10</td>
     </tr>
     <tr>
       <td>DonchianBreakout(entry_window=100,exit_window=20,max_positions=6,regime_filter=True)</td>
@@ -9997,6 +10895,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.08</td>
     </tr>
     <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=supertrend)</td>
+      <td>chartable</td>
+      <td>3.15</td>
+      <td>0.67</td>
+      <td>1.39</td>
+      <td>36.72</td>
+      <td>-0.64</td>
+    </tr>
+    <tr>
       <td>TurnOfMonth(basket=None,end_day=5,start_day=28)</td>
       <td>chartable</td>
       <td>3.12</td>
@@ -10004,15 +10911,6 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.30</td>
       <td>23.21</td>
       <td>0.04</td>
-    </tr>
-    <tr>
-      <td>ADXTrendStrength(adx_min=25.0,adx_window=14,basket=megacap_ai,di_window=14)</td>
-      <td>chartable</td>
-      <td>3.03</td>
-      <td>0.50</td>
-      <td>1.17</td>
-      <td>27.56</td>
-      <td>0.29</td>
     </tr>
     <tr>
       <td>TurnOfMonth(basket=None,end_day=5,start_day=26)</td>
@@ -10031,6 +10929,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.15</td>
       <td>23.10</td>
       <td>0.04</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=megacap_ai,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
+      <td>chartable</td>
+      <td>2.71</td>
+      <td>0.30</td>
+      <td>1.33</td>
+      <td>54.63</td>
+      <td>-0.85</td>
     </tr>
     <tr>
       <td>TurnOfMonth(basket=None,end_day=5,start_day=24)</td>
@@ -10103,6 +11010,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.71</td>
       <td>13.76</td>
       <td>0.20</td>
+    </tr>
+    <tr>
+      <td>HedgedChartSignal(basket=semiconductors,beta_window=126,hedge=QQQ,hedge_ratio=1.0,max_hedge=1.5,period=None,signal=gaussian_bands)</td>
+      <td>chartable</td>
+      <td>1.22</td>
+      <td>0.71</td>
+      <td>0.52</td>
+      <td>65.00</td>
+      <td>-0.51</td>
     </tr>
     <tr>
       <td>RSIReversion(entry=10,exit=60,max_positions=5,rsi_window=2,trend_window=200)</td>

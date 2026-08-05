@@ -1,7 +1,7 @@
 family,n_variants,best_variant,best_dev_sharpe,sharpe_ci90_lo,sharpe_ci90_hi,deflated_sharpe_prob,walkforward_oos_sharpe,mc_mdd_median,mc_mdd_p95
 allocation,8,"EqualRiskContribution(basket=ai_broad,cov_window=252,max_weight=0.25,rebalance=ME)",0.867,0.568,1.149,1.0,0.694,-0.493,-0.647
 breakout,5,"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.2)",0.721,0.421,1.029,0.999,0.395,-0.639,-0.792
-chartable,66,"VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)",1.097,0.822,1.377,1.0,0.55,-0.492,-0.636
+chartable,100,"VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)",1.097,0.822,1.377,1.0,0.864,-0.492,-0.636
 factor,27,"BreadthGatedBasket(basket=ai_broad,breadth_window=200,fallback=IEF,min_exposure=0.0,rebalance=W-FRI,smooth_days=21,threshold=0.4)",1.162,0.846,1.475,1.0,0.617,-0.412,-0.544
 fundamental,5,"ValuationAwareGrowth(history_days=756,max_ps_own_pct=1.0,rebalance=QE,top_n=8)",0.938,0.622,1.232,1.0,0.903,-0.578,-0.734
 longshort,8,"BetaHedgedBasket(basket=target_holdings,beta_window=252,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",0.936,0.653,1.234,1.0,0.801,-0.386,-0.524

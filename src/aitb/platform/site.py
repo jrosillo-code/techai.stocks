@@ -361,6 +361,7 @@ _PAGES = [("index.html", "Overview"),
           ("strategies.html", "Strategies"),
           ("results.html", "Results"),
           ("charts.html", "Chart it"),
+          ("focus.html", "Narrow bets"),
           ("method.html", "Method &amp; trust")]
 
 
@@ -1198,6 +1199,11 @@ def build_site(mode: str = "synthetic", out: Path | None = None,
         + _experiments_page(registry, reg_df),
         current="results.html"))
 
+    # --- Narrow bets: per-cluster results with the luck subtracted ----------
+    (out / "focus.html").write_text(
+        _page("Narrow bets — aiming at one cluster", _focus_page(mode),
+              current="focus.html"))
+
     # --- Chart it: TradingView exports --------------------------------------
     (out / "charts.html").write_text(
         _page("Chart it — TradingView exports", _charts_page(mode),
@@ -1972,6 +1978,90 @@ def _chart_evidence(cls: str, ranking: pd.DataFrame) -> str:
             f"padding:.35rem .6rem;margin:.2rem 0 .6rem;background:var(--surface)'>"
             f"<b style='color:{colour}'>{html.escape(headline)}</b>{detail}<br>"
             f"{stat}{frag}</div>")
+
+
+def _focus_page(mode: str) -> str:
+    """Per-cluster and per-company results, with the luck arithmetic shown.
+
+    Narrowing to one cluster is the most reliable way to manufacture a
+    meaningless backtest, so this page leads with the correction rather than
+    appending it: for every target it shows what the BEST of that target's own
+    trials would have scored if none of them had any edge.
+    """
+    from .focus import build_focus, focus_summary
+
+    rank_path = ExperimentRegistry.for_mode(mode).root / "strategy_ranking.csv"
+    ranking = pd.read_csv(rank_path) if rank_path.exists() else pd.DataFrame()
+    targets = build_focus(ranking)
+    if not targets:
+        return ("<h1>Narrow bets</h1><p class='lede'>No cluster-targeted "
+                "results recorded yet. This page fills in once a study has run "
+                "strategies aimed at specific baskets.</p>")
+    summ = focus_summary(targets)
+
+    rows = ""
+    for t in targets:
+        colour = ("var(--critical)" if not t.survives_luck else
+                  "var(--warning)" if t.correction_is_weak else "var(--good)")
+        rows += (
+            f"<tr><td><b>{html.escape(t.label)}</b>"
+            f"<span class='sub'>{t.kind}"
+            + (f" · {t.n_members} names" if t.kind == 'cluster' else "")
+            + f"</span></td>"
+            f"<td class='num'>{t.n_trials}</td>"
+            f"<td class='num'>{t.best_sharpe:.2f}</td>"
+            f"<td class='num'>{t.expected_best_under_null:.2f}</td>"
+            f"<td class='num' style='color:{colour};font-weight:700'>"
+            f"{t.excess:+.2f}</td>"
+            f"<td class='num'>{t.sharpe_dispersion:.2f}</td>"
+            f"<td class='lede' style='font-size:.82rem'>"
+            f"{html.escape(t.reading)}</td></tr>")
+
+    weak = summ.get("n_weak_correction", 0)
+    weak_line = ("" if not weak else
+                 f"<p style='margin:.5rem 0 0'><b>{weak} of "
+                 f"{summ['n_targets']} of these corrections do almost no "
+                 f"work</b>, because the variants tested on those targets are "
+                 f"near-duplicates of each other. A large excess there means "
+                 f"the question was not really asked, not that it was "
+                 f"answered.</p>")
+
+    return f"""
+<h1>Narrow bets</h1>
+<p class='lede'>What happens when a strategy is aimed at one cluster of
+companies instead of the whole roster — and, in the same table, how much of
+that result is just the best of several tries.</p>
+
+<div class='warnbox'><b>Narrowing is the most reliable way to manufacture a
+backtest that means nothing.</b> Run several variants at one cluster and the
+best of them looks good even when every one is worthless, because the maximum
+of several random draws is not zero. Do it across {summ['n_targets']} targets
+and you have run {summ['total_trials']} searches while reporting the winners.
+<p style='margin:.5rem 0 0'>So the correction is a column here, not a footnote.
+<b>Expected best under luck</b> is what the best of that target's own trials
+would have scored if none of the strategies had any edge at all. <b>Excess</b>
+is what is left after subtracting it. At or below zero means the result is
+indistinguishable from chance.</p>
+{weak_line}
+</div>
+
+<div class='tbl-wrap'><table><thead><tr>
+<th>Target</th><th class='num'>Trials</th><th class='num'>Best Sharpe</th>
+<th class='num'>Expected best under luck</th><th class='num'>Excess</th>
+<th class='num'>Spread</th><th>Reading</th>
+</tr></thead><tbody>{rows}</tbody></table></div>
+
+<h2>What is deliberately not on this page</h2>
+<p class='lede'>There is <b>no per-cluster parameter search</b>. Every number
+comes from the frozen grid, with the same variants run against every target.
+Tuning parameters per cluster is the actual overfitting the research freeze
+exists to prevent, and it would also make the correction above meaningless —
+the trial count would no longer be a known number.</p>
+<p class='lede'>The <b>spread</b> column is why several of these corrections are
+weak. It is the variation in Sharpe across a target's trials, relative to their
+average. When it is small the variants are the same strategy wearing different
+parameters, so picking the best of them is barely a choice — the correction is
+correctly small, and correspondingly it protects you from nothing.</p>"""
 
 
 def _charts_page(mode: str) -> str:
