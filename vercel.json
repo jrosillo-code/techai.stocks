@@ -3,7 +3,6 @@
   "buildCommand": "",
   "outputDirectory": "site",
   "framework": null,
-  "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
     {
