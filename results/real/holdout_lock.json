@@ -1,0 +1,938 @@
+{
+  "frozen_specs_hash": "66542d677866480b",
+  "frozen_at": "2026-08-05T15:10:20.903742+00:00",
+  "specs": [
+    {
+      "family": "allocation",
+      "entries": [
+        {
+          "class": "EqualRiskContribution",
+          "status": "core",
+          "hypothesis": "Accounting for correlation as well as volatility beats inverse-vol weighting, which double-counts the risk of clustered names",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "ai_broad",
+              "target_holdings"
+            ],
+            "cov_window": [
+              126,
+              252
+            ]
+          }
+        },
+        {
+          "class": "MinCorrelationSleeve",
+          "status": "core",
+          "hypothesis": "A sleeve chosen purely for low average correlation to the rest of the sector diversifies a core technology holding better than any return-driven selection; if it STILL tracks QQQ, the sector has no independent corner",
+          "grid": {
+            "top_n": [
+              10,
+              15
+            ],
+            "corr_window": [
+              252
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "benchmarks",
+      "entries": [
+        {
+          "class": "BuyAndHold",
+          "status": "core",
+          "grid": {
+            "ticker": [
+              "SPY",
+              "QQQ",
+              "XLK",
+              "SOXX",
+              "SMH",
+              "IGV"
+            ]
+          }
+        },
+        {
+          "class": "BuyAndHold",
+          "status": "core",
+          "grid": {
+            "ticker": [
+              "VGT",
+              "IWM",
+              "ARKK",
+              "SKYY",
+              "CIBR",
+              "BOTZ"
+            ]
+          }
+        },
+        {
+          "class": "EqualWeightUniverse",
+          "status": "core",
+          "grid": {
+            "rebalance": [
+              "ME"
+            ]
+          }
+        },
+        {
+          "class": "EqualWeightUniverse",
+          "status": "core",
+          "grid": {
+            "rebalance": [
+              "ME"
+            ],
+            "basket": [
+              "megacap_ai",
+              "ai_compute"
+            ]
+          }
+        },
+        {
+          "class": "EqualWeightUniverse",
+          "status": "core",
+          "hypothesis": "Equal-weighting the whole live cross-section is the honest passive baseline for any stock-picking claim",
+          "grid": {
+            "rebalance": [
+              "ME",
+              "QE"
+            ],
+            "basket": [
+              "ai_broad"
+            ]
+          }
+        },
+        {
+          "class": "CapWeightUniverse",
+          "status": "core",
+          "grid": {
+            "rebalance": [
+              "QE"
+            ],
+            "basket": [
+              null,
+              "megacap_ai",
+              "ai_broad"
+            ]
+          }
+        },
+        {
+          "class": "QQQMovingAverage",
+          "status": "core",
+          "grid": {
+            "window": [
+              200
+            ],
+            "fallback": [
+              "IEF",
+              null
+            ]
+          }
+        },
+        {
+          "class": "SimpleMomentum12_1",
+          "status": "core",
+          "grid": {
+            "top_n": [
+              5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "breakout",
+      "entries": [
+        {
+          "class": "DonchianBreakout",
+          "status": "core",
+          "hypothesis": "Multi-month highs with a risk-on regime filter precede continuation",
+          "grid": {
+            "entry_window": [
+              20,
+              55,
+              100
+            ],
+            "exit_window": [
+              20
+            ],
+            "regime_filter": [
+              true
+            ]
+          }
+        },
+        {
+          "class": "DonchianBreakout",
+          "status": "deprecated",
+          "reason": "unfiltered variant whipsawed through bear markets and was dominated by the regime-filtered twin at every entry window",
+          "grid": {
+            "entry_window": [
+              20,
+              55,
+              100
+            ],
+            "exit_window": [
+              20
+            ],
+            "regime_filter": [
+              false
+            ]
+          }
+        },
+        {
+          "class": "VolCompressionBreakout",
+          "status": "exploratory",
+          "grid": {
+            "entry_window": [
+              40
+            ],
+            "squeeze_pct": [
+              0.2,
+              0.3
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "buy_and_hold_companies",
+      "entries": [
+        {
+          "class": "BuyAndHold",
+          "status": "core",
+          "grid": {
+            "ticker": [
+              "NVDA",
+              "MSFT",
+              "GOOGL",
+              "AMZN",
+              "META",
+              "AAPL",
+              "AVGO",
+              "AMD",
+              "TSM",
+              "ASML",
+              "ARM",
+              "PLTR",
+              "ORCL",
+              "CRM",
+              "ADBE",
+              "NOW",
+              "SNOW",
+              "CRWD",
+              "PANW",
+              "ANET",
+              "SMCI",
+              "MU",
+              "MRVL",
+              "DELL",
+              "VRT",
+              "CEG",
+              "VST",
+              "TSLA"
+            ]
+          }
+        },
+        {
+          "class": "BuyAndHold",
+          "status": "core",
+          "grid": {
+            "ticker": [
+              "TXN",
+              "ADI",
+              "KLAC",
+              "SNPS",
+              "CDNS",
+              "IBM",
+              "NFLX",
+              "INTU",
+              "CSCO",
+              "ISRG",
+              "UBER",
+              "SHOP",
+              "APP",
+              "TTD",
+              "DDOG",
+              "NET",
+              "ZS",
+              "OKTA",
+              "WDAY",
+              "NXPI",
+              "MPWR",
+              "GEV",
+              "NRG",
+              "PWR",
+              "HPE",
+              "WDC",
+              "INTC",
+              "QCOM"
+            ]
+          }
+        },
+        {
+          "class": "BuyAndHold",
+          "status": "core",
+          "hypothesis": "Holding the losers is the point: these are the outcomes a survivorship-biased sample never shows",
+          "grid": {
+            "ticker": [
+              "NT",
+              "WCOM",
+              "SGI",
+              "JDSU",
+              "SUNW",
+              "LU",
+              "PALM",
+              "YHOO",
+              "VMW",
+              "RHT",
+              "ATVI",
+              "SPLK",
+              "TWTR",
+              "JNPR",
+              "CTXS",
+              "XLNX",
+              "ALTR",
+              "BRCM"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "factor",
+      "entries": [
+        {
+          "class": "ResidualMomentum",
+          "status": "core",
+          "hypothesis": "Ranking on benchmark-neutral residual return selects genuinely idiosyncratic winners and yields a portfolio less correlated with owning the sector outright",
+          "grid": {
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              8,
+              12
+            ],
+            "beta_window": [
+              252
+            ]
+          }
+        },
+        {
+          "class": "MultiHorizonMomentum",
+          "status": "core",
+          "hypothesis": "Requiring agreement across 3/6/12-month horizons removes the lookback-selection degree of freedom and cuts whipsaw, at the cost of late entries",
+          "grid": {
+            "top_n": [
+              5,
+              8,
+              12
+            ],
+            "min_agree": [
+              3
+            ],
+            "weighting": [
+              "equal"
+            ]
+          }
+        },
+        {
+          "class": "MultiHorizonMomentum",
+          "status": "exploratory",
+          "hypothesis": "Relaxing consensus to 2 of 3 trades earlier; expected to raise turnover more than return",
+          "grid": {
+            "top_n": [
+              8
+            ],
+            "min_agree": [
+              2
+            ],
+            "weighting": [
+              "equal",
+              "inverse_vol"
+            ]
+          }
+        },
+        {
+          "class": "LowVolatilityTech",
+          "status": "core",
+          "hypothesis": "The low-volatility anomaly survives inside a high-beta sector: lower CAGR, higher Sharpe, shallower drawdown. A clean falsification target either way",
+          "grid": {
+            "top_n": [
+              10,
+              20
+            ],
+            "vol_window": [
+              126
+            ],
+            "trend_filter": [
+              false,
+              true
+            ]
+          }
+        },
+        {
+          "class": "BreadthGatedBasket",
+          "status": "core",
+          "hypothesis": "Deteriorating participation precedes index-level drawdowns, so a breadth gate exits earlier and whipsaws less than a price-trend gate on the index",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "ai_broad"
+            ],
+            "threshold": [
+              0.4,
+              0.5
+            ]
+          }
+        },
+        {
+          "class": "ThemeRotation",
+          "status": "core",
+          "hypothesis": "Capital-spending cycles rotate between layers of the technology stack with enough persistence to trade, without the single-name concentration that penalises stock-level momentum",
+          "grid": {
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_themes": [
+              2,
+              3,
+              4
+            ]
+          }
+        },
+        {
+          "class": "FundamentalAcceleration",
+          "status": "exploratory",
+          "hypothesis": "Acceleration in published revenue growth precedes revaluation more reliably than the level of growth, which is already discounted",
+          "grid": {
+            "top_n": [
+              8,
+              12
+            ],
+            "rebalance": [
+              "QE"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "fundamental",
+      "entries": [
+        {
+          "class": "QualityGrowth",
+          "status": "core",
+          "hypothesis": "Compounding fundamentals precede compounding prices",
+          "grid": {
+            "top_n": [
+              5,
+              8
+            ],
+            "rebalance": [
+              "QE"
+            ]
+          }
+        },
+        {
+          "class": "ValuationAwareGrowth",
+          "status": "exploratory",
+          "grid": {
+            "top_n": [
+              8
+            ],
+            "max_ps_own_pct": [
+              0.7,
+              0.85,
+              1.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "meanrev",
+      "entries": [
+        {
+          "class": "RSIReversion",
+          "status": "exploratory",
+          "hypothesis": "Oversold snapback exceeds round-trip costs (expected: no)",
+          "grid": {
+            "entry": [
+              5,
+              10
+            ],
+            "exit": [
+              60
+            ]
+          }
+        },
+        {
+          "class": "ShortTermReversal",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              5
+            ],
+            "top_n": [
+              5
+            ]
+          }
+        },
+        {
+          "class": "RSIReversion",
+          "status": "deprecated",
+          "reason": "entry=15 duplicates entry=10 with more trades and worse net Sharpe in shakedown",
+          "grid": {
+            "entry": [
+              15
+            ],
+            "exit": [
+              60
+            ]
+          }
+        },
+        {
+          "class": "BollingerReversion",
+          "status": "deprecated",
+          "reason": "mechanically duplicates RSI reversion (same oversold-in-uptrend trigger); cost-fragile in shakedown",
+          "grid": {
+            "entry_z": [
+              -2.0,
+              -2.5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "ml",
+      "entries": [
+        {
+          "class": "MLRankStrategy",
+          "status": "exploratory",
+          "hypothesis": "A shrunk linear feature blend ranks forward returns better than any single momentum feature",
+          "grid": {
+            "horizon": [
+              21
+            ],
+            "top_n": [
+              6
+            ],
+            "alpha": [
+              10.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "regime",
+      "entries": [
+        {
+          "class": "RegimeSwitchedTech",
+          "status": "exploratory",
+          "grid": {
+            "cut": [
+              0.2,
+              0.25,
+              0.34
+            ]
+          }
+        },
+        {
+          "class": "SemisLeadership",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              63,
+              126
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "riskmanaged",
+      "entries": [
+        {
+          "class": "VolTargetedBasket",
+          "status": "core",
+          "hypothesis": "Constant-risk sizing improves compounding vs constant-dollar",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "target_vol": [
+              0.15,
+              0.2,
+              0.25
+            ],
+            "vol_window": [
+              21,
+              63
+            ],
+            "rebalance": [
+              "W-FRI",
+              "ME"
+            ]
+          }
+        },
+        {
+          "class": "DrawdownDeRisk",
+          "status": "core",
+          "hypothesis": "Drawdowns cluster; scaling down into them cuts the left tail",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "dd_start": [
+              -0.1,
+              -0.15
+            ],
+            "dd_full": [
+              -0.3,
+              -0.4
+            ]
+          }
+        },
+        {
+          "class": "TrendPlusVolTarget",
+          "status": "core",
+          "hypothesis": "Trend gates tail risk, vol targeting smooths the path \u2014 complementary overlays",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "target_vol": [
+              0.15,
+              0.2
+            ],
+            "trend_window": [
+              150,
+              200
+            ],
+            "hysteresis": [
+              0.0,
+              0.02
+            ]
+          }
+        },
+        {
+          "class": "InverseVolBasket",
+          "status": "core",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "semiconductors",
+              "ai_broad"
+            ]
+          }
+        },
+        {
+          "class": "TrendFollowCash",
+          "status": "core",
+          "hypothesis": "Per-name trend filtering matters more over a wide roster, where many names are in their own bear markets while the index rises",
+          "grid": {
+            "sma_window": [
+              200
+            ],
+            "fallback": [
+              "IEF"
+            ],
+            "basket": [
+              "ai_broad"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "target_holdings",
+      "entries": [
+        {
+          "class": "EqualWeightUniverse",
+          "status": "core",
+          "grid": {
+            "rebalance": [
+              "ME"
+            ],
+            "basket": [
+              "target_holdings"
+            ]
+          }
+        },
+        {
+          "class": "CapWeightUniverse",
+          "status": "core",
+          "grid": {
+            "rebalance": [
+              "QE"
+            ],
+            "basket": [
+              "target_holdings"
+            ]
+          }
+        },
+        {
+          "class": "InverseVolBasket",
+          "status": "core",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ]
+          }
+        },
+        {
+          "class": "TrendFollowCash",
+          "status": "core",
+          "grid": {
+            "sma_window": [
+              200
+            ],
+            "fallback": [
+              "IEF"
+            ],
+            "basket": [
+              "target_holdings"
+            ]
+          }
+        },
+        {
+          "class": "VolTargetedBasket",
+          "status": "core",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "target_vol": [
+              0.2
+            ],
+            "vol_window": [
+              63
+            ]
+          }
+        },
+        {
+          "class": "TrendPlusVolTarget",
+          "status": "core",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "target_vol": [
+              0.2
+            ],
+            "trend_window": [
+              200
+            ],
+            "hysteresis": [
+              0.02
+            ]
+          }
+        },
+        {
+          "class": "XSMomentumTopN",
+          "status": "core",
+          "hypothesis": "Concentrated rotation among the shortlist beats holding all of it",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              3,
+              5,
+              8
+            ],
+            "weighting": [
+              "equal"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "tsmom",
+      "entries": [
+        {
+          "class": "TrendFollowCash",
+          "status": "core",
+          "hypothesis": "Per-name absolute trend cuts the deep tech drawdowns for a CAGR toll",
+          "grid": {
+            "sma_window": [
+              100,
+              150,
+              200,
+              250
+            ],
+            "fallback": [
+              "IEF"
+            ]
+          }
+        },
+        {
+          "class": "TrendFollowCash",
+          "status": "core",
+          "grid": {
+            "sma_window": [
+              200
+            ],
+            "fallback": [
+              "BIL"
+            ],
+            "basket": [
+              "megacap_ai"
+            ]
+          }
+        },
+        {
+          "class": "AbsoluteMomentum",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              126,
+              252
+            ],
+            "fallback": [
+              "BIL"
+            ]
+          }
+        },
+        {
+          "class": "DualMomentum",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              63,
+              126,
+              252
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "xsmom",
+      "entries": [
+        {
+          "class": "XSMomentumTopN",
+          "status": "core",
+          "hypothesis": "Relative strength persists among tech leaders",
+          "grid": {
+            "lookback_days": [
+              63,
+              126,
+              252
+            ],
+            "top_n": [
+              3,
+              5,
+              8
+            ],
+            "weighting": [
+              "equal"
+            ]
+          }
+        },
+        {
+          "class": "XSMomentumTopN",
+          "status": "core",
+          "hypothesis": "Given a wide cross-section, relative-strength selection adds value over equal-weighting the same universe",
+          "grid": {
+            "basket": [
+              "ai_broad"
+            ],
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              10,
+              20
+            ],
+            "weighting": [
+              "equal"
+            ]
+          }
+        },
+        {
+          "class": "XSMomentumTopN",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              5
+            ],
+            "weighting": [
+              "inverse_vol"
+            ]
+          }
+        },
+        {
+          "class": "XSMomentumTopN",
+          "status": "deprecated",
+          "reason": "momentum-weighting concentrated ~all P&L in the single hottest name (top_name_share \u2248 1); rank information is already in selection",
+          "grid": {
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              5
+            ],
+            "weighting": [
+              "momentum"
+            ]
+          }
+        },
+        {
+          "class": "XSRiskAdjMomentum",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              5
+            ]
+          }
+        },
+        {
+          "class": "RelativeStrengthVsBench",
+          "status": "exploratory",
+          "grid": {
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              5,
+              8
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "access_log": [
+    {
+      "kind": "access",
+      "purpose": "first frozen real study \u2014 single-pass dev+holdout evaluation under freeze 7edd4b56d181",
+      "at": "2026-08-05T15:10:20.912129+00:00",
+      "freeze_hash": "7edd4b56d181956d1d68645b08e03e04",
+      "store_fingerprint": "24cbe2a096f6612d",
+      "chain": "4b575966412675ed"
+    }
+  ],
+  "compromised": false,
+  "violations": [],
+  "holdout_start": "24"
+}

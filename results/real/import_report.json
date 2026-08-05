@@ -1,0 +1,1793 @@
+{
+  "imported": [
+    "prices/AAPL",
+    "prices/ABNB",
+    "prices/ADBE",
+    "prices/ADI",
+    "prices/ALAB",
+    "prices/ALTR",
+    "prices/AMAT",
+    "prices/AMD",
+    "prices/AMZN",
+    "prices/ANET",
+    "prices/ANSS",
+    "prices/APP",
+    "prices/ARKK",
+    "prices/ARM",
+    "prices/ASML",
+    "prices/ATML",
+    "prices/ATVI",
+    "prices/AVGO",
+    "prices/BIL",
+    "prices/BOTZ",
+    "prices/BRCD",
+    "prices/BRCM",
+    "prices/CA",
+    "prices/CDNS",
+    "prices/CEG",
+    "prices/CIBR",
+    "prices/CPQ",
+    "prices/CRDO",
+    "prices/CRM",
+    "prices/CRWD",
+    "prices/CSCO",
+    "prices/CTXS",
+    "prices/CY",
+    "prices/CYBR",
+    "prices/DDOG",
+    "prices/DELL",
+    "prices/EMC",
+    "prices/ENTG",
+    "prices/FCS",
+    "prices/FTNT",
+    "prices/GEV",
+    "prices/GFS",
+    "prices/GOOGL",
+    "prices/HPE",
+    "prices/IBM",
+    "prices/IDTI",
+    "prices/IEF",
+    "prices/IGV",
+    "prices/INTC",
+    "prices/INTU",
+    "prices/IOT",
+    "prices/ISRG",
+    "prices/IWM",
+    "prices/JDSU",
+    "prices/JNPR",
+    "prices/KEYS",
+    "prices/KLAC",
+    "prices/LNKD",
+    "prices/LRCX",
+    "prices/LSI",
+    "prices/LU",
+    "prices/MCHP",
+    "prices/MDB",
+    "prices/MENT",
+    "prices/META",
+    "prices/MFE",
+    "prices/MPWR",
+    "prices/MRVL",
+    "prices/MSFT",
+    "prices/MU",
+    "prices/MXIM",
+    "prices/NET",
+    "prices/NFLX",
+    "prices/NOW",
+    "prices/NRG",
+    "prices/NTAP",
+    "prices/NUAN",
+    "prices/NVDA",
+    "prices/NXPI",
+    "prices/OKTA",
+    "prices/ON",
+    "prices/ORCL",
+    "prices/PALM",
+    "prices/PANW",
+    "prices/PATH",
+    "prices/PFPT",
+    "prices/PLTR",
+    "prices/PWR",
+    "prices/QCOM",
+    "prices/QQQ",
+    "prices/QRVO",
+    "prices/RHT",
+    "prices/ROK",
+    "prices/S",
+    "prices/SGI",
+    "prices/SHOP",
+    "prices/SKYY",
+    "prices/SMCI",
+    "prices/SMH",
+    "prices/SNOW",
+    "prices/SNPS",
+    "prices/SOXX",
+    "prices/SPLK",
+    "prices/SPY",
+    "prices/SWKS",
+    "prices/SYM",
+    "prices/TEAM",
+    "prices/TER",
+    "prices/TLAB",
+    "prices/TSLA",
+    "prices/TSM",
+    "prices/TTD",
+    "prices/TWTR",
+    "prices/TXN",
+    "prices/UBER",
+    "prices/VGT",
+    "prices/VMW",
+    "prices/VRT",
+    "prices/VST",
+    "prices/WDAY",
+    "prices/WDC",
+    "prices/WOLF",
+    "prices/XLK",
+    "prices/XLNX",
+    "prices/YHOO",
+    "prices/ZEN",
+    "prices/ZS",
+    "macro/BAA10Y",
+    "macro/CPIYOY",
+    "macro/DGS10",
+    "macro/DGS2",
+    "macro/FEDFUNDS",
+    "macro/T10Y2Y",
+    "macro/UNRATE",
+    "macro/VIXCLS",
+    "fundamentals/AAPL",
+    "fundamentals/ABNB",
+    "fundamentals/ADBE",
+    "fundamentals/ADI",
+    "fundamentals/ALAB",
+    "fundamentals/AMAT",
+    "fundamentals/AMD",
+    "fundamentals/AMZN",
+    "fundamentals/ANET",
+    "fundamentals/APP",
+    "fundamentals/ARM",
+    "fundamentals/AVGO",
+    "fundamentals/CDNS",
+    "fundamentals/CEG",
+    "fundamentals/CRDO",
+    "fundamentals/CRM",
+    "fundamentals/CSCO",
+    "fundamentals/DDOG",
+    "fundamentals/DELL",
+    "fundamentals/ENTG",
+    "fundamentals/FTNT",
+    "fundamentals/GEV",
+    "fundamentals/GOOGL",
+    "fundamentals/HPE",
+    "fundamentals/IBM",
+    "fundamentals/INTC",
+    "fundamentals/INTU",
+    "fundamentals/IOT",
+    "fundamentals/ISRG",
+    "fundamentals/KEYS",
+    "fundamentals/KLAC",
+    "fundamentals/LRCX",
+    "fundamentals/MCHP",
+    "fundamentals/MDB",
+    "fundamentals/META",
+    "fundamentals/MPWR",
+    "fundamentals/MRVL",
+    "fundamentals/MSFT",
+    "fundamentals/MU",
+    "fundamentals/NET",
+    "fundamentals/NFLX",
+    "fundamentals/NOW",
+    "fundamentals/NRG",
+    "fundamentals/NTAP",
+    "fundamentals/NVDA",
+    "fundamentals/NXPI",
+    "fundamentals/OKTA",
+    "fundamentals/ON",
+    "fundamentals/ORCL",
+    "fundamentals/PANW",
+    "fundamentals/PATH",
+    "fundamentals/PLTR",
+    "fundamentals/PWR",
+    "fundamentals/QCOM",
+    "fundamentals/QRVO",
+    "fundamentals/ROK",
+    "fundamentals/S",
+    "fundamentals/SGI",
+    "fundamentals/SHOP",
+    "fundamentals/SMCI",
+    "fundamentals/SNOW",
+    "fundamentals/SNPS",
+    "fundamentals/SWKS",
+    "fundamentals/SYM",
+    "fundamentals/TEAM",
+    "fundamentals/TER",
+    "fundamentals/TSLA",
+    "fundamentals/TTD",
+    "fundamentals/TXN",
+    "fundamentals/UBER",
+    "fundamentals/VRT",
+    "fundamentals/VST",
+    "fundamentals/WDAY",
+    "fundamentals/WDC",
+    "fundamentals/WOLF",
+    "fundamentals/ZS"
+  ],
+  "skipped": [],
+  "reconciliation": [
+    {
+      "ticker": "AAPL",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 2,
+        "pct_flagged": 0.0003
+      }
+    },
+    {
+      "ticker": "ABNB",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1416,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ADBE",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 14,
+        "pct_flagged": 0.0019
+      }
+    },
+    {
+      "ticker": "ADI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 12,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "ALAB",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 594,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ALTR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "AMAT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 10,
+        "pct_flagged": 0.0014
+      }
+    },
+    {
+      "ticker": "AMD",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 30,
+        "pct_flagged": 0.0042
+      }
+    },
+    {
+      "ticker": "AMZN",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 25,
+        "pct_flagged": 0.0035
+      }
+    },
+    {
+      "ticker": "ANET",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 3057,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ANSS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "APP",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1331,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ARKK",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2954,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ARM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 723,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ASML",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 12,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "ATML",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "ATVI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "AVGO",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 4273,
+        "return_diffs_gt_50bp": 2,
+        "pct_flagged": 0.0005
+      }
+    },
+    {
+      "ticker": "BIL",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 4825,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "BOTZ",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2485,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "BRCD",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "BRCM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "CA",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "CDNS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 12,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "CEG",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1128,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "CIBR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2785,
+        "return_diffs_gt_50bp": 1,
+        "pct_flagged": 0.0004
+      }
+    },
+    {
+      "ticker": "CPQ",
+      "chosen": "yahoo",
+      "providers": [
+        "yahoo"
+      ]
+    },
+    {
+      "ticker": "CRDO",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1132,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "CRM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 5563,
+        "return_diffs_gt_50bp": 4,
+        "pct_flagged": 0.0007
+      }
+    },
+    {
+      "ticker": "CRWD",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1795,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "CSCO",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 22,
+        "pct_flagged": 0.0031
+      }
+    },
+    {
+      "ticker": "CTXS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "CY",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "CYBR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "DDOG",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1726,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "DELL",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1912,
+        "return_diffs_gt_50bp": 4,
+        "pct_flagged": 0.0021
+      }
+    },
+    {
+      "ticker": "EMC",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 807,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ENTG",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6554,
+        "return_diffs_gt_50bp": 8,
+        "pct_flagged": 0.0012
+      }
+    },
+    {
+      "ticker": "FCS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "FTNT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 4200,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "GEV",
+      "chosen": "yahoo",
+      "providers": [
+        "yahoo"
+      ]
+    },
+    {
+      "ticker": "GFS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1194,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "GOOGL",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 5523,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "HPE",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2712,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "IBM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 6,
+        "pct_flagged": 0.0008
+      }
+    },
+    {
+      "ticker": "IDTI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "IEF",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6041,
+        "return_diffs_gt_50bp": 4,
+        "pct_flagged": 0.0007
+      }
+    },
+    {
+      "ticker": "IGV",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6298,
+        "return_diffs_gt_50bp": 13,
+        "pct_flagged": 0.0021
+      }
+    },
+    {
+      "ticker": "INTC",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 26,
+        "pct_flagged": 0.0036
+      }
+    },
+    {
+      "ticker": "INTU",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 20,
+        "pct_flagged": 0.0028
+      }
+    },
+    {
+      "ticker": "IOT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1161,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ISRG",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6570,
+        "return_diffs_gt_50bp": 6,
+        "pct_flagged": 0.0009
+      }
+    },
+    {
+      "ticker": "IWM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6584,
+        "return_diffs_gt_50bp": 13,
+        "pct_flagged": 0.002
+      }
+    },
+    {
+      "ticker": "JDSU",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "JNPR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "KEYS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2963,
+        "return_diffs_gt_50bp": 2,
+        "pct_flagged": 0.0007
+      }
+    },
+    {
+      "ticker": "KLAC",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 7,
+        "pct_flagged": 0.001
+      }
+    },
+    {
+      "ticker": "LNKD",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "LRCX",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 19,
+        "pct_flagged": 0.0026
+      }
+    },
+    {
+      "ticker": "LSI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "LU",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1444,
+        "return_diffs_gt_50bp": 1,
+        "pct_flagged": 0.0007
+      }
+    },
+    {
+      "ticker": "MCHP",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 10,
+        "pct_flagged": 0.0014
+      }
+    },
+    {
+      "ticker": "MDB",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2207,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "MENT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "META",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 3571,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "MFE",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "MPWR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 5458,
+        "return_diffs_gt_50bp": 2,
+        "pct_flagged": 0.0004
+      }
+    },
+    {
+      "ticker": "MRVL",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6560,
+        "return_diffs_gt_50bp": 13,
+        "pct_flagged": 0.002
+      }
+    },
+    {
+      "ticker": "MSFT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 2,
+        "pct_flagged": 0.0003
+      }
+    },
+    {
+      "ticker": "MU",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 27,
+        "pct_flagged": 0.0038
+      }
+    },
+    {
+      "ticker": "MXIM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "NET",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1730,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "NFLX",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6087,
+        "return_diffs_gt_50bp": 8,
+        "pct_flagged": 0.0013
+      }
+    },
+    {
+      "ticker": "NOW",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 3542,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "NRG",
+      "chosen": "yahoo",
+      "providers": [
+        "yahoo"
+      ]
+    },
+    {
+      "ticker": "NTAP",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 16,
+        "pct_flagged": 0.0022
+      }
+    },
+    {
+      "ticker": "NUAN",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "NVDA",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6924,
+        "return_diffs_gt_50bp": 12,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "NXPI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 4021,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "OKTA",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2342,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "ON",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6602,
+        "return_diffs_gt_50bp": 32,
+        "pct_flagged": 0.0048
+      }
+    },
+    {
+      "ticker": "ORCL",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 22,
+        "pct_flagged": 0.0031
+      }
+    },
+    {
+      "ticker": "PALM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ]
+    },
+    {
+      "ticker": "PANW",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 3528,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "PATH",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1327,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "PFPT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "PLTR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1466,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "PWR",
+      "chosen": "yahoo",
+      "providers": [
+        "yahoo"
+      ]
+    },
+    {
+      "ticker": "QCOM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 20,
+        "pct_flagged": 0.0028
+      }
+    },
+    {
+      "ticker": "QQQ",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6892,
+        "return_diffs_gt_50bp": 17,
+        "pct_flagged": 0.0025
+      }
+    },
+    {
+      "ticker": "QRVO",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2912,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "RHT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "ROK",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 13,
+        "pct_flagged": 0.0018
+      }
+    },
+    {
+      "ticker": "S",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1278,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "SGI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 5690,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "SHOP",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2816,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "SKYY",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 3791,
+        "return_diffs_gt_50bp": 1,
+        "pct_flagged": 0.0003
+      }
+    },
+    {
+      "ticker": "SMCI",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 4867,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "SMH",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6579,
+        "return_diffs_gt_50bp": 10,
+        "pct_flagged": 0.0015
+      }
+    },
+    {
+      "ticker": "SNOW",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1476,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "SNPS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 12,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "SOXX",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6300,
+        "return_diffs_gt_50bp": 9,
+        "pct_flagged": 0.0014
+      }
+    },
+    {
+      "ticker": "SPLK",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "SPY",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "SWKS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 12,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "SYM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1357,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "TEAM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2675,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "TER",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "TLAB",
+      "chosen": "yahoo",
+      "providers": [
+        "yahoo"
+      ]
+    },
+    {
+      "ticker": "TSLA",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 4048,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "TSM",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 17,
+        "pct_flagged": 0.0024
+      }
+    },
+    {
+      "ticker": "TTD",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2479,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "TWTR",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "TXN",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 28,
+        "pct_flagged": 0.0039
+      }
+    },
+    {
+      "ticker": "UBER",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 1817,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "VGT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 5662,
+        "return_diffs_gt_50bp": 5,
+        "pct_flagged": 0.0009
+      }
+    },
+    {
+      "ticker": "VMW",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "VRT",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2010,
+        "return_diffs_gt_50bp": 2,
+        "pct_flagged": 0.001
+      }
+    },
+    {
+      "ticker": "VST",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2468,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "WDAY",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 3469,
+        "return_diffs_gt_50bp": 6,
+        "pct_flagged": 0.0017
+      }
+    },
+    {
+      "ticker": "WDC",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 7189,
+        "return_diffs_gt_50bp": 21,
+        "pct_flagged": 0.0029
+      }
+    },
+    {
+      "ticker": "WOLF",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 212,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    },
+    {
+      "ticker": "XLK",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 6944,
+        "return_diffs_gt_50bp": 36,
+        "pct_flagged": 0.0052
+      }
+    },
+    {
+      "ticker": "XLNX",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "YHOO",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "ZEN",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo"
+      ]
+    },
+    {
+      "ticker": "ZS",
+      "chosen": "tiingo",
+      "providers": [
+        "tiingo",
+        "yahoo"
+      ],
+      "vs_yahoo": {
+        "overlap_days": 2106,
+        "return_diffs_gt_50bp": 0,
+        "pct_flagged": 0.0
+      }
+    }
+  ],
+  "trimmed": [
+    {
+      "ticker": "ALTR",
+      "rows_outside_listing": 1859
+    },
+    {
+      "ticker": "ANSS",
+      "rows_outside_listing": 120
+    },
+    {
+      "ticker": "ATML",
+      "rows_outside_listing": 6
+    },
+    {
+      "ticker": "BRCD",
+      "rows_outside_listing": 1
+    },
+    {
+      "ticker": "BRCM",
+      "rows_outside_listing": 6
+    },
+    {
+      "ticker": "CA",
+      "rows_outside_listing": 660
+    },
+    {
+      "ticker": "CPQ",
+      "rows_outside_listing": 2379
+    },
+    {
+      "ticker": "CTXS",
+      "rows_outside_listing": 6
+    },
+    {
+      "ticker": "DELL",
+      "rows_outside_listing": 4
+    },
+    {
+      "ticker": "EMC",
+      "rows_outside_listing": 808
+    },
+    {
+      "ticker": "FCS",
+      "rows_outside_listing": 1
+    },
+    {
+      "ticker": "GEV",
+      "rows_outside_listing": 3
+    },
+    {
+      "ticker": "HPE",
+      "rows_outside_listing": 10
+    },
+    {
+      "ticker": "KEYS",
+      "rows_outside_listing": 10
+    },
+    {
+      "ticker": "LNKD",
+      "rows_outside_listing": 6
+    },
+    {
+      "ticker": "LSI",
+      "rows_outside_listing": 2316
+    },
+    {
+      "ticker": "LU",
+      "rows_outside_listing": 1445
+    },
+    {
+      "ticker": "MENT",
+      "rows_outside_listing": 1
+    },
+    {
+      "ticker": "MFE",
+      "rows_outside_listing": 1
+    },
+    {
+      "ticker": "MXIM",
+      "rows_outside_listing": 4
+    },
+    {
+      "ticker": "NRG",
+      "rows_outside_listing": 3
+    },
+    {
+      "ticker": "NUAN",
+      "rows_outside_listing": 504
+    },
+    {
+      "ticker": "PALM",
+      "rows_outside_listing": 11
+    },
+    {
+      "ticker": "SGI",
+      "rows_outside_listing": 4361
+    },
+    {
+      "ticker": "SPLK",
+      "rows_outside_listing": 148
+    },
+    {
+      "ticker": "SWKS",
+      "rows_outside_listing": 1124
+    },
+    {
+      "ticker": "SYM",
+      "rows_outside_listing": 316
+    },
+    {
+      "ticker": "TLAB",
+      "rows_outside_listing": 1
+    },
+    {
+      "ticker": "TWTR",
+      "rows_outside_listing": 1
+    },
+    {
+      "ticker": "VRT",
+      "rows_outside_listing": 385
+    },
+    {
+      "ticker": "YHOO",
+      "rows_outside_listing": 6
+    }
+  ],
+  "checksum_failures": []
+}

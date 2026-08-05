@@ -1,0 +1,65 @@
+{
+  "status": "PASS WITH LIMITATIONS",
+  "store_fingerprint": "24cbe2a096f6612d",
+  "validated_at": "2026-08-05T15:11:27.750884+00:00",
+  "checks": [
+    {
+      "check": "universe_coverage",
+      "ok": true,
+      "detail": "113/120 universe names present (min 10)",
+      "fatal": true
+    },
+    {
+      "check": "benchmark_SPY",
+      "ok": true,
+      "detail": "SPY present",
+      "fatal": true
+    },
+    {
+      "check": "benchmark_QQQ",
+      "ok": true,
+      "detail": "QQQ present",
+      "fatal": true
+    },
+    {
+      "check": "prices_ALTR",
+      "ok": false,
+      "detail": "no rows",
+      "fatal": false
+    },
+    {
+      "check": "prices_CA",
+      "ok": false,
+      "detail": "no rows",
+      "fatal": false
+    },
+    {
+      "check": "prices_CPQ",
+      "ok": false,
+      "detail": "no rows",
+      "fatal": false
+    },
+    {
+      "check": "prices_EMC",
+      "ok": false,
+      "detail": "no rows",
+      "fatal": false
+    },
+    {
+      "check": "prices_LU",
+      "ok": false,
+      "detail": "no rows",
+      "fatal": false
+    },
+    {
+      "check": "macro_coverage",
+      "ok": true,
+      "detail": "8 macro series: ['BAA10Y', 'CPIYOY', 'DGS10', 'DGS2', 'FEDFUNDS', 'T10Y2Y', 'UNRATE', 'VIXCLS']",
+      "fatal": false
+    }
+  ],
+  "limitations": [
+    "macro series are revised data, not real-time vintages \u2014 regime strategies using CPI/UNRATE carry look-ahead risk and are excluded from the first real run",
+    "only 33/39 configured delisted names have real history \u2014 free providers rarely carry delisted series; the universe is PARTIALLY current-constituent biased"
+  ]
+}
