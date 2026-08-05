@@ -57,7 +57,7 @@ $PY -m pytest tests/ -q || die "test suite failed" "fix failing tests before run
 step "2/9 Research-freeze verification (no tuning permitted)"
 $PY -c "import sys; sys.path.insert(0, 'src'); from aitb.freeze import verify_freeze; verify_freeze()" \
   || die "freeze verification failed" \
-         "the study spec drifted from configs/research_freeze_v1.json — revert changes, or create freeze v2 for a NEW study"
+         "the study spec drifted from the current configs/research_freeze_v*.json — revert the changes, or increment FREEZE_VERSION and create a new freeze for a NEW study"
 
 step "3/9 Environment fingerprint"
 $PY - <<'EOF'
@@ -120,7 +120,7 @@ tar czf "first_real_study_${STAMP}.tar.gz" \
     results/real/company_analysis.csv results/real/run_fingerprint.json \
     results/real/holdout_lock.json \
     data/export_bundle/manifest.json \
-    configs/research_freeze_v1.json \
+    configs/research_freeze_v*.json \
     docs/prospective_testing_protocol.md 2>/dev/null || true
 
 printf '\nDONE. Deliverables:\n'
