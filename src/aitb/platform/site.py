@@ -114,6 +114,7 @@ CLASS_LABELS = {
     "Supertrend": "Supertrend flip",
     "ADXTrendStrength": "Only when the trend is strong",
     "RelativeStrengthNewHigh": "Beating the index, at a new high",
+    "ShortSqueezeCandidate": "Strength that is being fought",
 }
 
 _BASKETS = {"megacap_ai": "megacap AI", "target_holdings": "your shortlist",
@@ -1926,6 +1927,22 @@ def _chart_evidence(cls: str, ranking: pd.DataFrame) -> str:
                 "is not.</p>")
     mine = ranking[ranking["strategy"].str.startswith(cls + "(")]
     if mine.empty:
+        # Two different situations, and conflating them misleads in opposite
+        # directions. A rule absent from the frozen grid is untested BY
+        # DECISION; a rule that IS in the grid but has no row here is simply
+        # awaiting the next study in this data mode. Telling a reader that a
+        # freshly frozen strategy is "not in the frozen grid" is flatly untrue,
+        # and it is the case that fires on every newly added rule.
+        from ..config import load_yaml
+        in_grid = any(e.get("class") == cls
+                      for entries in load_yaml("experiments.yaml").values()
+                      for e in entries)
+        if in_grid:
+            return ("<p class='note' style='margin:.2rem 0 .6rem'>In the "
+                    "frozen grid, but no study has run in this data mode since "
+                    "it was added — the script is here, its results are not "
+                    "yet. Nothing on this card is a claim about how it "
+                    "performs.</p>")
         return ("<p class='note' style='margin:.2rem 0 .6rem'>Not in the "
                 "frozen grid, so it has no recorded results. Treat it as an "
                 "illustration of the idea, not as a tested rule.</p>")

@@ -104,9 +104,11 @@ class GaussianTrendBands(Strategy):
                   " often than a trend rule and to cut drawdown materially.")
 
     def __init__(self, period: int = 40, poles: int = 4, atr_window: int = 22,
-                 band_mult: float = 1.5, basket: str | None = None):
+                 band_mult: float = 1.5, exit_mult: float = 0.0,
+                 min_hold: int = 0, basket: str | None = None):
         super().__init__(period=period, poles=poles, atr_window=atr_window,
-                         band_mult=band_mult, basket=basket)
+                         band_mult=band_mult, exit_mult=exit_mult,
+                         min_hold=min_hold, basket=basket)
 
     def build(self, md: MarketData) -> pd.DataFrame:
         p = self.params
@@ -119,9 +121,14 @@ class GaussianTrendBands(Strategy):
         atr = _wilder_atr(md.high[cols], md.low[cols], close, p["atr_window"])
         upper = centre + p["band_mult"] * atr
 
+        # v9: the exit sits exit_mult ATRs BELOW the centreline, opening a dead
+        # band between entry and exit. exit_mult=0 is the v8 rule exactly and is
+        # kept in the grid as the control arm.
+        exit_level = centre - p["exit_mult"] * atr
         entry = (close > upper) & mask
-        exit_ = close < centre
-        return equal_weight(_latch(entry, exit_).where(mask, 0.0))
+        exit_ = close < exit_level
+        held = _latch(entry, exit_, int(p["min_hold"]))
+        return equal_weight(held.where(mask, 0.0))
 
 
 class GaussianTrendHold(Strategy):
@@ -147,10 +154,10 @@ class GaussianTrendHold(Strategy):
 
     def __init__(self, period: int = 60, poles: int = 4, atr_window: int = 22,
                  band_mult: float = 2.5, confirm_days: int = 5,
-                 basket: str | None = None):
+                 min_hold: int = 0, basket: str | None = None):
         super().__init__(period=period, poles=poles, atr_window=atr_window,
                          band_mult=band_mult, confirm_days=confirm_days,
-                         basket=basket)
+                         min_hold=min_hold, basket=basket)
 
     def build(self, md: MarketData) -> pd.DataFrame:
         p = self.params
@@ -166,7 +173,8 @@ class GaussianTrendHold(Strategy):
         rising = centre > centre.shift(p["confirm_days"])
         entry = (close > centre) & rising & mask
         exit_ = close < lower
-        return equal_weight(_latch(entry, exit_).where(mask, 0.0))
+        held = _latch(entry, exit_, int(p["min_hold"]))
+        return equal_weight(held.where(mask, 0.0))
 
 
 def _wilder_smooth(x: pd.DataFrame, window: int) -> pd.DataFrame:
@@ -196,8 +204,9 @@ class Supertrend(Strategy):
                   " trade somewhat more.")
 
     def __init__(self, atr_window: int = 10, atr_mult: float = 3.0,
-                 basket: str | None = None):
-        super().__init__(atr_window=atr_window, atr_mult=atr_mult, basket=basket)
+                 min_hold: int = 0, basket: str | None = None):
+        super().__init__(atr_window=atr_window, atr_mult=atr_mult,
+                         min_hold=min_hold, basket=basket)
 
     def build(self, md: MarketData) -> pd.DataFrame:
         p = self.params
@@ -218,6 +227,8 @@ class Supertrend(Strategy):
         up = np.full(k, np.nan)
         dn = np.full(k, np.nan)
         trend = np.zeros(k, dtype=bool)          # True = long
+        age = np.zeros(k, dtype=int)             # sessions since the flip up
+        min_hold = int(p["min_hold"])            # v9; 0 == the v8 rule exactly
         held = np.zeros((n, k), dtype=bool)
         for i in range(n):
             pu, pd_ = up.copy(), dn.copy()
@@ -230,9 +241,13 @@ class Supertrend(Strategy):
                 keep_d = ~np.isnan(pd_) & (c[i - 1] < pd_)
                 dn = np.where(keep_d, np.fmin(dn, pd_), dn)
                 # Flip on yesterday's band, which is the only one that was known.
-                trend = np.where(~np.isnan(pd_) & (c[i] > pd_), True,
-                                 np.where(~np.isnan(pu) & (c[i] < pu), False,
-                                          trend))
+                age = np.where(trend, age + 1, age)
+                up_flip = ~np.isnan(pd_) & (c[i] > pd_)
+                dn_flip = (~np.isnan(pu) & (c[i] < pu) & trend
+                           & (age >= min_hold))
+                was = trend
+                trend = np.where(up_flip, True, np.where(dn_flip, False, trend))
+                age = np.where(trend & ~was, 0, age)
             held[i] = trend & m[i]
 
         sel = pd.DataFrame(held.astype(float), index=close.index, columns=cols)
@@ -261,9 +276,11 @@ class ADXTrendStrength(Strategy):
                   " moving-average rule with a better win rate.")
 
     def __init__(self, di_window: int = 14, adx_window: int = 14,
-                 adx_min: float = 20.0, basket: str | None = None):
+                 adx_min: float = 20.0, adx_exit: float | None = None,
+                 min_hold: int = 0, basket: str | None = None):
         super().__init__(di_window=di_window, adx_window=adx_window,
-                         adx_min=adx_min, basket=basket)
+                         adx_min=adx_min, adx_exit=adx_exit,
+                         min_hold=min_hold, basket=basket)
 
     def build(self, md: MarketData) -> pd.DataFrame:
         p = self.params
@@ -283,8 +300,18 @@ class ADXTrendStrength(Strategy):
         dx = 100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
         adx = _wilder_smooth(dx, p["adx_window"])
 
-        want = (plus_di > minus_di) & (adx >= p["adx_min"])
-        return equal_weight(want.where(mask, False).astype(float))
+        # v9: enter above adx_min, leave only below adx_exit. A single
+        # threshold makes the rule flip every time ADX jitters across it, and
+        # ADX jitters constantly — this measured 50x annual turnover in v8,
+        # the worst in the study bar the deprecated unfiltered breakout.
+        # adx_exit=None means "same as adx_min", i.e. the v8 rule exactly, and
+        # is kept in the grid as the control arm.
+        exit_floor = p["adx_min"] if p["adx_exit"] is None else p["adx_exit"]
+        directional = plus_di > minus_di
+        entry = directional & (adx >= p["adx_min"]) & mask
+        exit_ = ~directional | (adx < exit_floor)
+        held = _latch(entry, exit_, int(p["min_hold"]))
+        return equal_weight(held.where(mask, 0.0))
 
 
 class RelativeStrengthNewHigh(Strategy):
@@ -488,18 +515,47 @@ class QuietTrend(Strategy):
         return equal_weight(sel)
 
 
-def _latch(entry: pd.DataFrame, exit_: pd.DataFrame) -> pd.DataFrame:
+def _latch(entry: pd.DataFrame, exit_: pd.DataFrame,
+           min_hold: int = 0) -> pd.DataFrame:
     """Hold from an entry signal until an exit signal; entry wins a tie.
 
     The breakout family does this with a Python loop over every session. The
-    result is identical and this is ~200x faster: mark the exits, mark the
-    entries over the top of them, then carry the last mark forward. Anything
-    before the first signal is flat rather than held.
+    vectorised form below is identical and ~200x faster: mark the exits, mark
+    the entries over the top of them, then carry the last mark forward.
+    Anything before the first signal is flat rather than held.
+
+    ``min_hold`` forbids exiting for N sessions after entry. Added under freeze
+    v9 against a measured failure, not a hunch: the v8 chart rules turned over
+    35-50x a year against 7.3x for the plain trend filter, because a rule with
+    a tight exit that behaves sensibly on ONE chart becomes a churn engine when
+    81 names each flip independently. A floor on holding length is the blunter
+    of the two standard cures for that (the other is a dead band on the exit).
+
+    min_hold=0 reproduces the pre-v9 behaviour EXACTLY and is kept in the grid
+    as the control arm, so the cure's effect is measured rather than assumed.
     """
-    state = pd.DataFrame(np.nan, index=entry.index, columns=entry.columns)
-    return (state.mask(exit_.fillna(False), 0.0)
-                 .mask(entry.fillna(False), 1.0)
-                 .ffill().fillna(0.0))
+    if min_hold <= 0:
+        state = pd.DataFrame(np.nan, index=entry.index, columns=entry.columns)
+        return (state.mask(exit_.fillna(False), 0.0)
+                     .mask(entry.fillna(False), 1.0)
+                     .ffill().fillna(0.0))
+
+    en = entry.fillna(False).to_numpy(dtype=bool)
+    ex = exit_.fillna(False).to_numpy(dtype=bool)
+    n, k = en.shape
+    out = np.zeros((n, k), dtype=float)
+    state = np.zeros(k, dtype=bool)
+    age = np.zeros(k, dtype=int)
+    for i in range(n):
+        age = np.where(state, age + 1, age)
+        # Entry still wins a tie, exactly as the vectorised form does.
+        fresh = en[i] & ~state
+        # Exit only where the position has been open long enough.
+        gone = state & ex[i] & ~en[i] & (age >= min_hold)
+        state = (state | fresh) & ~gone
+        age = np.where(fresh, 0, age)
+        out[i] = state
+    return pd.DataFrame(out, index=entry.index, columns=entry.columns)
 
 
 class VolumeConfirmedBreakout(Strategy):
@@ -603,3 +659,194 @@ class TurnOfMonth(Strategy):
 
         sel = mask.mul(in_window, axis=0).astype(float)
         return equal_weight(sel)
+
+
+class ShortSqueezeCandidate(Strategy):
+    """Buy strength that is being fought; sell when the fight is over.
+
+    The study's first signal that reads neither price, nor volume, nor a
+    filing. FINRA publishes the share of each session's tape that was sold
+    short — the closest free read on POSITIONING rather than on what happened.
+    A stock making new highs on 20% short volume and one making new highs on
+    55% are the same bar on a chart and different events underneath: the
+    second is climbing against people betting the other way, and their covering
+    is fuel the first does not have.
+
+    THE MEASURE IS RELATIVE, NECESSARILY. Bona-fide market making is a large
+    and variable share of reported short volume — a market maker who shorts to
+    fill your buy and covers seconds later is in this series and in nobody's
+    short interest. So the LEVEL is close to meaningless and only movement
+    against the name's own history is readable. This uses a rolling percentile
+    of each name's own short share, never an absolute threshold.
+
+    NOT SHORT INTEREST, which is the number most people mean by "squeeze": that
+    is a stock of open positions published twice a month with a settlement lag.
+    This is a daily flow. They are different data and the difference is the
+    single easiest way to misread this strategy.
+
+    NOT CHARTABLE, and it is the only rule in this family that is not. FINRA
+    short volume is not a TradingView data feed, so there is no honest Pine
+    export — an approximation using price and volume alone would be a different
+    strategy wearing this one's name. It is here because the family is where
+    the single-symbol rules live, and it is single-symbol; the Chart-it page
+    lists it under what deliberately does not port.
+
+    BLIND BEFORE 2009-07-31, when FINRA began publishing. Any result is silent
+    across the dot-com collapse and 2008 — the two most informative regimes in
+    the study's window — and the leave-one-year-out check will show that as
+    missing years rather than as stability.
+    """
+    family = "chartable"
+    hypothesis = ("Strength against heavy short participation continues"
+                  " further than unopposed strength, because covering adds"
+                  " demand that is mechanical rather than discretionary."
+                  " Expected to be rare, concentrated, and to fail badly if"
+                  " the level rather than the relative measure is what"
+                  " actually carries the signal.")
+
+    def __init__(self, lookback: int = 252, pctile: float = 0.80,
+                 trend_window: int = 100, exit_pctile: float = 0.50,
+                 min_hold: int = 0, basket: str | None = None):
+        super().__init__(lookback=lookback, pctile=pctile,
+                         trend_window=trend_window, exit_pctile=exit_pctile,
+                         min_hold=min_hold, basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        p = self.params
+        ss = md.short_share
+        if ss is None or ss.empty:
+            raise ValueError(
+                "ShortSqueezeCandidate requires FINRA short-sale volume, which "
+                "is not in this store. Download it with "
+                "`scripts/download_real_data.py --providers finra` — it is free "
+                "and needs no key. Refusing rather than approximating it from "
+                "price and volume, which would be a different strategy.")
+
+        tickers = md.universe.baskets[p["basket"]] if p["basket"] else None
+        mask = investable_mask(md, tickers)
+        cols = [c for c in mask.columns if c in ss.columns]
+        if not cols:
+            raise ValueError(
+                "no overlap between the investable universe and the FINRA "
+                "short-volume panel")
+        mask = mask[cols]
+        px = md.adj_close[cols]
+        share = ss[cols].reindex(px.index).ffill(limit=5)
+
+        # Rolling percentile of the name's OWN short share. Rolling, not
+        # expanding: the threshold on day T must come from a window ending T.
+        hi = share.rolling(p["lookback"], min_periods=126).quantile(p["pctile"])
+        lo = share.rolling(p["lookback"], min_periods=126).quantile(p["exit_pctile"])
+        in_trend = px > sma(px, p["trend_window"])
+
+        entry = (share >= hi) & in_trend & mask
+        exit_ = (share <= lo) | ~in_trend
+        held = _latch(entry, exit_, int(p["min_hold"]))
+        return equal_weight(held.where(mask, 0.0))
+
+
+class HedgedChartSignal(Strategy):
+    """A chart signal's long book, with the market subtracted from it.
+
+    THIS IS THE STUDY'S OWN LESSON, APPLIED. Three separate times the same
+    finding has arrived from a different direction:
+
+      * freeze v3 — 208 long-only variants all correlated 0.7-0.9 with the
+        index, and that was a property of the study's own constraint, not a
+        fact about technology stocks;
+      * freeze v4 — the ONLY construction ever to clear the bar on real prices
+        was BetaHedgedBasket, which was also the only one whose correlation to
+        the index was near zero;
+      * freezes v6-v9 — TurnOfMonth was added specifically to be uncorrelated
+        and correlated +0.53 anyway, because its exposure was still long the
+        market whenever it was on; and 92 long-only chart variants were
+        rejected while losing to equal-weighting eight AI megacaps.
+
+    A long-only chart rule on technology is the index bet minus the fees. This
+    keeps the signal's SELECTION and subtracts the market it is riding, using
+    the construction that has actually survived: short the hedge instrument at
+    the long book's trailing beta.
+
+    hedge_ratio=0.0 is the CONTROL ARM — the identical signal, unhedged. It is
+    in the grid so the hedge's contribution is measured against the same rule
+    rather than inferred from an earlier cohort under a different freeze.
+
+    NOT A SINGLE-CHART STRATEGY, and the family docstring's promise does not
+    extend to it: Pine cannot hold two instruments in one script. The signal
+    leg exports as a normal chart strategy; the hedge is a second position the
+    reader has to put on themselves, which the export says in as many words.
+    """
+    family = "chartable"
+    hypothesis = ("A chart signal's value, if it has any, is in WHICH names it"
+                  " picks and WHEN it is on — not in the market exposure that"
+                  " comes attached. Hedging the index away should leave either"
+                  " genuine selection value or nothing, and this measures"
+                  " which. Expected to cut return sharply and correlation to"
+                  " near zero; the question is whether Sharpe survives.")
+
+    _SIGNALS = {
+        "gaussian_bands": ("GaussianTrendBands", {}),
+        "gaussian_hold": ("GaussianTrendHold", {}),
+        "supertrend": ("Supertrend", {}),
+        "rs_new_high": ("RelativeStrengthNewHigh", {}),
+    }
+
+    def __init__(self, signal: str = "gaussian_bands", hedge: str = "QQQ",
+                 beta_window: int = 126, max_hedge: float = 1.5,
+                 hedge_ratio: float = 1.0, period: int | None = None,
+                 basket: str | None = "megacap_ai"):
+        super().__init__(signal=signal, hedge=hedge, beta_window=beta_window,
+                         max_hedge=max_hedge, hedge_ratio=hedge_ratio,
+                         period=period, basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        from . import STRATEGY_CLASSES
+
+        p = self.params
+        if p["signal"] not in self._SIGNALS:
+            raise ValueError(f"unknown signal {p['signal']!r}; "
+                             f"expected one of {sorted(self._SIGNALS)}")
+        if p["hedge"] not in md.adj_close.columns:
+            raise ValueError(f"hedge instrument {p['hedge']} not in the data")
+
+        cls_name, extra = self._SIGNALS[p["signal"]]
+        kw = dict(extra, basket=p["basket"])
+        # `period` means different things to different signals and does not
+        # exist on Supertrend at all, so it is passed only where it applies
+        # rather than silently ignored.
+        if p["period"] is not None:
+            import inspect
+            if "period" in inspect.signature(
+                    STRATEGY_CLASSES[cls_name].__init__).parameters:
+                kw["period"] = p["period"]
+        long_book = STRATEGY_CLASSES[cls_name](**kw).build(md)
+
+        if p["hedge"] in long_book.columns:      # never hedge with itself
+            long_book = long_book.drop(columns=[p["hedge"]])
+
+        cols = list(long_book.columns)
+        bench = md.adj_close[p["hedge"]].pct_change()
+        port = (long_book.shift(1) * md.adj_close[cols].pct_change()).sum(axis=1)
+        exposure = long_book.abs().sum(axis=1).clip(0.0, 1.0)
+
+        # Beta must be measured on the book AS IF FULLY INVESTED, then scaled
+        # by today's exposure — not measured on the timed return and scaled
+        # again. A signal that is on 60% of the time has a timed beta of about
+        # 0.6x its invested beta; multiplying that by exposure a second time
+        # under-hedges by the same factor, which is a hedge that looks right
+        # and removes two thirds of what it claims to. Measured on the
+        # synthetic panel across three signals, the double-damped version left
+        # correlation to QQQ at +0.14 to +0.22; this leaves +0.05 to +0.12.
+        # Not the -0.005 an always-invested hedge achieves, and it should not
+        # be: a timed book turns on and off faster than a 126-day trailing
+        # beta can follow, so some market exposure survives by construction.
+        invested = port / exposure.shift(1).replace(0.0, np.nan)
+        cov = invested.rolling(p["beta_window"], min_periods=63).cov(bench)
+        var = bench.rolling(p["beta_window"], min_periods=63).var()
+        beta = (cov / var.replace(0, np.nan)).clip(0.0, p["max_hedge"])
+
+        out = long_book.copy()
+        # No hedge until a beta exists. An unhedged stub is honest; a
+        # fabricated beta of 1.0 would not be.
+        out[p["hedge"]] = (-beta * exposure * p["hedge_ratio"]).fillna(0.0)
+        return out.fillna(0.0)

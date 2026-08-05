@@ -64,6 +64,13 @@ class MarketData:
     macro: pd.DataFrame
     fundamentals: pd.DataFrame
     universe: UniverseConfig
+    # FINRA short-sale volume as a share of the session's tape, date x ticker.
+    # EMPTY unless the store has it. Optional on purpose: the series begins
+    # 2009-07-31, so a strategy reading it is blind across the dot-com collapse
+    # and 2008, and making it mandatory would impose that blindness on the
+    # whole study. A strategy that needs it must refuse explicitly when it is
+    # absent, the way ResearchIntensity refuses without `rnd`.
+    short_share: pd.DataFrame = field(default_factory=pd.DataFrame)
     issues: list[Issue] = field(default_factory=list)
     provider_name: str = ""
     data_mode: str = "synthetic"
@@ -175,8 +182,16 @@ def _load_provider(provider_name: str, start: date, end: date,
     fundamentals = (pd.concat(fund_frames, ignore_index=True)
                     if fund_frames else pd.DataFrame())
 
-    return _assemble(frames, macro, fundamentals, ucfg, issues,
-                     provider_name, "synthetic")
+    md = _assemble(frames, macro, fundamentals, ucfg, issues,
+                   provider_name, "synthetic")
+    # Mirror the real store's optional short-volume panel so strategies that
+    # read it can be exercised before a real run. Only for the synthetic
+    # provider — a cached free-provider run has no business inventing one.
+    if provider_name == "synthetic":
+        from .synthetic import synthetic_short_share
+        md.short_share = synthetic_short_share(list(md.adj_close.columns),
+                                               md.calendar)
+    return md
 
 
 # ----------------------------------------------------------------- real path --
@@ -224,5 +239,27 @@ def _load_real(start: date, end: date) -> MarketData:
     fundamentals = (pd.concat(fund_frames, ignore_index=True)
                     if fund_frames else pd.DataFrame())
 
-    return _assemble(frames, macro, fundamentals, ucfg, issues,
-                     provider_name="real-store", data_mode="real")
+    # FINRA short-sale volume, if the store has it. Optional throughout: the
+    # series starts 2009-07-31 and an absent panel must read as "no data",
+    # never as zero short activity. The RATIO is derived here rather than
+    # stored, so a change to its definition stays repairable from raw counts.
+    sv_frames = {}
+    for t in realstore.available("short_volume"):
+        df = realstore.read("short_volume", t)
+        if df.empty or "total_volume" not in df.columns:
+            continue
+        d = df.set_index(pd.to_datetime(df["date"]))
+        denom = d["total_volume"].where(d["total_volume"] > 0)
+        sv_frames[t] = d["short_volume"] / denom
+    short_share = (pd.DataFrame(sv_frames).sort_index()
+                   if sv_frames else pd.DataFrame())
+    if not short_share.empty:
+        log.info("short-sale volume: %d tickers, %s to %s",
+                 short_share.shape[1], short_share.index.min().date(),
+                 short_share.index.max().date())
+
+    md = _assemble(frames, macro, fundamentals, ucfg, issues,
+                   provider_name="real-store", data_mode="real")
+    if not short_share.empty:
+        md.short_share = short_share.reindex(md.calendar)
+    return md

@@ -479,3 +479,67 @@ def test_relative_strength_reads_the_ratio_not_the_price():
     assert b.sum() < a.sum(), (
         "the benchmark got stronger and the rule did not notice — it is "
         "reading price, not relative strength")
+
+
+def test_hedged_signal_actually_removes_the_market(synth_md):
+    """The hedge must cut correlation to the index, or it is decoration.
+
+    This is the study's own lesson under test. Three freezes have found the
+    same thing from different directions: a long-only rule on technology is the
+    index bet minus the fees. If the hedge leg does not measurably remove that
+    exposure, the strategy is the thing it was built to escape.
+
+    hedge_ratio=0.0 is the control — the identical signal, unhedged.
+    """
+    from aitb.strategies import STRATEGY_CLASSES
+
+    bench = synth_md.adj_close["QQQ"].pct_change()
+
+    def corr(hedge_ratio):
+        w = STRATEGY_CLASSES["HedgedChartSignal"](
+            signal="gaussian_bands", hedge_ratio=hedge_ratio,
+            basket="megacap_ai").build(synth_md)
+        r = (w.shift(1) * synth_md.adj_close[w.columns].pct_change()).sum(axis=1)
+        j = r.dropna().index.intersection(bench.dropna().index)
+        return r[j].corr(bench[j])
+
+    unhedged, hedged = corr(0.0), corr(1.0)
+    assert unhedged > 0.4, f"control is not market-exposed ({unhedged:.2f})"
+    assert abs(hedged) < 0.25, (
+        f"hedged book still correlates {hedged:+.2f} with the index — the "
+        f"hedge is not doing its job")
+    assert abs(hedged) < unhedged / 2, (
+        f"hedge only moved correlation {unhedged:+.2f} -> {hedged:+.2f}")
+
+
+def test_hedge_scales_with_how_invested_the_signal_is(synth_md):
+    """A full-beta short against a flat book is a naked short of the market.
+
+    The signal is in cash much of the time. If the hedge leg ignored that, the
+    strategy would be short the index outright on every day the rule was off —
+    which would look like alpha in a falling market and is nothing of the kind.
+    """
+    from aitb.strategies import STRATEGY_CLASSES
+
+    w = STRATEGY_CLASSES["HedgedChartSignal"](
+        signal="gaussian_bands", basket="megacap_ai").build(synth_md)
+    longs = w.drop(columns=["QQQ"]).abs().sum(axis=1)
+    hedge = w["QQQ"]
+    flat = longs <= 1e-9
+    assert flat.any(), "the signal was never flat — the test proves nothing"
+    assert (hedge[flat].abs() <= 1e-9).all(), (
+        "short index exposure while holding nothing long")
+
+
+def test_hedged_signal_never_hedges_with_itself(synth_md):
+    """The hedge instrument must not also be a long leg.
+
+    RelativeStrengthNewHigh's benchmark and this hedge default to the same
+    ticker. If QQQ were both selected and shorted the two would net silently,
+    and the recorded hedge ratio would be a fiction.
+    """
+    from aitb.strategies import STRATEGY_CLASSES
+
+    w = STRATEGY_CLASSES["HedgedChartSignal"](
+        signal="rs_new_high", hedge="QQQ", basket=None).build(synth_md)
+    assert (w["QQQ"] <= 1e-9).all(), "QQQ appears as a long leg and a hedge"

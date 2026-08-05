@@ -545,3 +545,40 @@ class SyntheticProvider(PriceProvider):
              "assets": assets, "equity": equity, "net_income": net_income,
              "rnd": rnd, "debt": debt, "cash": cash}
         )
+
+
+# FINRA short-sale volume mirror (freeze v11). The synthetic provider is
+# required to mirror the real one field for field — otherwise a strategy that
+# reads a real-only field can never be exercised before a real run, which is
+# exactly what happened to ShortSqueezeCandidate under freeze v10: it refused
+# all 18 times and its machinery went untested.
+#
+# Deliberately reproduces the real series' two awkward properties rather than
+# emitting a clean uniform panel:
+#   * nothing before FIRST_SESSION (2009-07-31), so the pre-2009 blind spot is
+#     exercised rather than assumed;
+#   * mean-reverting around a per-name level with occasional sustained
+#     elevations, because a flat random panel would make any percentile rule
+#     fire uniformly and prove nothing about whether it can find a regime.
+def synthetic_short_share(tickers, calendar, seed: int = 91):
+    import numpy as np
+    import pandas as pd
+    from .finra import FIRST_SESSION
+
+    rng = np.random.default_rng(seed)
+    idx = pd.DatetimeIndex(calendar)
+    live = idx[idx >= pd.Timestamp(FIRST_SESSION)]
+    out = {}
+    for i, t in enumerate(sorted(tickers)):
+        base = 0.30 + 0.18 * rng.random()
+        # AR(1) around the name's own level, plus a few sustained episodes.
+        eps = rng.normal(0.0, 0.035, len(live))
+        x = np.empty(len(live))
+        x[0] = base
+        for k in range(1, len(live)):
+            x[k] = base + 0.92 * (x[k - 1] - base) + eps[k]
+        for _ in range(rng.integers(3, 8)):
+            a = rng.integers(0, max(1, len(live) - 90))
+            x[a:a + rng.integers(20, 90)] += 0.10 + 0.08 * rng.random()
+        out[t] = pd.Series(np.clip(x, 0.02, 0.95), index=live)
+    return pd.DataFrame(out).reindex(idx)

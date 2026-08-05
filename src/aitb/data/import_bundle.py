@@ -192,6 +192,37 @@ def import_bundle(bundle: Path, root: Path | None = None,
                         "source_bundle": str(bundle)}, root=root)
         report.imported.append(f"macro/{f.stem}")
 
+    # ---- FINRA short-sale volume ------------------------------------------
+    # One file per SESSION, not per symbol, so this pivots to per-ticker series
+    # on the way in. Stored as raw counts rather than the ratio: the ratio is
+    # derived at load time, and storing a derived quantity would make a later
+    # change to its definition silently unrepairable.
+    svdir = bundle / "short_volume"
+    sv_files = sorted(svdir.glob("*.parquet")) if svdir.exists() else []
+    if sv_files:
+        from . import finra
+        daily = []
+        for f in sv_files:
+            try:
+                daily.append(pd.read_parquet(f))
+            except Exception as exc:
+                report.skipped.append({"file": str(f), "reason": str(exc)})
+        if daily:
+            allrows = pd.concat(daily, ignore_index=True)
+            for ticker, grp in allrows.groupby("ticker"):
+                df = (grp[["date", "short_volume", "total_volume"]]
+                      .sort_values("date").drop_duplicates("date", keep="last")
+                      .reset_index(drop=True))
+                realstore.write("short_volume", str(ticker).upper(), df,
+                                {"provider": "finra",
+                                 "source_bundle": str(bundle),
+                                 "first_session": str(finra.FIRST_SESSION),
+                                 "note": ("daily short-sale FLOW, not short "
+                                          "interest; level is not comparable "
+                                          "across years")},
+                                root=root)
+                report.imported.append(f"short_volume/{ticker}")
+
     # ---- fundamentals ------------------------------------------------------
     fdir = bundle / "fundamentals"
     for f in sorted(fdir.glob("*.parquet")) if fdir.exists() else []:

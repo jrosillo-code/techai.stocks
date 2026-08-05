@@ -38,8 +38,12 @@ SCHEMA_VERSION = "1.0"
 PRICE_COLUMNS = ["open", "high", "low", "close", "adj_close", "volume"]
 FUNDAMENTAL_COLUMNS = ["period_end", "published", "revenue", "eps", "fcf", "shares"]
 EARNINGS_COLUMNS = ["ann_date", "timing"]  # timing: bmo/amc/during/unknown
+# FINRA daily short-sale volume. OPTIONAL by construction: the series starts
+# 2009-07-31, so requiring it would silently shorten the study's window by a
+# decade and delete the two most informative regimes in it.
+SHORT_VOLUME_COLUMNS = ["date", "short_volume", "total_volume"]
 
-KINDS = ("prices", "macro", "fundamentals", "earnings")
+KINDS = ("prices", "macro", "fundamentals", "earnings", "short_volume")
 
 
 class RealDataMissing(RuntimeError):

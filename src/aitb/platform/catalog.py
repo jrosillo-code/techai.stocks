@@ -39,6 +39,16 @@ NOT_PORTABLE_REASON = ("requires cross-sectional ranking, multi-asset portfolio 
                        "state, or point-in-time fundamentals — not expressible "
                        "as a standalone TradingView script")
 
+# Rules that are single-symbol but still cannot port, because the DATA is not on
+# a chart. Kept separate from the reason above so the page does not tell a
+# reader that a single-symbol rule needs cross-sectional ranking.
+NOT_PORTABLE_DATA = {
+    "ShortSqueezeCandidate":
+        "single-symbol, but reads FINRA daily short-sale volume, which is not "
+        "a TradingView data feed. Approximating it from price and volume would "
+        "be a different strategy wearing this one's name.",
+}
+
 
 @dataclass
 class StrategyEntry:
@@ -151,7 +161,8 @@ def build_catalog(mode: str = "synthetic",
             source=inspect.getsource(cls),
             status=status, status_reason=reason, grids=grids,
             tradingview=cls_name in TRADINGVIEW_PORTABLE,
-            tradingview_note=TRADINGVIEW_PORTABLE.get(cls_name, NOT_PORTABLE_REASON),
+            tradingview_note=TRADINGVIEW_PORTABLE.get(
+                cls_name, NOT_PORTABLE_DATA.get(cls_name, NOT_PORTABLE_REASON)),
         )
         if not ok.empty:
             mine = ok[ok["strategy"].str.startswith(cls_name + "(")]

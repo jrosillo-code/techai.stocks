@@ -338,32 +338,100 @@ chartable:
      hypothesis: "Returns cluster around the turn of the month because contributions, pension inflows and index rebalancing land in a narrow window (Ariel 1987, Lakonishok & Smidt 1988); expected to be weak alone but nearly uncorrelated with every price-driven rule here",
      grid: {start_day: [24, 26, 28], end_day: [3, 5]}}
 
-  # ===================== ADDED UNDER FREEZE v8 =============================
-  # Five documented indicators the study had never tested, each expressible on
-  # one chart with explicit BUY and SELL marks.
+  # ===================== ADDED v8, RE-GRIDDED UNDER v9 =====================
+  # Five documented indicators the study had never tested, each single-symbol
+  # with explicit BUY and SELL marks on the chart.
   #
-  # EVERY ONE IS GRIDDED OVER BOTH AN AI BASKET AND THE FULL 81-NAME TECH
-  # ROSTER. The question "which strategy suits AI, and which suits technology
-  # broadly" is answered by running the same rules over both and reading the
-  # result — not by asserting it in a docstring. basket=null is all 81 names.
+  # EVERY ONE IS GRIDDED OVER AN AI BASKET AND THE FULL 81-NAME ROSTER.
+  # "Good for AI" versus "good for tech generally" is a question the data can
+  # answer by running the same rule over both; asserting it in a docstring
+  # would be a preference wearing a finding's clothes. basket=null is all 81.
   #
-  # GaussianTrendBands and GaussianTrendHold are a deliberate PAIR: identical
-  # machinery, opposite parameterisation. One enters hard on a band break and
-  # exits fast at the centreline; the other enters on a rising centreline and
-  # exits only on a wide band break. Comparing them across baskets isolates
-  # aggression from the indicator itself.
+  # v9 RE-GRID, driven by the v8 result rather than by a search for a better
+  # number. All 38 v8 variants were rejected or inconclusive, and the cause was
+  # one measurement: turnover of 35-50x a year against 7.3x for the plain trend
+  # filter. A tight exit that behaves sensibly on ONE chart becomes a churn
+  # engine when 81 names each flip independently.
+  #
+  # Two standard cures, and the measured effect of each on GaussianTrendBands:
+  #   dead band on the exit (exit_mult)   62.4 -> 37.6
+  #   longer filter period                62.4 -> 33.4
+  #   both, plus a minimum hold           62.4 -> 12.8   (TrendFollowCash: 6.2)
+  #
+  # Period turned out to be the bigger lever, which the v8 grid could not have
+  # discovered because it held period fixed at 40. THE NEUTRAL SETTING OF EVERY
+  # CURE IS KEPT IN THE GRID (exit_mult 0.0, min_hold 0, adx_exit null, the
+  # original period) so each one's contribution is measured against its own
+  # control rather than inferred from the v8 cohort, which ran under a
+  # different freeze and is not comparable.
+  #
+  # GaussianTrendBands and GaussianTrendHold remain a deliberate PAIR:
+  # identical filter, opposite aggression. Comparing them isolates
+  # parameterisation from the indicator itself.
   - {class: GaussianTrendBands, status: core,
-     hypothesis: "In high-volatility names a band break is information where a drift above an average is not, so demanding the break and exiting fast at the centreline keeps more of each advance than a trend filter",
-     grid: {basket: [null, megacap_ai, ai_compute, semiconductors], band_mult: [1.0, 1.5, 2.0]}}
+     hypothesis: "In high-volatility names a band break is information where a drift above an average is not; a dead band on the exit and a longer filter should cut the churn that sank the v8 grid without giving up the break itself",
+     grid: {basket: [null, megacap_ai, semiconductors], period: [40, 100, 200], exit_mult: [0.0, 1.0]}}
   - {class: GaussianTrendHold, status: core,
      hypothesis: "In steadier names the cost of a false exit exceeds the cost of a late one, so a permissive entry with a wide volatility stop compounds better than a rule that demands confirmation to enter and surrenders it quickly",
-     grid: {basket: [null, megacap_ai, ai_compute, semiconductors], band_mult: [2.0, 3.0]}}
+     grid: {basket: [null, megacap_ai, semiconductors], period: [60, 200], min_hold: [0, 20]}}
   - {class: Supertrend, status: core,
      hypothesis: "A ratcheting mid-price band gives back less at the turn than a stop that re-widens on every volatility spike, because it never loosens while the trend is intact",
-     grid: {basket: [null, megacap_ai, semiconductors], atr_mult: [2.0, 3.0]}}
+     grid: {basket: [null, megacap_ai, semiconductors], atr_mult: [2.0, 3.0], min_hold: [0, 20]}}
   - {class: ADXTrendStrength, status: core,
-     hypothesis: "Requiring trend STRENGTH as well as direction cuts the whipsaw losses that dominate trend following in sideways markets, at the cost of entering late in the moves that do work; the study measures direction everywhere and strength nowhere",
-     grid: {basket: [null, megacap_ai, semiconductors], adx_min: [20.0, 25.0]}}
+     hypothesis: "Requiring trend STRENGTH as well as direction cuts the whipsaw losses that dominate trend following in sideways markets; a separate exit floor stops the rule flipping every time ADX jitters across a single threshold",
+     grid: {basket: [null, megacap_ai, semiconductors], adx_exit: [null, 15.0]}}
   - {class: RelativeStrengthNewHigh, status: core,
      hypothesis: "Strength measured against the index carries information that strength measured against the stock's own past does not, because it separates the name from the market it sits in (O'Neil / Minervini relative-strength line)",
      grid: {basket: [null, megacap_ai, semiconductors], entry_window: [63, 126]}}
+  # ADDED UNDER FREEZE v10 — the study's first non-price, non-fundamental input.
+  #
+  # FINRA publishes the share of each session's consolidated tape sold short:
+  # free, daily, no key. Every other signal in this study reads price, volume or
+  # a filing — all describe WHAT happened, none describes WHO. This is the only
+  # free read on positioning available.
+  #
+  # THREE THINGS THAT MUST TRAVEL WITH IT:
+  #   * It is short VOLUME (a daily flow), NOT short INTEREST (a twice-monthly
+  #     stock of open positions). Confusing the two is the easiest way to
+  #     misread this entirely.
+  #   * Bona-fide market making is a large, drifting share of reported short
+  #     volume, so the LEVEL is close to meaningless. The grid therefore varies
+  #     only relative thresholds — a rolling percentile of each name's own
+  #     history — and never an absolute one.
+  #   * The series begins 2009-07-31. Any result here is SILENT across the
+  #     dot-com collapse and 2008, the two most informative regimes in the
+  #     study's window. Leave-one-year-out will show that as missing years.
+  #
+  # It does not export to TradingView, and is the only rule in this family that
+  # does not: FINRA short volume is not a chart feed, and approximating it from
+  # price and volume would be a different strategy wearing this one's name.
+  - {class: ShortSqueezeCandidate, status: exploratory,
+     hypothesis: "Strength against heavy short participation continues further than unopposed strength, because covering adds demand that is mechanical rather than discretionary; expected to be rare, concentrated, and to fail if the level rather than the relative measure is what carries the signal",
+     grid: {basket: [null, megacap_ai, semiconductors], pctile: [0.75, 0.90]}}
+  # ADDED UNDER FREEZE v11 — the study's own lesson, applied rather than repeated.
+  #
+  # Three freezes have found the same thing from three directions:
+  #   v3   208 long-only variants all correlated 0.7-0.9 with the index, and
+  #        that was the study's own constraint, not a fact about tech stocks.
+  #   v4   the ONLY construction ever to clear the bar on real prices was
+  #        BetaHedgedBasket — also the only one near zero correlation.
+  #   v6-v9 TurnOfMonth was built to be uncorrelated and came in at +0.53
+  #        anyway; and 92 long-only chart variants were rejected while losing
+  #        to equal-weighting eight AI megacaps.
+  #
+  # A long-only chart rule on technology is the index bet minus the fees. This
+  # keeps each signal's SELECTION and subtracts the market it rides, using the
+  # one construction that has actually survived a real study.
+  #
+  # hedge_ratio 0.0 is the CONTROL ARM on every signal: the identical rule,
+  # unhedged. Measured on the synthetic panel, hedging took correlation to QQQ
+  # from +0.585 to +0.099 (gaussian_bands), +0.687 to +0.120 (supertrend) and
+  # +0.624 to +0.051 (rs_new_high). Whether that costs more Sharpe than it buys
+  # is exactly what this grid is for and is NOT yet known.
+  #
+  # NOT single-chart: Pine cannot hold two instruments in one script. The
+  # signal leg exports normally; the hedge is a second position the reader puts
+  # on themselves, and the export says so.
+  - {class: HedgedChartSignal, status: core,
+     hypothesis: "A chart signal's value, if any, is in which names it picks and when it is on, not in the market exposure that comes attached; hedging the index away should leave either genuine selection value or nothing, and this measures which",
+     grid: {signal: [gaussian_bands, supertrend, rs_new_high], hedge_ratio: [0.0, 1.0], basket: [megacap_ai, semiconductors]}}

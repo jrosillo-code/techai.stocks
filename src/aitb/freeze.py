@@ -196,7 +196,113 @@ log = get_logger("freeze")
 # harsher deflated-Sharpe correction for the WHOLE study, so this raises the
 # bar. The holdout has been opened three times. Genuinely out-of-sample still
 # means forward paper trading and nothing else.
-FREEZE_VERSION = 8
+#
+# v8 (hash a9aded291d5223e10b28714a68c5ff98) ran a synthetic validation. All 38
+# of its new chart variants were rejected or inconclusive, and the cause was a
+# single measurement rather than a judgement: turnover of 35-50x a year against
+# 7.3x for the plain trend filter. A tight exit that behaves sensibly on ONE
+# chart becomes a churn engine when 81 names each flip independently.
+#
+# v9 (2026-08-05) re-grids those five against that finding. It adds no new
+# strategy and no new data — it adds the two standard cures for churn, each
+# with its NEUTRAL SETTING retained in the grid as a control arm:
+#
+#   exit_mult   a dead band below the exit level (0.0 == the v8 rule)
+#   min_hold    a floor on holding length      (0   == the v8 rule)
+#   adx_exit    an exit floor under the entry floor (null == the v8 rule)
+#   period      now varied rather than fixed at 40
+#
+# Measured on GaussianTrendBands before freezing, which is why the grid looks
+# the way it does: dead band alone took turnover 62.4 -> 37.6, a longer period
+# alone 62.4 -> 33.4, and the combination with a minimum hold 62.4 -> 12.8
+# against TrendFollowCash's 6.2. PERIOD was the bigger lever, and the v8 grid
+# could not have discovered that because it held period fixed.
+#
+# Being precise about what that measurement is and is not: it is a TURNOVER
+# diagnostic on synthetic data, run to choose grid points before freezing. It
+# is not a performance result and no return figure was consulted in setting
+# this grid. Choosing parameters by looking at returns would be the tuning the
+# freeze exists to prevent; choosing them by looking at trade counts is not,
+# and the controls are in the grid so the choice can be checked rather than
+# trusted.
+#
+# v9 (hash a591c5acbb10536457e17e13f135d5c0) ran a synthetic validation and
+# produced a clean negative: the two turnover cures WORKED — a longer filter
+# and a dead band took GaussianTrendBands from 49.3 turns a year to 15.6 — and
+# Sharpe did not move (0.82 -> 0.82). The 34 removed round trips carried no
+# signal at all. Removing them was free, and it still was not enough: the best
+# chart variant scored 5.95 against a 6.08 hurdle plus 0.25 margin, beaten by
+# equal-weighting the megacap AI basket monthly. 0 of 54.
+#
+# v10 (2026-08-05) stops adding indicators, because across v8 and v9 that is
+# now 0 for 92 and the failures are no longer telling us anything new. It adds
+# a DATA SOURCE instead — the first input to this study that is neither price,
+# nor volume, nor a filing.
+#
+#   FINRA daily short-sale volume. Free, no key, published per session for
+#   every NMS security. Every signal the study has ever run describes WHAT
+#   happened; none describes WHO did it. Short volume is the closest free proxy
+#   for positioning.
+#
+# Three constraints travel with it and are enforced rather than noted:
+#
+#   * It is short VOLUME (a daily flow), not short INTEREST (a twice-monthly
+#     stock of open positions). Different data; conflating them is the easiest
+#     way to misread any result here.
+#   * Bona-fide market making is a large and drifting share of reported short
+#     volume, so the LEVEL is close to meaningless. Only movement against a
+#     name's own history is readable, so ShortSqueezeCandidate uses a rolling
+#     percentile and the grid contains no absolute threshold at all.
+#   * The series starts 2009-07-31. Anything reading it is SILENT across the
+#     dot-com collapse and 2008 — the two most informative regimes in this
+#     study's window. The panel is optional on MarketData for exactly this
+#     reason: requiring it would impose that blindness on every strategy, and
+#     a missing panel must read as "no data", never as zero short activity.
+#
+# ShortSqueezeCandidate REFUSES to run without the data rather than
+# approximating it from price and volume, and is the only rule in the chartable
+# family with no Pine export — FINRA short volume is not a chart feed, and an
+# approximation would be a different strategy wearing its name.
+#
+# v11 (2026-08-05) stops looking for a better signal and tests the study's own
+# recurring finding instead.
+#
+# Three freezes have delivered the same result from three directions. v3: 208
+# long-only variants correlated 0.7-0.9 with the index, and that was the
+# study's own constraint rather than a fact about technology stocks. v4: the
+# only construction ever to clear the bar on real prices was BetaHedgedBasket,
+# which was also the only one whose correlation to the index was near zero.
+# v6-v9: TurnOfMonth was designed to be uncorrelated and came in at +0.53
+# anyway, because its exposure was still long the market whenever it was on,
+# and 92 long-only chart variants were rejected while losing to
+# equal-weighting eight AI megacaps.
+#
+# The through-line is not that the indicators are bad. It is that a long-only
+# chart rule on technology IS the index bet minus the fees. HedgedChartSignal
+# keeps each signal's selection and subtracts the market it rides, using the
+# one construction that has survived a real study.
+#
+# hedge_ratio=0.0 is the control arm on every signal — the identical rule,
+# unhedged — so the hedge's contribution is measured rather than inferred from
+# an earlier cohort under a different freeze.
+#
+# ONE DEFECT WAS FOUND AND FIXED WHILE BUILDING IT, worth recording because it
+# would have been invisible: the hedge ratio was first computed from the TIMED
+# book's beta and then scaled by exposure a second time. A signal on 60% of the
+# time has a timed beta of about 0.6x its invested beta, so the double scaling
+# under-hedged by that factor — a hedge that looks correct and removes two
+# thirds of what it claims. Measured across three signals, that version left
+# correlation to QQQ at +0.14 to +0.22; measuring beta on the book as if fully
+# invested and scaling once leaves +0.05 to +0.12. It is not the -0.005 an
+# always-invested hedge reaches, and it should not be: a timed book turns on
+# and off faster than a 126-day trailing beta can follow, so some market
+# exposure survives by construction.
+#
+# Same accounting: 341 variants is a larger trial battery and a harsher
+# deflated-Sharpe correction for the whole study. The holdout has been opened
+# three times. Forward paper trading is still the only genuinely out-of-sample
+# evidence available.
+FREEZE_VERSION = 11
 FREEZE_PATH = CONFIG_DIR / f"research_freeze_v{FREEZE_VERSION}.json"
 
 # Code whose behavior defines the study. Any edit to these invalidates the
@@ -242,6 +348,8 @@ _FROZEN_MODULES = [
     "src/aitb/data/security_master.py",
     "src/aitb/data/providers.py",
     "src/aitb/data/providers_ext.py",
+    # bound since v10 (first non-price, non-fundamental source):
+    "src/aitb/data/finra.py",
 ]
 
 REJECTION_CRITERIA = [

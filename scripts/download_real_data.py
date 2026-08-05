@@ -50,7 +50,7 @@ MACRO_SERIES = {
     "UNRATE": "UNRATE", "VIXCLS": "VIXCLS", "BAA10Y": "BAA10Y",
 }
 RATE_LIMIT_S = {"yahoo": 1.0, "stooq": 1.0, "fred": 0.5, "tiingo": 0.8,
-                "alphavantage": 13.0, "sec": 0.15}
+                "alphavantage": 13.0, "sec": 0.15, "finra": 0.2}
 
 
 def sha256(path: Path) -> str:
@@ -230,6 +230,47 @@ def main() -> int:
                      "a change re-fetches them once (AUD-022)"}, indent=2))
         manifest["coverage"]["sec"] = {"requested": len(univ_only), "ok": n_ok,
                                        "concept_fields": len(want)}
+
+    if "finra" in args.providers:
+        # FINRA daily short-sale volume: free, no key, ONE FILE PER SESSION
+        # rather than one per symbol. ~4,300 files for the full history, so
+        # resume keys on the session — a day already on disk is never re-fetched
+        # and a first run is the only slow one.
+        #
+        # Missing days are NORMAL, not failures: market holidays have no file,
+        # and _http_get treats a 404 as permanent and does not retry it
+        # (AUD-014). Only genuine errors are recorded in the manifest, so a
+        # holiday does not read as a coverage problem.
+        from aitb.data import finra
+        from aitb.data.providers import NoDataError, _http_get
+
+        sv_dir = out / "short_volume"
+        sv_dir.mkdir(parents=True, exist_ok=True)
+        sessions = finra.sessions_between(
+            max(date.fromisoformat(args.start), finra.FIRST_SESSION),
+            date.today())
+        n_ok = n_missing = 0
+        for day in sessions:
+            path = sv_dir / f"{day:%Y%m%d}.parquet"
+            if path.exists():
+                n_ok += 1
+                continue
+            try:
+                text = _http_get(finra.short_volume_url(day)).text
+                finra.parse_daily(text).to_parquet(path)
+                n_ok += 1
+            except NoDataError:
+                n_missing += 1          # holiday or not yet published
+            except Exception as exc:
+                manifest["failures"].append({"provider": "finra",
+                                             "symbol": f"{day:%Y-%m-%d}",
+                                             "error": str(exc)})
+            time.sleep(RATE_LIMIT_S["finra"])
+        log.info("finra: %d sessions on disk, %d with no file (holidays)",
+                 n_ok, n_missing)
+        manifest["coverage"]["finra"] = {"requested": len(sessions), "ok": n_ok,
+                                         "no_file": n_missing,
+                                         "first_session": str(finra.FIRST_SESSION)}
 
     for p in sorted(out.rglob("*.parquet")):
         manifest["files"][str(p.relative_to(out))] = sha256(p)
