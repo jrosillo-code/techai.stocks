@@ -81,3 +81,67 @@ lines:
          change: "CAGR over elapsed calendar time (audit AUD-006)",
          why: "row-count/252 understated CAGR ~35bp/yr on business-day calendars",
          outcome: "all demo artifacts regenerated", requires_freeze_bump: true}
+
+  universe_definition:
+    title: "(cross-cutting) what the study is allowed to hold"
+    versions:
+      - {id: univ_v1, strategy: "-", date: 2026-08-04, freeze: v1,
+         change: "38 securities: 33 live tech names + 5 delisted (SUNW, EMC, YHOO, MXIM, XLNX)",
+         why: "initial roster covering the AI/tech themes the study was commissioned to examine",
+         outcome: "superseded"}
+      - id: univ_v2
+        strategy: "-"
+        date: 2026-08-05
+        freeze: v3
+        change: "120 securities: 81 live + 39 delisted; 14 benchmark funds; 15 theme baskets"
+        why: >-
+          Two v2 findings forced it. First, 33 live names could not distinguish a
+          strategy that picks good technology companies from one that holds NVDA
+          — a top-5 screen over 33 names is barely a screen. Second, a 5-name
+          delisted roster left survivorship bias as the largest known weakness in
+          the study; it is now 39 names covering the dot-com bankruptcies, the
+          acquisition wave and the take-privates.
+        outcome: "active; every v2 result re-run against it, and the v2 cohort excluded from all comparisons"
+        requires_freeze_bump: true
+
+  residual_and_factor:
+    title: "Diversifying factors"
+    versions:
+      - id: factor_v1
+        strategy: ResidualMomentum
+        date: 2026-08-05
+        freeze: v3
+        change: "NEW family: residual momentum, multi-horizon consensus, low-volatility tech, breadth gating, theme rotation, fundamental acceleration"
+        why: >-
+          The clearest result of the v2 study was negative: across 24 families
+          the pairwise correlation of monthly returns was mostly above 0.85 and
+          everything fell together in 2022. They were one bet wearing 24 hats.
+          This family exists to test whether ANYTHING in US technology behaves
+          differently — residual momentum strips the shared factor out before
+          ranking, breadth gating uses participation rather than index price,
+          and theme rotation selects one level above the stock.
+        outcome: "awaiting first evaluation"
+        requires_freeze_bump: true
+
+  allocation_schemes:
+    title: "Weighting without forecasting"
+    versions:
+      - {id: alloc_v1, strategy: InverseVolBasket,
+         date: 2026-08-04, freeze: v1,
+         change: "inverse-volatility weighting of a fixed basket",
+         why: "risk-balanced weights avoid concentration in the wildest name",
+         outcome: "beat equal weight on Sharpe in the v2 synthetic shakedown"}
+      - id: alloc_v2
+        strategy: EqualRiskContribution
+        date: 2026-08-05
+        freeze: v3
+        change: "NEW: equal-risk-contribution weighting, and a minimum-correlation sleeve"
+        why: >-
+          Inverse-vol is equal-risk-contribution under the assumption that
+          everything is equally correlated, which is badly wrong here — semis
+          move together far more tightly than semis and software. With 33 names
+          the difference was not measurable; with 120 it should be. The
+          minimum-correlation sleeve is the direct test of whether a
+          less-redundant corner of technology exists at all.
+        outcome: "awaiting first evaluation"
+        requires_freeze_bump: true

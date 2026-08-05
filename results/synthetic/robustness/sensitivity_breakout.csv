@@ -1,6 +1,6 @@
 variant,stat,n_days,neighbor_stability
-"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.2)",1.0037436956449177,9021,0.04819839892862681
-"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.3)",0.9355808661953848,9021,0.20749829823203145
-"DonchianBreakout(entry_window=100,exit_window=20,max_positions=6,regime_filter=True)",0.6151457046946628,9021,0.19127158878225367
-"DonchianBreakout(entry_window=55,exit_window=20,max_positions=6,regime_filter=True)",0.5944062671192146,9021,0.06221778113643147
-"DonchianBreakout(entry_window=20,exit_window=20,max_positions=6,regime_filter=True)",0.4985189218339412,9021,0.06780259208119352
+"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.2)",0.720996730032244,9021,0.051576995225172506
+"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.3)",0.6480558438783527,9021,0.1738538957063144
+"DonchianBreakout(entry_window=20,exit_window=20,max_positions=6,regime_filter=True)",0.39010269499619615,9021,0.16121862044865937
+"DonchianBreakout(entry_window=100,exit_window=20,max_positions=6,regime_filter=True)",0.35153983982608855,9021,0.03471106610897305
+"DonchianBreakout(entry_window=55,exit_window=20,max_positions=6,regime_filter=True)",0.320828728146656,9021,0.021716035326308364

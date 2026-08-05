@@ -84,6 +84,12 @@ def main() -> int:
 
     registry = ExperimentRegistry.for_mode(args.data_mode)
     df = registry.load()
+    # One universe cohort only (AUD-016). The registry is append-only across
+    # freezes, so it holds results from rosters of different sizes; mixing them
+    # would corrupt the trial battery, the walk-forward selection and every
+    # comparison downstream. Older cohorts stay on the permanent record.
+    from aitb.ranking import current_cohort
+    df = current_cohort(df)
     if df.empty:
         if args.data_mode == "real":
             return write_unavailable_stub(REP, "no real-data experiments have been run yet")

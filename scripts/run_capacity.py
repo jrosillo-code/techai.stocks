@@ -53,6 +53,12 @@ def main() -> int:
 
     registry = ExperimentRegistry.for_mode(args.data_mode)
     df = registry.load()
+    # One universe cohort only (AUD-016). The registry is append-only across
+    # freezes, so it holds results from rosters of different sizes; mixing them
+    # would corrupt the trial battery, the walk-forward selection and every
+    # comparison downstream. Older cohorts stay on the permanent record.
+    from aitb.ranking import current_cohort
+    df = current_cohort(df)
     ok = df[(df["status"] == "ok") & (df["scenario"] == "base")].copy()
     ok = ok[ok["family"] != "benchmark"]
     ok["dev_sharpe"] = ok["metrics_dev"].map(lambda m: (m or {}).get("sharpe") or float("nan"))

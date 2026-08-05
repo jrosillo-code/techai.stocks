@@ -1,0 +1,9 @@
+variant,stat,n_days,neighbor_stability
+"EqualRiskContribution(basket=ai_broad,cov_window=252,max_weight=0.25,rebalance=ME)",0.8666639033822093,9021,0.0074706149139418
+"EqualRiskContribution(basket=ai_broad,cov_window=126,max_weight=0.25,rebalance=ME)",0.8560988584516461,9021,0.023179644132478174
+"EqualRiskContribution(basket=target_holdings,cov_window=252,max_weight=0.25,rebalance=ME)",0.8222895329747241,9021,0.026521292651660155
+"EqualRiskContribution(basket=target_holdings,cov_window=126,max_weight=0.25,rebalance=ME)",0.8037988001815393,9021,0.016524100435573733
+"MinCorrelationSleeve(basket=None,corr_window=252,rebalance=QE,top_n=15)",0.7893227145527386,9021,0.044704243993148596
+"MinCorrelationSleeve(basket=None,corr_window=252,rebalance=QE,top_n=10)",0.720152377580315,9021,0.05418103114955577
+"EqualRiskContribution(basket=megacap_ai,cov_window=126,max_weight=0.25,rebalance=ME)",0.6824993929088756,9021,0.021928180319178814
+"EqualRiskContribution(basket=megacap_ai,cov_window=252,max_weight=0.25,rebalance=ME)",0.681852189259233,9021,0.00045764208963263846

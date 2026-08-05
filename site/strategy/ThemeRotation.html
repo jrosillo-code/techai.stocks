@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Rotate between tech themes</title><style>
+:root{
+  color-scheme: light;
+  --bg:#f4f4f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --mut:#78776f;
+  --line:#e3e2dd; --acc:#2a78d6; --acc-soft:#eaf2fd;
+  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --serious:#ec835a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+    --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+  --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+nav{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 1.2rem;display:flex;gap:.2rem;align-items:center;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+nav .brand{font-weight:700;margin-right:1rem;padding:.85rem 0;font-size:.95rem}
+nav a{color:var(--ink-2);text-decoration:none;font-size:.88rem;padding:.85rem .7rem;
+  border-bottom:2px solid transparent}
+nav a:hover{color:var(--ink);border-bottom-color:var(--line)}
+nav a.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+main{max-width:1120px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+h1{font-size:1.75rem;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.1rem;margin:2.2rem 0 .2rem;letter-spacing:-.01em}
+h2+.lede{margin:.1rem 0 .9rem}
+h3{font-size:.95rem;margin:1.4rem 0 .4rem}
+.lede{color:var(--ink-2);font-size:.95rem;max-width:70ch}
+.note{color:var(--mut);font-size:.83rem;max-width:78ch}
+
+/* hero */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.3rem 1.4rem;margin:.6rem 0 1.2rem}
+.hero h1{margin-top:0}
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;
+  font-weight:600;padding:.2rem .6rem;border-radius:99px;border:1px solid transparent}
+.pill-warn{background:#fdf5e3;color:#7a5600;border-color:#f2dfae}
+.pill-good{background:#e7f6e7;color:#075c07;border-color:#bde5bd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .pill-warn{background:#3a2f14;color:#f6cf72;border-color:#5b4a1d}
+:root:where(:not([data-theme="light"])) .pill-good{background:#123212;color:#7fd77f;border-color:#1e4d1e}}
+
+/* pipeline */
+.pipe{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 .3rem}
+.step{flex:1 1 170px;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:.7rem .85rem;position:relative}
+.step .n{font-size:.72rem;color:var(--mut);font-weight:600;letter-spacing:.04em}
+.step .t{font-weight:650;font-size:.92rem;margin:.15rem 0}
+.step .d{font-size:.79rem;color:var(--ink-2)}
+.step.done{border-color:#bde5bd;background:linear-gradient(0deg,#f4fbf4,var(--surface))}
+.step.now{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.step .tick{position:absolute;top:.6rem;right:.7rem;font-size:.9rem}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .step.done{background:var(--surface);border-color:#1e4d1e}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:.85rem 1rem}
+.stat .v{font-size:1.9rem;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.stat .k{font-size:.83rem;font-weight:600;margin-top:.1rem}
+.stat .d{font-size:.78rem;color:var(--mut);margin-top:.25rem;line-height:1.4}
+
+/* charts */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.1rem;margin:.5rem 0}
+.chart .ct{font-weight:650;font-size:.92rem}
+.chart .cs{font-size:.8rem;color:var(--mut);margin-bottom:.7rem}
+.bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;
+  gap:.7rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.bar-row .lab{color:var(--ink-2);text-align:right}
+.bar-track{background:var(--line);border-radius:5px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s}
+.bar-row .val{font-variant-numeric:tabular-nums;font-weight:650;min-width:2.4rem}
+.spark{display:flex;align-items:flex-end;gap:2px;height:64px;margin-top:.4rem}
+.spark i{background:var(--s1);border-radius:3px 3px 0 0;flex:1;min-width:3px;display:block}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:.55rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);font-weight:650;white-space:nowrap;background:var(--surface);
+  cursor:pointer;user-select:none}
+th:hover{color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--acc-soft)}
+td a{color:var(--acc);text-decoration:none;font-weight:600}
+td a:hover{text-decoration:underline}
+.sub{display:block;color:var(--mut);font-size:.76rem;font-weight:400}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* badges */
+.badge{display:inline-block;padding:.12rem .5rem;border-radius:99px;
+  font-size:.72rem;font-weight:600;white-space:nowrap}
+.b-robust_candidate,.b-core,.b-A{background:#e7f6e7;color:#075c07}
+.b-inconclusive,.b-exploratory,.b-B{background:#fdf5e3;color:#7a5600}
+.b-rejected,.b-deprecated,.b-C{background:#fbeaea;color:#8f1f1f}
+.b-benchmark{background:#eaf2fd;color:#12467e}
+.b-unlisted{background:var(--line);color:var(--ink-2)}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .badge{filter:brightness(1.7) saturate(.8)}}
+
+.warnbox{background:#fdf5e3;border:1px solid #f2dfae;border-left:4px solid var(--warning);
+  padding:.8rem 1rem;margin:1rem 0;border-radius:10px;font-size:.88rem;color:#5c4310}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .warnbox{background:#2c2410;border-color:#5b4a1d;color:#f0d79a}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:minmax(90px,130px) 1fr auto}}
+input,select{padding:.42rem .6rem;border:1px solid var(--line);border-radius:8px;
+  margin:.15rem;background:var(--surface);color:var(--ink);font-size:.86rem}
+pre{background:#15150f;color:#e8e7de;padding:.9rem;border-radius:10px;
+  overflow-x:auto;font-size:.78rem;line-height:1.5}
+details{margin:.4rem 0}summary{cursor:pointer;color:var(--acc);font-size:.88rem;font-weight:600}
+dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
+.score{display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.score .sn{width:190px;color:var(--ink-2)}
+.bar{height:9px;border-radius:5px;background:var(--s1);min-width:3px}
+.tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='../index.html'>Overview</a><a href='../data.html'>The data</a><a href='../experiments.html'>Experiments</a><a href='../strategies.html'>Strategies</a><a href='../compare.html'>Compare</a><a href='../portfolio.html'>Portfolio lab</a><a href='../ideas.html'>Ideas</a><a href='../roadmap.html'>Roadmap</a><a href='../audit.html'>Trust & audit</a></nav><main>
+<h1>Rotate between tech themes</h1>
+<p class='lede'><i>Capital-spending cycles rotate between layers of the technology stack with enough persistence to trade at the theme level, and doing so avoids the single-name concentration that penalises stock-level momentum.</i></p>
+<p><span class='badge b-core'>core</span> · best result: <span class='badge b-inconclusive'>inconclusive</span> · research-quality score
+<b>3.46/5</b> · 6 test runs</p>
+<div class='warnbox'><b>These numbers are from a simulated market, not the real one.</b> The system has been built and audited, but the study against real market prices has not run yet. Everything here demonstrates that the machinery works — none of it says anything about how these ideas would have actually performed.</div>
+
+<h2>What it does</h2>
+<p class='lede'>Rotate across sub-industries, holding every name in the winners.</p>
+<p class='note'>Works on: US large-cap equities & ETFs (daily bars) · typical holding period:
+months</p>
+
+<div class='grid2'>
+<div class='chart'><div class='ct'>What's good about it</div><div class='cs'>&nbsp;</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li>Has a real reason to work, and survived the cull that retired weaker ideas</li><li>Few settings to tune, so there is little room to accidentally fit it to the past</li><li>Built specifically to behave differently from the rest of the sector, rather than to score highest on its own</li></ul></div>
+<div class='chart'><div class='ct'>What's wrong with it</div><div class='cs'>&nbsp;</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li>Ranks companies against each other, so it is only as honest as the list it ranks. That list now includes 39 firms that went bust or were bought — but free price data often has no history for them, which would flatter the result again</li></ul></div>
+</div>
+
+<h2>How much to trust it</h2>
+<p class='lede'>This scores the <b>quality of the research</b>, not the returns.
+A high score means the finding is well-built and well-checked — it does not mean
+the strategy makes money. Hover any bar for the detail behind the score.</p>
+<div class='chart'><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Built correctly<span class='sub' style='text-align:right'>Is the code doing what it claims?</span></div><div class='bar-track'><div class='bar-fill' style='width:80%;background:var(--good)' title='engine-level accounting verified by hand ledgers + per-bar invariant (audit 2026-08); strategy expressed through audited primitives'></div></div><div class='val'>4.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Independently checked<span class='sub' style='text-align:right'>Has a hostile reviewer been through it?</span></div><div class='bar-track'><div class='bar-fill' style='width:80%;background:var(--good)' title='covered by the adversarial audit (no CRITICAL findings; engine cleared); residual: AUD-010 verdict-layer false discovery, AUD-012 dividend reinvestment assumption, AUD-017 registry lacks a duplicate-ID guard (affects run counts only, never a metric)'></div></div><div class='val'>4.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Data it ran on<span class='sub' style='text-align:right'>How trustworthy are the underlying prices?</span></div><div class='bar-track'><div class='bar-fill' style='width:30%;background:var(--critical)' title='tier not yet assigned (no real-data run)'></div></div><div class='val'>1.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Evidence grade<span class='sub' style='text-align:right'>A = clean data, B = known gaps, C = unusable.</span></div><div class='bar-track'><div class='bar-fill' style='width:30%;background:var(--critical)' title='Tier ? (synthetic only)'></div></div><div class='val'>1.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Could this be luck?<span class='sub' style='text-align:right'>Higher means less likely to be chance.</span></div><div class='bar-track'><div class='bar-fill' style='width:100%;background:var(--good)' title='mean probabilistic Sharpe 1.00 across 6 variants (deflated-Sharpe correction applied at family level)'></div></div><div class='val'>5.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Holds up under pressure<span class='sub' style='text-align:right'>Does it survive when conditions change?</span></div><div class='bar-track'><div class='bar-fill' style='width:90%;background:var(--good)' title='mean dev→holdout Sharpe degradation 0.00 (subperiod stability also enters the composite ranking)'></div></div><div class='val'>4.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Easy to understand<span class='sub' style='text-align:right'>Fewer moving parts is better.</span></div><div class='bar-track'><div class='bar-fill' style='width:92%;background:var(--good)' title='3 parameters; hypothesis stated: yes'></div></div><div class='val'>4.6</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Room to scale<span class='sub' style='text-align:right'>Would it still work with real money in it?</span></div><div class='bar-track'><div class='bar-fill' style='width:50%;background:var(--warning)' title='large-cap universe, √participation impact model; see capacity.csv for size-scaled estimates (real-data capacity unverified)'></div></div><div class='val'>2.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Chartable<span class='sub' style='text-align:right'>Can you watch it on TradingView?</span></div><div class='bar-track'><div class='bar-fill' style='width:10%;background:var(--critical)' title='requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script'></div></div><div class='val'>0.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Documented<span class='sub' style='text-align:right'>Is it written down properly?</span></div><div class='bar-track'><div class='bar-fill' style='width:100%;background:var(--good)' title='docstring+hypothesis 634 chars; full auto-generated doc page'></div></div><div class='val'>5.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Repeatable<span class='sub' style='text-align:right'>Can someone rerun this years from now?</span></div><div class='bar-track'><div class='bar-fill' style='width:100%;background:var(--good)' title='deterministic seeds, stable experiment IDs, append-only registry, freeze-v2-fingerprinted implementation'></div></div><div class='val'>5.0</div></div>
+<p class='note' style='margin-top:.8rem'><b>Verdict: not yet trusted — see low-scoring dimensions.</b>
+Research-quality assessment only; says nothing about future returns. Real-data tiers pending until the first real study.</p></div>
+
+<h2>What it assumes</h2>
+<p class='lede'>If these stop being true, the strategy stops working.</p>
+<ul class='lede'><li>the shared sector factor is separable from what is left over</li><li>the residual, not the total return, is what carries information</li><li>participation and consensus are measurable before prices confirm them</li></ul>
+
+<h2>Track record</h2>
+<p class='lede'>Every recorded run of this idea. <b>Sharpe</b> is return per unit
+of bumpiness. <b>Holdout</b> is the locked-away slice of history, looked at once —
+if it is much worse than the development figure, the idea was over-tuned.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Date</th><th>Setting</th>
+<th class='num'>Sharpe (dev)</th><th class='num'>Sharpe (holdout)</th>
+<th class='num'>Worst fall</th><th class='num'>Turnover</th></tr></thead>
+<tbody><tr><td>2026-08-05</td><td><a href='../strategy/ThemeRotation.html'>Rotate between tech themes</a><span class='sub'>126-day lookback · top 2 themes · monthly</span></td><td class='num'>0.94</td><td class='num'>1.93</td><td class='num'>-67%</td><td class='num'>10.8</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/ThemeRotation.html'>Rotate between tech themes</a><span class='sub'>126-day lookback · top 3 themes · monthly</span></td><td class='num'>0.93</td><td class='num'>1.83</td><td class='num'>-65%</td><td class='num'>10.9</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/ThemeRotation.html'>Rotate between tech themes</a><span class='sub'>126-day lookback · top 4 themes · monthly</span></td><td class='num'>0.96</td><td class='num'>1.95</td><td class='num'>-66%</td><td class='num'>10.1</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/ThemeRotation.html'>Rotate between tech themes</a><span class='sub'>252-day lookback · top 2 themes · monthly</span></td><td class='num'>0.86</td><td class='num'>1.71</td><td class='num'>-75%</td><td class='num'>9.5</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/ThemeRotation.html'>Rotate between tech themes</a><span class='sub'>252-day lookback · top 3 themes · monthly</span></td><td class='num'>0.95</td><td class='num'>2.03</td><td class='num'>-74%</td><td class='num'>8.1</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/ThemeRotation.html'>Rotate between tech themes</a><span class='sub'>252-day lookback · top 4 themes · monthly</span></td><td class='num'>0.96</td><td class='num'>2.25</td><td class='num'>-69%</td><td class='num'>7.6</td></tr></tbody></table></div>
+
+<h2>What we learned</h2>
+<ul class='lede'><li>Nothing recorded yet.</li></ul>
+<h3>Still open</h3>
+<ul class='lede'><li>Does the (synthetic-)demonstrated behavior survive the first real-data study?</li><li>Which evidence tier does the strategy earn under the real quality gate?</li></ul>
+
+<h2>How this idea evolved</h2>
+<p class='note'>No version history recorded yet.</p>
+
+<h2>Watch it on TradingView</h2>
+<p class='lede'>Not available on TradingView. requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</p>
+
+<h2>The fine print</h2>
+<details><summary>Settings and their defaults</summary>
+<div class='tbl-wrap' style='margin-top:.5rem'><table><thead><tr><th>Setting</th>
+<th>Default</th></tr></thead><tbody>
+<tr><td>lookback_days</td><td>126</td></tr><tr><td>top_themes</td><td>3</td></tr><tr><td>rebalance</td><td>ME</td></tr>
+</tbody></table></div></details>
+<details><summary>Exact settings tested (frozen)</summary>
+<pre>[
+ {
+  &quot;lookback_days&quot;: [
+   126,
+   252
+  ],
+  &quot;top_themes&quot;: [
+   2,
+   3,
+   4
+  ]
+ }
+]</pre></details>
+<details><summary>Python source (fingerprinted by the research freeze)</summary>
+<pre>class ThemeRotation(Strategy):
+    &quot;&quot;&quot;Rotate across sub-industries, holding every name in the winners.
+
+    Selection happens one level up from the stock: rank the theme baskets
+    (semis, semi-cap equipment, EDA, cloud, cyber, networking, robotics, AI
+    power) by their own equal-weighted momentum, then hold the top themes
+    equally weighted internally. Stock-level idiosyncratic risk is diversified
+    away on purpose — the bet is entirely on which part of the sector leads.
+    &quot;&quot;&quot;
+    family = &quot;factor&quot;
+    hypothesis = (&quot;Capital-spending cycles rotate between layers of the &quot;
+                  &quot;technology stack with enough persistence to trade at the &quot;
+                  &quot;theme level, and doing so avoids the single-name &quot;
+                  &quot;concentration that penalises stock-level momentum.&quot;)
+
+    _THEMES = [&quot;ai_compute&quot;, &quot;semi_equipment&quot;, &quot;eda_tools&quot;, &quot;cloud_platforms&quot;,
+               &quot;enterprise_ai&quot;, &quot;cybersecurity&quot;, &quot;networking&quot;,
+               &quot;dc_infrastructure&quot;, &quot;robotics&quot;, &quot;ai_power&quot;,
+               &quot;internet_platforms&quot;]
+
+    def __init__(self, lookback_days: int = 126, top_themes: int = 3,
+                 rebalance: str = &quot;ME&quot;):
+        super().__init__(lookback_days=lookback_days, top_themes=top_themes,
+                         rebalance=rebalance)
+
+    def build(self, md: MarketData) -&gt; pd.DataFrame:
+        p = self.params
+        themes = [t for t in self._THEMES if t in md.universe.baskets]
+        masks = {t: investable_mask(md, md.universe.baskets[t]) for t in themes}
+
+        # Each theme&#x27;s own equal-weighted total-return index, built only from
+        # names investable on each date.
+        theme_px = {}
+        for t, m in masks.items():
+            if m.empty or not m.any().any():
+                continue
+            r = md.adj_close[m.columns].pct_change().where(m)
+            theme_px[t] = (1 + r.mean(axis=1).fillna(0.0)).cumprod()
+        if not theme_px:
+            raise ValueError(&quot;ThemeRotation: no themes have investable members&quot;)
+
+        tp = pd.DataFrame(theme_px)
+        tmom = momentum(tp, p[&quot;lookback_days&quot;], skip_days=21)
+        sel_themes = top_n_selection(tmom, p[&quot;top_themes&quot;]).where(tmom &gt; 0, 0.0)
+
+        w = pd.DataFrame(0.0, index=md.calendar, columns=md.adj_close.columns)
+        share = sel_themes.div(sel_themes.sum(axis=1).replace(0, np.nan), axis=0)
+        for t in tp.columns:
+            m = masks[t]
+            inner = equal_weight(m)                      # equal within theme
+            w[m.columns] = w[m.columns].add(
+                inner.mul(share[t].reindex(inner.index).fillna(0.0), axis=0),
+                fill_value=0.0)
+        return rebalance_schedule(w.fillna(0.0), p[&quot;rebalance&quot;])
+</pre></details>
+<p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 11:36 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>

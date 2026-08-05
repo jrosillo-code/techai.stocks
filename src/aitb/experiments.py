@@ -46,6 +46,22 @@ def _lineage(md: MarketData) -> dict:
     return out
 
 
+def _freeze_version() -> int:
+    from .freeze import FREEZE_VERSION
+    return FREEZE_VERSION
+
+
+def universe_hash(md: MarketData) -> str:
+    """Fingerprint of the exact investable roster a run saw.
+
+    Ticker list AND listing windows: adding a delisted name, or correcting an
+    IPO date, changes what a strategy could have held and therefore what its
+    results mean. Two runs with different universe hashes are not comparable.
+    """
+    return stable_hash([[s.ticker, str(s.ipo), str(s.delisted)]
+                        for s in md.universe.securities])
+
+
 def _git_commit() -> str:
     try:
         return subprocess.run(["git", "rev-parse", "--short", "HEAD"],
@@ -92,9 +108,23 @@ class ExperimentRegistry:
 
 
 def experiment_id(strategy: Strategy, md: MarketData, scenario: str) -> str:
+    """Stable ID for one (strategy, data, scenario) run.
+
+    The universe fingerprint and freeze version are part of the identity
+    (fixed 2026-08-05, finding AUD-016). They were not, and that was a real
+    caching defect: the runner skips an experiment whose ID already exists and
+    reloads its stored curve, so running the SAME strategy against an EXPANDED
+    universe silently returned the old universe's results. It could not fire
+    while a single freeze was in force — the universe is part of the freeze —
+    but it fires the moment a new freeze widens the roster, which is exactly
+    when the temptation to compare old and new numbers is highest.
+    """
+    from .freeze import FREEZE_VERSION
     return stable_hash({"spec": strategy.spec(), "provider": md.provider_name,
                         "data_mode": md.data_mode, "scenario": scenario,
-                        "data_span": [str(md.calendar[0]), str(md.calendar[-1])]})
+                        "data_span": [str(md.calendar[0]), str(md.calendar[-1])],
+                        "universe": universe_hash(md),
+                        "freeze_version": FREEZE_VERSION})
 
 
 def run_experiment(md: MarketData,
@@ -162,7 +192,9 @@ def run_experiment(md: MarketData,
             "scenario": scen_name,
             "provider": md.provider_name,
             "data_mode": md.data_mode,
-            "universe_hash": stable_hash([s.ticker for s in md.universe.securities]),
+            "universe_hash": universe_hash(md),
+            "universe_size": len(md.universe.securities),
+            "freeze_version": _freeze_version(),
             # Lineage (audit finding AUD-007): bind the record to the exact
             # validated data-store contents and governing freeze, so any
             # upstream change invalidates downstream artifacts detectably.

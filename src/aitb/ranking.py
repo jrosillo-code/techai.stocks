@@ -80,10 +80,33 @@ def score_record(rec: dict) -> dict:
     }
 
 
+def current_cohort(registry_df: pd.DataFrame) -> pd.DataFrame:
+    """Rows belonging to the newest universe cohort in the registry.
+
+    The registry is append-only across freezes, so it accumulates results run
+    against DIFFERENT universes. A 33-name roster and a 120-name roster are not
+    the same experiment, and a score computed on one says nothing about the
+    other — ranking them together would be the universe-level version of the
+    evidence-tier mixing the study already forbids. Older cohorts stay in the
+    registry (nothing is ever deleted) but leave the leaderboard.
+    """
+    if registry_df.empty or "universe_hash" not in registry_df.columns:
+        return registry_df
+    known = registry_df[registry_df["universe_hash"].notna()]
+    if known.empty:
+        return registry_df
+    # Newest cohort = the universe hash carrying the most recent timestamp.
+    latest = known.sort_values("timestamp").iloc[-1]["universe_hash"]
+    return registry_df[registry_df["universe_hash"] == latest]
+
+
 def rank_experiments(registry_df: pd.DataFrame,
                      scenario: str = "base") -> pd.DataFrame:
     """Rank all OK experiments run under `scenario`, plus cost-robustness
-    columns comparing against the stressed scenario when present."""
+    columns comparing against the stressed scenario when present.
+
+    Only the newest universe cohort is ranked (see ``current_cohort``).
+    """
     if "data_mode" in registry_df.columns:
         modes = set(registry_df["data_mode"].dropna().unique())
         if len(modes) > 1:
@@ -91,6 +114,7 @@ def rank_experiments(registry_df: pd.DataFrame,
                 f"refusing to rank across data modes {sorted(modes)} — real and "
                 "synthetic experiments live in separate registries by design")
     ok = registry_df[registry_df["status"] == "ok"]
+    ok = current_cohort(ok)
     base = ok[ok["scenario"] == scenario]
     rows = [score_record(rec) for rec in base.to_dict("records")]
     out = pd.DataFrame(rows)
@@ -112,7 +136,12 @@ def rank_experiments(registry_df: pd.DataFrame,
     # the 200dma baseline, 12-1 momentum). Single-company buy & hold is
     # excluded from the hurdle — picking the one mega-winner ex post is not a
     # fair alternative anyone could have chosen ex ante.
-    etf_bh = {f"BuyAndHold(ticker={t})" for t in ("SPY", "QQQ", "XLK", "SOXX", "SMH", "IGV")}
+    # Broad or sector index funds: diversified, buyable in advance by anyone,
+    # and therefore fair members of the hurdle. Any other single-ticker
+    # buy & hold is one company chosen with hindsight and stays excluded.
+    etf_bh = {f"BuyAndHold(ticker={t})" for t in
+              ("SPY", "QQQ", "XLK", "SOXX", "SMH", "IGV",
+               "VGT", "IWM", "ARKK", "SKYY", "CIBR", "BOTZ")}
     is_bench = out["family"] == "benchmark"
     diversified = is_bench & (~out["strategy"].str.startswith("BuyAndHold(")
                               | out["strategy"].isin(etf_bh))

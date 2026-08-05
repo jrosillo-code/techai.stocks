@@ -24,7 +24,10 @@ def load_strategy_returns(mode: str = "synthetic",
                           max_strategies: int = 40) -> pd.DataFrame:
     """Daily net (base-scenario) return panel, best-scoring variant per class."""
     registry = ExperimentRegistry.for_mode(mode)
-    df = registry.load()
+    # Current universe cohort only — correlating a strategy run over 33 names
+    # against one run over 120 would compare two different worlds.
+    from .catalog import current_registry
+    df = current_registry(mode)
     if df.empty:
         return pd.DataFrame()
     ok = df[(df["status"] == "ok") & (df["scenario"] == "base")].copy()

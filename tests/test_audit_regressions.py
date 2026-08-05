@@ -250,3 +250,102 @@ def test_zero_turnover_zero_trading_cost():
     w = pd.DataFrame(0.0, index=md.calendar, columns=["AAA"])  # never trades
     res = run_backtest(md, w, BASE)
     assert res.total_costs == 0.0 and res.n_trades == 0
+
+
+# ------------------------------- AUD-016: experiment ID must bind the universe --
+def test_experiment_id_binds_universe(synth_md):
+    """Two runs over different investable rosters are different experiments.
+
+    Without this the runner's cache is actively harmful: it skips any ID it has
+    already seen and reloads the stored curve, so expanding the universe would
+    return the OLD universe's results while labelling them as the new study.
+    """
+    import dataclasses
+    from aitb.experiments import experiment_id, universe_hash
+
+    full = synth_md
+    narrow_secs = full.universe.securities[:12]
+    narrow_u = dataclasses.replace(full.universe, securities=narrow_secs)
+    narrow = dataclasses.replace(full, universe=narrow_u)
+
+    assert universe_hash(full) != universe_hash(narrow)
+
+    from aitb.strategies import STRATEGY_CLASSES
+    strat = STRATEGY_CLASSES["XSMomentumTopN"](lookback_days=126, top_n=5)
+    assert experiment_id(strat, full, "base") != experiment_id(strat, narrow, "base")
+    # ...and identical inputs must still be stable, or nothing is ever cached.
+    assert experiment_id(strat, full, "base") == experiment_id(strat, full, "base")
+
+
+def test_delisting_date_change_changes_universe_hash(synth_md):
+    """The hash covers listing windows, not just the ticker list.
+
+    Moving a delisting date changes what a strategy could have held and for how
+    long. That is a different experiment even though the roster is identical.
+    """
+    import dataclasses
+    import datetime as dt
+    from aitb.experiments import universe_hash
+
+    secs = list(synth_md.universe.securities)
+    i = next(i for i, s in enumerate(secs) if s.delisted is not None)
+    secs[i] = dataclasses.replace(secs[i], delisted=dt.date(2018, 1, 2))
+    moved = dataclasses.replace(synth_md,
+                                universe=dataclasses.replace(synth_md.universe,
+                                                             securities=secs))
+    assert universe_hash(synth_md) != universe_hash(moved)
+
+
+def test_ranking_uses_one_universe_cohort():
+    """A leaderboard must never mix results from two different rosters."""
+    from aitb.ranking import current_cohort, rank_experiments
+
+    def rec(uh, size, sharpe, ts):
+        return {"status": "ok", "scenario": "base", "data_mode": "synthetic",
+                "strategy": f"S{sharpe}(x=1)", "family": "xsmom",
+                "universe_hash": uh, "universe_size": size, "timestamp": ts,
+                "metrics_dev": {"sharpe": sharpe}, "metrics_holdout": {"sharpe": sharpe},
+                "subperiods": [], "spec": {"params": {}}}
+
+    df = pd.DataFrame([rec("OLD", 38, 3.0, "2026-08-01T00:00:00Z"),
+                       rec("NEW", 120, 0.5, "2026-08-05T00:00:00Z")])
+    assert set(current_cohort(df)["universe_hash"]) == {"NEW"}
+    out = rank_experiments(df)
+    assert len(out) == 1 and out.iloc[0]["dev_sharpe"] == 0.5
+
+
+# ------------------ AUD-017: registry must not accumulate duplicate IDs -------
+def test_registry_has_no_duplicate_ids():
+    """The committed registry must contain each experiment ID exactly once.
+
+    ExperimentRegistry.append() has no uniqueness guard (AUD-017, open), so two
+    concurrent runners will both write the same IDs. That has happened. Until
+    the guard lands with the next freeze bump, this test is the backstop that
+    keeps a duplicated registry out of the repository.
+    """
+    from aitb.experiments import ExperimentRegistry
+    reg = ExperimentRegistry.for_mode("synthetic")
+    if not reg.path.exists():
+        pytest.skip("no synthetic registry present")
+    ids = [json.loads(l)["id"] for l in reg.path.read_text().splitlines() if l.strip()]
+    dupes = {i for i in ids if ids.count(i) > 1}
+    assert not dupes, (
+        f"{len(dupes)} duplicated experiment IDs in {reg.path} — this is what a "
+        "second concurrent runner looks like. Re-run as a single process.")
+
+
+def test_site_baseline_set_matches_ranking_hurdle():
+    """The page saying "the baselines they had to beat" must name the same
+    funds the ranking actually used as the hurdle.
+
+    Two hard-coded lists in two modules is how a site ends up describing a bar
+    that was never applied.
+    """
+    import inspect
+    from aitb import ranking
+    from aitb.platform import site
+    src = inspect.getsource(ranking.rank_experiments)
+    for ticker in site._ETF_BENCH:
+        assert f'"{ticker}"' in src, (
+            f"{ticker} is shown as a diversified baseline on the site but is "
+            "not in ranking.py's hurdle set")

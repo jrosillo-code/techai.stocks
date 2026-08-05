@@ -23,14 +23,22 @@ ideas:
     hypothesis: "Cross-sectional results shift materially when failed firms are investable; current Tier B label can be upgraded to A only with delisting returns."
     category: data
     expected_edge: 4
-    required_data: "full price history + delisting returns for SUNW/EMC/YHOO/MXIM/XLNX and a broader failed-tech list"
+    required_data: "full price history + delisting returns for the 39 delisted names in configs/universe.yaml"
     difficulty: 4
     est_time: "provider-dependent"
     expected_capacity: 5
     required_providers: ["CRSP", "Norgate", "EODHD"]
     references: ["Shumway (1997) delisting bias"]
-    status: planned
-    notes: "Import path already exists (data/import/prices); only the data is missing."
+    status: implementing
+    notes: >-
+      Half done as of freeze v3. The DEFINITION side is complete: the delisted
+      roster went from 5 names to 39, covering the dot-com bankruptcies (NT,
+      WCOM, SGI, JDSU, LU), the acquisition wave (ALTR, BRCM, RHT, VMW, ATVI,
+      SPLK, ANSS, JNPR) and the take-privates (CTXS, ZEN, PFPT, TWTR), each with
+      a security-master record and a successor. The DATA side is untouched:
+      free providers generally serve no history for delisted tickers, so this
+      still cannot be upgraded past Tier B without a paid source. Import path
+      already exists (data/import/prices).
 
   - id: IDEA-003
     title: Macro vintage series (ALFRED)

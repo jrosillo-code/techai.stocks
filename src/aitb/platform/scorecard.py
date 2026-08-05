@@ -35,7 +35,8 @@ def build_scorecard(e: StrategyEntry) -> dict:
         4.0,
         "covered by the adversarial audit (no CRITICAL findings; engine cleared); "
         "residual: AUD-010 verdict-layer false discovery, AUD-012 dividend "
-        "reinvestment assumption")
+        "reinvestment assumption, AUD-017 registry lacks a duplicate-ID guard "
+        "(affects run counts only, never a metric)")
 
     tier_scores = {"A": 4.5, "B": 2.5, "C": 0.5, "": 1.5}
     dims["data_quality"] = _dim(

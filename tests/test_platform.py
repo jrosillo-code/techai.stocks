@@ -127,6 +127,7 @@ def test_site_build_is_read_only_over_governance(tmp_path):
     governance = [
         ROOT / "configs" / "research_freeze_v1.json",
         ROOT / "configs" / "research_freeze_v2.json",
+        ROOT / "configs" / "research_freeze_v3.json",
         ROOT / "results" / "synthetic" / "experiments.jsonl",
         ROOT / "audit" / "findings" / "findings.jsonl",
     ]

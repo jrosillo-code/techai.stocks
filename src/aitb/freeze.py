@@ -40,7 +40,29 @@ log = get_logger("freeze")
 # AUD-011 missing invariant hooks). configs/research_freeze_v1.json is
 # preserved unmodified for the record; no real-data results were ever produced
 # under v1, so nothing is invalidated retroactively.
-FREEZE_VERSION = 2
+#
+# v2 (hash 49767ea3efc44cead711d72946c3fe31) is SUPERSEDED as of 2026-08-05 by
+# a deliberate REDEFINITION of the study, not by a defect in v2's controls:
+#
+#   * the universe grew from 38 securities to 120 (81 live, 39 delisted). The
+#     delisted roster went from 5 names to 39, which is the single largest
+#     reduction in survivorship bias the study has made. A backtest over 33
+#     live megacaps and a backtest over 81 live names plus 39 dead ones are
+#     different experiments; running them under one freeze would have implied
+#     otherwise.
+#   * two strategy families were added (factor, allocation) to test v2's
+#     central negative finding — that its 24 families were one bet in disguise.
+#   * finding AUD-016 was fixed: experiment_id did not include the universe, so
+#     re-running a strategy against an expanded roster would have reused the
+#     old roster's cached curve. That defect could not fire while one freeze
+#     held the universe fixed, but it fires exactly at a freeze boundary like
+#     this one.
+#
+# configs/research_freeze_v1.json and _v2.json are preserved unmodified. No
+# real-data results were ever produced under either, so nothing is invalidated
+# retroactively; the synthetic v2 cohort stays in the registry and is filtered
+# out of the leaderboard by universe hash rather than deleted.
+FREEZE_VERSION = 3
 FREEZE_PATH = CONFIG_DIR / f"research_freeze_v{FREEZE_VERSION}.json"
 
 # Code whose behavior defines the study. Any edit to these invalidates the
@@ -59,6 +81,9 @@ _FROZEN_MODULES = [
     "src/aitb/strategies/regime.py",
     "src/aitb/strategies/riskmanaged.py",
     "src/aitb/strategies/ml.py",
+    # bound since v3 (new families):
+    "src/aitb/strategies/factor.py",
+    "src/aitb/strategies/allocation.py",
     "src/aitb/portfolio.py",
     "src/aitb/features.py",
     "src/aitb/backtest/engine.py",

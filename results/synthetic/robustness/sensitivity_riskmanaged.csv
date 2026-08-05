@@ -24,7 +24,8 @@ variant,stat,n_days,neighbor_stability
 "VolTargetedBasket(basket=megacap_ai,fallback=IEF,rebalance=ME,target_vol=0.25,vol_window=63)",0.984478026501836,9021,0.0044921798918236685
 "DrawdownDeRisk(basket=megacap_ai,dd_full=-0.3,dd_start=-0.15,fallback=IEF,rebalance=W-FRI)",0.9804923800753168,9021,0.01170688581298309
 "VolTargetedBasket(basket=megacap_ai,fallback=IEF,rebalance=W-FRI,target_vol=0.25,vol_window=21)",0.9625042250032918,9021,0.010522942653438363
-"VolTargetedBasket(basket=megacap_ai,fallback=IEF,rebalance=W-FRI,target_vol=0.25,vol_window=63)",0.962036977363015,9021,0.0780263894096801
-"InverseVolBasket(basket=target_holdings,rebalance=ME)",0.8271255361875524,9021,0.08431724394815165
-"InverseVolBasket(basket=semiconductors,rebalance=ME)",0.8069606532564417,9021,0.021324229618903987
-"InverseVolBasket(basket=megacap_ai,rebalance=ME)",0.7844977198002053,9021,0.015883692572251532
+"VolTargetedBasket(basket=megacap_ai,fallback=IEF,rebalance=W-FRI,target_vol=0.25,vol_window=63)",0.962036977363015,9021,0.06665113781699851
+"InverseVolBasket(basket=ai_broad,rebalance=ME)",0.8468281532853644,9021,0.07106662347743438
+"InverseVolBasket(basket=semiconductors,rebalance=ME)",0.8323451873830129,9021,0.010207792615072788
+"InverseVolBasket(basket=target_holdings,rebalance=ME)",0.8271255361875524,9021,0.026248033712526635
+"InverseVolBasket(basket=megacap_ai,rebalance=ME)",0.7844977198002053,9021,0.030142418034669112
