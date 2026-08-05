@@ -113,7 +113,7 @@ via `python scripts/run_all.py --data-mode synthetic`. Until you regenerate
 them, the portfolio-lab page renders empty on a fresh clone; everything else
 works from the registry.
 
-## The universe (freeze v3)
+## The universe (freeze v4)
 
 **120 securities: 81 still trading, 39 delisted.** Semiconductors, chip
 equipment, chip-design software (EDA), cloud, enterprise software, internet,
@@ -142,13 +142,48 @@ honoured.
 ## The first frozen real-data study (one command)
 
 The first real run is governed by a **research freeze**
-(`configs/research_freeze_v3.json`, hash `7edd4b56d181956d1d68645b08e03e04`):
+(`configs/research_freeze_v4.json`, hash `384dc48714fc530de3f3a4a9168df12f`):
 every strategy grid, benchmark, cost scenario, split, ranking rule, rejection
-rule, and the fingerprints of the 31 code modules that compute, tier, gate or
+rule, and the fingerprints of the 32 code modules that compute, tier, gate or
 record results — hashed before any real result exists. Every real-mode entry
 point (experiments, robustness, capacity, company analysis, report) verifies
 the hash and aborts on any drift — no tuning is possible during the first
 study.
+
+## The first real study — and what it found
+
+Run 2026-08-05 on real market data under freeze v3. **113 of 120** universe
+names and **33 of 39** delisted names had usable history; the quality gate
+returned `PASS WITH LIMITATIONS`. 208 variants produced 624 experiments.
+
+**Zero robust candidates.** 183 rejected, 162 inconclusive. The bar was set by
+equal-weighting the target shortlist monthly (score 4.24); the best active
+strategy — a 250-day trend filter on that same shortlist — scored 4.36, short
+of the required 0.25 margin by 0.13. It did cut the worst drawdown from −74% to
+−31%, which is a real difference, just not one that clears a bar built to
+resist wishful thinking.
+
+The structural finding was more useful than the scoreboard: nearly everything
+correlated 0.7–0.9 with simply holding QQQ, and that was **not** a fact about
+technology stocks. All 208 variants were long-only, so the co-movement was a
+property of the study's own constraint. Freeze v4 lifts it.
+
+**Freeze v3 is superseded** (preserved at `configs/research_freeze_v3.json`,
+hash `7edd4b56d181956d1d68645b08e03e04`) by freeze v4, which adds:
+
+* a **`longshort` family** — market-neutral momentum, beta-hedged baskets,
+  gross profitability, R&D intensity, accrual quality, post-earnings drift and
+  dispersion-timed selection. On simulated data the market-neutral book
+  correlates **−0.005** with QQQ against 0.63–0.84 for every long-only family.
+* **eight more fundamental fields**, all free and all from an EDGAR request
+  already being made: gross profit, cost of revenue, total assets, equity, net
+  income, **R&D**, debt and cash. R&D intensity is the canonical
+  technology-specific quality signal and was previously unmeasurable.
+
+Both changes *raise* the bar — every added variant enters the deflated-Sharpe
+correction for the whole study — and the v3 holdout has been opened, so any v4
+result on it is development evidence, not out-of-sample evidence. Genuinely
+out-of-sample now means forward paper trading.
 
 **Freeze v2 is superseded** (preserved unmodified at
 `configs/research_freeze_v2.json`, hash `49767ea3efc44cead711d72946c3fe31`) —

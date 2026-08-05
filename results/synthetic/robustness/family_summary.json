@@ -25,7 +25,7 @@
   },
   {
     "family":"factor",
-    "n_variants":25,
+    "n_variants":27,
     "best_variant":"BreadthGatedBasket(basket=ai_broad,breadth_window=200,fallback=IEF,min_exposure=0.0,rebalance=W-FRI,smooth_days=21,threshold=0.4)",
     "best_dev_sharpe":1.162,
     "sharpe_ci90_lo":0.846,
@@ -48,6 +48,18 @@
     "mc_mdd_p95":-0.734
   },
   {
+    "family":"longshort",
+    "n_variants":8,
+    "best_variant":"BetaHedgedBasket(basket=target_holdings,beta_window=252,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",
+    "best_dev_sharpe":0.936,
+    "sharpe_ci90_lo":0.653,
+    "sharpe_ci90_hi":1.234,
+    "deflated_sharpe_prob":1.0,
+    "walkforward_oos_sharpe":0.801,
+    "mc_mdd_median":-0.386,
+    "mc_mdd_p95":-0.524
+  },
+  {
     "family":"meanrev",
     "n_variants":3,
     "best_variant":"ShortTermReversal(lookback_days=5,rebalance=W-FRI,top_n=5,trend_window=200)",
@@ -58,6 +70,18 @@
     "walkforward_oos_sharpe":0.68,
     "mc_mdd_median":-0.679,
     "mc_mdd_p95":-0.831
+  },
+  {
+    "family":"quality",
+    "n_variants":10,
+    "best_variant":"PostEarningsDrift(basket=None,hold_days=63,rebalance=W-FRI,top_n=10)",
+    "best_dev_sharpe":0.998,
+    "sharpe_ci90_lo":0.698,
+    "sharpe_ci90_hi":1.274,
+    "deflated_sharpe_prob":1.0,
+    "walkforward_oos_sharpe":0.96,
+    "mc_mdd_median":-0.55,
+    "mc_mdd_p95":-0.696
   },
   {
     "family":"regime",

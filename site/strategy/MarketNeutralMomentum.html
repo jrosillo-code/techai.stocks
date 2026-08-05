@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Bet winners against losers</title><style>
+:root{
+  color-scheme: light;
+  --bg:#f4f4f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --mut:#78776f;
+  --line:#e3e2dd; --acc:#2a78d6; --acc-soft:#eaf2fd;
+  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --serious:#ec835a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+    --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+  --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+nav{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 1.2rem;display:flex;gap:.2rem;align-items:center;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+nav .brand{font-weight:700;margin-right:1rem;padding:.85rem 0;font-size:.95rem}
+nav a{color:var(--ink-2);text-decoration:none;font-size:.88rem;padding:.85rem .7rem;
+  border-bottom:2px solid transparent}
+nav a:hover{color:var(--ink);border-bottom-color:var(--line)}
+nav a.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+main{max-width:1120px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+h1{font-size:1.75rem;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.1rem;margin:2.2rem 0 .2rem;letter-spacing:-.01em}
+h2+.lede{margin:.1rem 0 .9rem}
+h3{font-size:.95rem;margin:1.4rem 0 .4rem}
+.lede{color:var(--ink-2);font-size:.95rem;max-width:70ch}
+.note{color:var(--mut);font-size:.83rem;max-width:78ch}
+
+/* hero */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.3rem 1.4rem;margin:.6rem 0 1.2rem}
+.hero h1{margin-top:0}
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;
+  font-weight:600;padding:.2rem .6rem;border-radius:99px;border:1px solid transparent}
+.pill-warn{background:#fdf5e3;color:#7a5600;border-color:#f2dfae}
+.pill-good{background:#e7f6e7;color:#075c07;border-color:#bde5bd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .pill-warn{background:#3a2f14;color:#f6cf72;border-color:#5b4a1d}
+:root:where(:not([data-theme="light"])) .pill-good{background:#123212;color:#7fd77f;border-color:#1e4d1e}}
+
+/* pipeline */
+.pipe{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 .3rem}
+.step{flex:1 1 170px;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:.7rem .85rem;position:relative}
+.step .n{font-size:.72rem;color:var(--mut);font-weight:600;letter-spacing:.04em}
+.step .t{font-weight:650;font-size:.92rem;margin:.15rem 0}
+.step .d{font-size:.79rem;color:var(--ink-2)}
+.step.done{border-color:#bde5bd;background:linear-gradient(0deg,#f4fbf4,var(--surface))}
+.step.now{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.step .tick{position:absolute;top:.6rem;right:.7rem;font-size:.9rem}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .step.done{background:var(--surface);border-color:#1e4d1e}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:.85rem 1rem}
+.stat .v{font-size:1.9rem;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.stat .k{font-size:.83rem;font-weight:600;margin-top:.1rem}
+.stat .d{font-size:.78rem;color:var(--mut);margin-top:.25rem;line-height:1.4}
+
+/* charts */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.1rem;margin:.5rem 0}
+.chart .ct{font-weight:650;font-size:.92rem}
+.chart .cs{font-size:.8rem;color:var(--mut);margin-bottom:.7rem}
+.bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;
+  gap:.7rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.bar-row .lab{color:var(--ink-2);text-align:right}
+.bar-track{background:var(--line);border-radius:5px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s}
+.bar-row .val{font-variant-numeric:tabular-nums;font-weight:650;min-width:2.4rem}
+.spark{display:flex;align-items:flex-end;gap:2px;height:64px;margin-top:.4rem}
+.spark i{background:var(--s1);border-radius:3px 3px 0 0;flex:1;min-width:3px;display:block}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:.55rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);font-weight:650;white-space:nowrap;background:var(--surface);
+  cursor:pointer;user-select:none}
+th:hover{color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--acc-soft)}
+td a{color:var(--acc);text-decoration:none;font-weight:600}
+td a:hover{text-decoration:underline}
+.sub{display:block;color:var(--mut);font-size:.76rem;font-weight:400}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* badges */
+.badge{display:inline-block;padding:.12rem .5rem;border-radius:99px;
+  font-size:.72rem;font-weight:600;white-space:nowrap}
+.b-robust_candidate,.b-core,.b-A{background:#e7f6e7;color:#075c07}
+.b-inconclusive,.b-exploratory,.b-B{background:#fdf5e3;color:#7a5600}
+.b-rejected,.b-deprecated,.b-C{background:#fbeaea;color:#8f1f1f}
+.b-benchmark{background:#eaf2fd;color:#12467e}
+.b-unlisted{background:var(--line);color:var(--ink-2)}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .badge{filter:brightness(1.7) saturate(.8)}}
+
+.warnbox{background:#fdf5e3;border:1px solid #f2dfae;border-left:4px solid var(--warning);
+  padding:.8rem 1rem;margin:1rem 0;border-radius:10px;font-size:.88rem;color:#5c4310}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .warnbox{background:#2c2410;border-color:#5b4a1d;color:#f0d79a}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:minmax(90px,130px) 1fr auto}}
+input,select{padding:.42rem .6rem;border:1px solid var(--line);border-radius:8px;
+  margin:.15rem;background:var(--surface);color:var(--ink);font-size:.86rem}
+pre{background:#15150f;color:#e8e7de;padding:.9rem;border-radius:10px;
+  overflow-x:auto;font-size:.78rem;line-height:1.5}
+details{margin:.4rem 0}summary{cursor:pointer;color:var(--acc);font-size:.88rem;font-weight:600}
+dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
+.score{display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.score .sn{width:190px;color:var(--ink-2)}
+.bar{height:9px;border-radius:5px;background:var(--s1);min-width:3px}
+.tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.subnav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 1.4rem}
+.subnav a{font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface);color:var(--ink-2);text-decoration:none}
+.subnav a:hover{border-color:var(--s1);color:var(--s1)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='../index.html'>Overview</a><a href='../data.html'>The data</a><a href='../strategies.html'>Strategies</a><a href='../results.html'>Results</a><a href='../method.html'>Method &amp; trust</a></nav><main>
+<h1>Bet winners against losers</h1>
+<p class='lede'><i>The winner-minus-loser spread within technology is a real, tradeable return stream that survives borrow costs, and being dollar-neutral removes the market exposure that made every long-only variant a repackaged index fund. Expected to have far lower correlation to QQQ and a far lower raw return; the open question is whether the spread clears its own costs.</i></p>
+<p><span class='badge b-core'>core</span> · best result: <span class='badge b-rejected'>rejected</span> · research-quality score
+<b>3.35/5</b> · 4 test runs</p>
+<div class='warnbox'><b>These numbers are from a simulated market, not the real one.</b> The system has been built and audited, but the study against real market prices has not run yet. Everything here demonstrates that the machinery works — none of it says anything about how these ideas would have actually performed.</div>
+
+<h2>What it does</h2>
+<p class='lede'>Long the strongest names, short the weakest, dollar-neutral.</p>
+<p class='note'>Works on: US large-cap equities & ETFs (daily bars) · typical holding period:
+months</p>
+
+<div class='grid2'>
+<div class='chart'><div class='ct'>What's good about it</div><div class='cs'>&nbsp;</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li>Has a real reason to work, and survived the cull that retired weaker ideas</li><li>Can genuinely move independently of the market, because it is not permanently long it — the only construction here that can</li></ul></div>
+<div class='chart'><div class='ct'>What's wrong with it</div><div class='cs'>&nbsp;</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li>Shorting costs money every day you hold it, and a short that goes wrong grows into a bigger position instead of shrinking out of one. Borrow is modelled at a flat rate; real borrow on hard-to-find shares is far worse</li><li>6 settings to choose — enough that some combination will look good by chance, so the sensitivity checks matter</li></ul></div>
+</div>
+
+<h2>How much to trust it</h2>
+<p class='lede'>This scores the <b>quality of the research</b>, not the returns.
+A high score means the finding is well-built and well-checked — it does not mean
+the strategy makes money. Hover any bar for the detail behind the score.</p>
+<div class='chart'><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Built correctly<span class='sub' style='text-align:right'>Is the code doing what it claims?</span></div><div class='bar-track'><div class='bar-fill' style='width:80%;background:var(--good)' title='engine-level accounting verified by hand ledgers + per-bar invariant (audit 2026-08); strategy expressed through audited primitives'></div></div><div class='val'>4.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Independently checked<span class='sub' style='text-align:right'>Has a hostile reviewer been through it?</span></div><div class='bar-track'><div class='bar-fill' style='width:80%;background:var(--good)' title='covered by the adversarial audit (no CRITICAL findings; engine cleared); residual: AUD-010 verdict-layer false discovery, AUD-012 dividend reinvestment assumption, AUD-017 registry lacks a duplicate-ID guard (affects run counts only, never a metric)'></div></div><div class='val'>4.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Data it ran on<span class='sub' style='text-align:right'>How trustworthy are the underlying prices?</span></div><div class='bar-track'><div class='bar-fill' style='width:30%;background:var(--critical)' title='tier not yet assigned (no real-data run)'></div></div><div class='val'>1.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Evidence grade<span class='sub' style='text-align:right'>A = clean data, B = known gaps, C = unusable.</span></div><div class='bar-track'><div class='bar-fill' style='width:30%;background:var(--critical)' title='Tier ? (synthetic only)'></div></div><div class='val'>1.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Could this be luck?<span class='sub' style='text-align:right'>Higher means less likely to be chance.</span></div><div class='bar-track'><div class='bar-fill' style='width:100%;background:var(--good)' title='mean probabilistic Sharpe 1.00 across 4 variants (deflated-Sharpe correction applied at family level)'></div></div><div class='val'>5.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Holds up under pressure<span class='sub' style='text-align:right'>Does it survive when conditions change?</span></div><div class='bar-track'><div class='bar-fill' style='width:90%;background:var(--good)' title='mean dev→holdout Sharpe degradation 0.00 (subperiod stability also enters the composite ranking)'></div></div><div class='val'>4.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Easy to understand<span class='sub' style='text-align:right'>Fewer moving parts is better.</span></div><div class='bar-track'><div class='bar-fill' style='width:68%;background:var(--warning)' title='6 parameters; hypothesis stated: yes'></div></div><div class='val'>3.4</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Room to scale<span class='sub' style='text-align:right'>Would it still work with real money in it?</span></div><div class='bar-track'><div class='bar-fill' style='width:50%;background:var(--warning)' title='large-cap universe, √participation impact model; see capacity.csv for size-scaled estimates (real-data capacity unverified)'></div></div><div class='val'>2.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Chartable<span class='sub' style='text-align:right'>Can you watch it on TradingView?</span></div><div class='bar-track'><div class='bar-fill' style='width:10%;background:var(--critical)' title='requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script'></div></div><div class='val'>0.5</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Documented<span class='sub' style='text-align:right'>Is it written down properly?</span></div><div class='bar-track'><div class='bar-fill' style='width:100%;background:var(--good)' title='docstring+hypothesis 1421 chars; full auto-generated doc page'></div></div><div class='val'>5.0</div></div><div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'><div class='lab'>Repeatable<span class='sub' style='text-align:right'>Can someone rerun this years from now?</span></div><div class='bar-track'><div class='bar-fill' style='width:100%;background:var(--good)' title='deterministic seeds, stable experiment IDs, append-only registry, freeze-v2-fingerprinted implementation'></div></div><div class='val'>5.0</div></div>
+<p class='note' style='margin-top:.8rem'><b>Verdict: not yet trusted — see low-scoring dimensions.</b>
+Research-quality assessment only; says nothing about future returns. Real-data tiers pending until the first real study.</p></div>
+
+<h2>What it assumes</h2>
+<p class='lede'>If these stop being true, the strategy stops working.</p>
+<ul class='lede'><li>shares can actually be borrowed, at roughly the modelled rate</li><li>the winner-minus-loser spread is separable from market direction</li><li>a hedge ratio estimated on the past applies to the future</li></ul>
+
+<h2>Track record</h2>
+<p class='lede'>Every recorded run of this idea. <b>Sharpe</b> is return per unit
+of bumpiness. <b>Holdout</b> is the locked-away slice of history, looked at once —
+if it is much worse than the development figure, the idea was over-tuned.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Date</th><th>Setting</th>
+<th class='num'>Sharpe (dev)</th><th class='num'>Sharpe (holdout)</th>
+<th class='num'>Worst fall</th><th class='num'>Turnover</th></tr></thead>
+<tbody><tr><td>2026-08-05</td><td><a href='../strategy/MarketNeutralMomentum.html'>Bet winners against losers</a><span class='sub'>whole universe · top 10 · 126-day lookback · monthly</span></td><td class='num'>0.2</td><td class='num'>0.71</td><td class='num'>-39%</td><td class='num'>13.8</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/MarketNeutralMomentum.html'>Bet winners against losers</a><span class='sub'>whole universe · top 15 · 126-day lookback · monthly</span></td><td class='num'>0.4</td><td class='num'>1.0</td><td class='num'>-29%</td><td class='num'>11.3</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/MarketNeutralMomentum.html'>Bet winners against losers</a><span class='sub'>whole universe · top 10 · 252-day lookback · monthly</span></td><td class='num'>0.42</td><td class='num'>1.98</td><td class='num'>-42%</td><td class='num'>10.9</td></tr><tr><td>2026-08-05</td><td><a href='../strategy/MarketNeutralMomentum.html'>Bet winners against losers</a><span class='sub'>whole universe · top 15 · 252-day lookback · monthly</span></td><td class='num'>0.57</td><td class='num'>1.62</td><td class='num'>-26%</td><td class='num'>8.7</td></tr></tbody></table></div>
+
+<h2>What we learned</h2>
+<ul class='lede'><li>Nothing recorded yet.</li></ul>
+<h3>Still open</h3>
+<ul class='lede'><li>Does the (synthetic-)demonstrated behavior survive the first real-data study?</li><li>Which evidence tier does the strategy earn under the real quality gate?</li></ul>
+
+<h2>How this idea evolved</h2>
+<h3>Hedged and market-neutral</h3><div class='tree'><div class='node'><b>NEW family: market-neutral momentum, beta-hedged basket, gross profitability, R&amp;D intensity, accrual quality, post-earnings drift, dispersion-timed selection</b><br><span class='note'>Why: The first real study returned zero robust candidates with almost everything correlating 0.7-0.9 to holding QQQ. That was not a finding about technology stocks: all 208 variants were long-only, so the co-movement was a property of the study&#x27;s own constraint. The engine had supported shorts and charged borrow since v1 and nothing had used them. Chosen from the structure of the study, deliberately not from the leaderboard — building what would have scored well on a holdout that has already been opened is fitting to an answer sheet. → market-neutral book correlates -0.005 with QQQ on simulated data, against 0.63-0.84 for every long-only family; awaiting real-data evaluation · needed a new freeze</span></div></div>
+
+<h2>Watch it on TradingView</h2>
+<p class='lede'>Not available on TradingView. requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</p>
+
+<h2>The fine print</h2>
+<details><summary>Settings and their defaults</summary>
+<div class='tbl-wrap' style='margin-top:.5rem'><table><thead><tr><th>Setting</th>
+<th>Default</th></tr></thead><tbody>
+<tr><td>lookback_days</td><td>126</td></tr><tr><td>skip_days</td><td>21</td></tr><tr><td>top_n</td><td>10</td></tr><tr><td>gross</td><td>1.0</td></tr><tr><td>rebalance</td><td>ME</td></tr><tr><td>basket</td><td>None</td></tr>
+</tbody></table></div></details>
+<details><summary>Exact settings tested (frozen)</summary>
+<pre>[
+ {
+  &quot;lookback_days&quot;: [
+   126,
+   252
+  ],
+  &quot;top_n&quot;: [
+   10,
+   15
+  ],
+  &quot;gross&quot;: [
+   1.0
+  ]
+ }
+]</pre></details>
+<details><summary>Python source (fingerprinted by the research freeze)</summary>
+<pre>class MarketNeutralMomentum(Strategy):
+    &quot;&quot;&quot;Long the strongest names, short the weakest, dollar-neutral.
+
+    The long book and the short book carry the same market exposure, so the
+    index component cancels and what remains is the spread between winners and
+    losers. This is the only construction in the study capable of a low
+    correlation to the market by design rather than by accident.
+
+    It is also the most expensive: two books to trade, borrow charged daily on
+    the short side at the scenario rate (50bp base, 150bp stressed), and shorts
+    that lose money grow into the position rather than shrinking out of it.
+
+    Two ways the modelled result is NOT conservative, both worth stating:
+    borrow is a flat rate, where real borrow on hard-to-locate shares runs to
+    5-50% and some names cannot be shorted at all; and the study contains 39
+    companies that died, so the short book has hindsight access to names a
+    lender would very likely have bought you in on. Against that, the engine
+    marks a delisted short at its last quoted price rather than at zero, which
+    forgoes the full gain a real bankruptcy short would have earned.
+    &quot;&quot;&quot;
+    family = &quot;longshort&quot;
+    hypothesis = (&quot;The winner-minus-loser spread within technology is a real,&quot;
+                  &quot; tradeable return stream that survives borrow costs, and&quot;
+                  &quot; being dollar-neutral removes the market exposure that made&quot;
+                  &quot; every long-only variant a repackaged index fund. Expected&quot;
+                  &quot; to have far lower correlation to QQQ and a far lower raw&quot;
+                  &quot; return; the open question is whether the spread clears its&quot;
+                  &quot; own costs.&quot;)
+
+    def __init__(self, lookback_days: int = 126, skip_days: int = 21,
+                 top_n: int = 10, gross: float = 1.0, rebalance: str = &quot;ME&quot;,
+                 basket: str | None = None):
+        super().__init__(lookback_days=lookback_days, skip_days=skip_days,
+                         top_n=top_n, gross=gross, rebalance=rebalance,
+                         basket=basket)
+
+    def build(self, md: MarketData) -&gt; pd.DataFrame:
+        p = self.params
+        tickers = md.universe.baskets[p[&quot;basket&quot;]] if p[&quot;basket&quot;] else None
+        mask = investable_mask(md, tickers)
+        px = md.adj_close[mask.columns]
+        mom = momentum(px, p[&quot;lookback_days&quot;], p[&quot;skip_days&quot;]).where(mask)
+
+        longs = top_n_selection(mom, p[&quot;top_n&quot;])
+        shorts = top_n_selection(-mom, p[&quot;top_n&quot;])
+        # A name cannot be in both books (possible when fewer than 2N names are
+        # investable — early history, or a narrow basket).
+        both = (longs &gt; 0) &amp; (shorts &gt; 0)
+        longs = longs.where(~both, 0.0)
+        shorts = shorts.where(~both, 0.0)
+
+        half = p[&quot;gross&quot;] / 2.0
+        w = equal_weight(longs) * half - equal_weight(shorts) * half
+        # Only trade on dates where BOTH books exist; a one-sided book is a
+        # directional bet this strategy does not claim to make.
+        ok = (longs.sum(axis=1) &gt; 0) &amp; (shorts.sum(axis=1) &gt; 0)
+        w = w.where(ok, 0.0)
+        return rebalance_schedule(w, p[&quot;rebalance&quot;])
+</pre></details>
+<p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 16:19 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>

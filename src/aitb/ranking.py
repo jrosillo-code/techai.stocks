@@ -95,9 +95,17 @@ def current_cohort(registry_df: pd.DataFrame) -> pd.DataFrame:
     known = registry_df[registry_df["universe_hash"].notna()]
     if known.empty:
         return registry_df
-    # Newest cohort = the universe hash carrying the most recent timestamp.
-    latest = known.sort_values("timestamp").iloc[-1]["universe_hash"]
-    return registry_df[registry_df["universe_hash"] == latest]
+    # A cohort is (universe, freeze). The universe alone is not enough: freeze
+    # v4 added a strategy family without touching the roster, so v3 and v4
+    # results share a universe hash while belonging to different studies with
+    # different trial counts. Ranking them together would understate the
+    # multiple-testing correction for both.
+    row = known.sort_values("timestamp").iloc[-1]
+    latest_u = row["universe_hash"]
+    sel = registry_df["universe_hash"] == latest_u
+    if "freeze_version" in registry_df.columns and pd.notna(row.get("freeze_version")):
+        sel &= registry_df["freeze_version"] == row["freeze_version"]
+    return registry_df[sel]
 
 
 def rank_experiments(registry_df: pd.DataFrame,

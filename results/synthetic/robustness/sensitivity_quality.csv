@@ -1,0 +1,11 @@
+variant,stat,n_days,neighbor_stability
+"PostEarningsDrift(basket=None,hold_days=63,rebalance=W-FRI,top_n=10)",0.997700801587882,9021,0.12108265551243122
+"PostEarningsDrift(basket=None,hold_days=42,rebalance=W-FRI,top_n=10)",0.8264640679940524,9021,0.10489507598301512
+"ResearchIntensity(basket=None,rebalance=QE,require_profitable=False,top_n=15)",0.8071185519667575,9021,0.011169138885970877
+"ResearchIntensity(basket=None,rebalance=QE,require_profitable=True,top_n=15)",0.8071185519667575,9021,0.046327983691247174
+"ResearchIntensity(basket=None,rebalance=QE,require_profitable=True,top_n=10)",0.7268761304012951,9021,0.046327983691247174
+"ResearchIntensity(basket=None,rebalance=QE,require_profitable=False,top_n=10)",0.7268761304012951,9021,0.0002558066661577037
+"GrossProfitability(basket=None,min_history_q=8,rebalance=QE,top_n=12)",0.7264330602585951,9021,0.001234276972577048
+"AccrualQuality(basket=None,rebalance=QE,top_n=10)",0.7245514820254396,9021,0.01126754937633179
+"AccrualQuality(basket=None,rebalance=QE,top_n=15)",0.7060444498152308,9021,0.032465067494759345
+"GrossProfitability(basket=None,min_history_q=8,rebalance=QE,top_n=8)",0.6613993653689706,9021,0.03156884195859657

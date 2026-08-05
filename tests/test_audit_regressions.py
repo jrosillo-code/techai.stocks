@@ -349,3 +349,82 @@ def test_site_baseline_set_matches_ranking_hurdle():
         assert f'"{ticker}"' in src, (
             f"{ticker} is shown as a diversified baseline on the site but is "
             "not in ranking.py's hurdle set")
+
+
+def test_strategy_family_describes_what_it_is():
+    """`family` must describe the construction, not the source file.
+
+    It is part of every experiment's identity, it groups the deflated-Sharpe
+    trial batteries, and it drives the correlation-by-family chart. Five
+    long-only screens were once filed under `longshort` purely because they
+    shared a module, which made the site report that hedged strategies
+    correlate 0.83 with the index while the actual hedged ones correlate ~0.
+
+    A strategy is long-short only if it can hold a negative weight.
+    """
+    from aitb.strategies import STRATEGY_CLASSES
+    import inspect
+
+    claimed = {n for n, c in STRATEGY_CLASSES.items()
+               if getattr(c, "family", "") == "longshort"}
+    assert claimed, "no long-short strategies registered"
+    for name in claimed:
+        src = inspect.getsource(STRATEGY_CLASSES[name].build)
+        shorts = ("-" in src and ("short" in src.lower() or "hedge" in src.lower()))
+        assert shorts, (
+            f"{name} is labelled longshort but its build() never takes a "
+            "negative position")
+
+
+def test_market_neutral_family_really_is_uncorrelated(synth_md):
+    """The claim the site makes about the longshort family must be true.
+
+    If a long-only strategy is ever mislabelled into this family again, the
+    family median correlation jumps and the site's headline conclusion becomes
+    false. This checks the property directly rather than trusting the label.
+    """
+    import numpy as np
+    from aitb.backtest.engine import run_backtest
+    from aitb.strategies import STRATEGY_CLASSES
+
+    w = STRATEGY_CLASSES["MarketNeutralMomentum"](top_n=10).build(synth_md)
+    res = run_backtest(synth_md, w, ZERO, name="mn", initial_capital=1_000_000)
+    q = synth_md.adj_close["QQQ"].pct_change().reindex(res.returns.index)
+    m = pd.DataFrame({"s": res.returns, "q": q})
+    m = (1 + m).resample("ME").prod() - 1
+    corr = float(m["s"].corr(m["q"]))
+    assert abs(corr) < 0.35, (
+        f"the market-neutral book correlates {corr:+.2f} with QQQ — it is not "
+        "market-neutral, and the site's central conclusion depends on it being so")
+
+
+def test_registry_families_match_the_current_classes():
+    """No committed record may claim a family its class does not have.
+
+    A record carrying a stale family is the fingerprint of a corrected
+    mislabelling that was never cleaned up. It ranks the same strategy twice
+    under two labels and splits its deflated-Sharpe trial battery in half —
+    which makes both halves look more significant than the whole.
+    """
+    from aitb.experiments import ExperimentRegistry
+    from aitb.strategies import STRATEGY_CLASSES
+
+    for mode in ("synthetic", "real"):
+        reg = ExperimentRegistry.for_mode(mode)
+        if not reg.path.exists():
+            continue
+        bad = []
+        for line in reg.path.read_text().splitlines():
+            if not line.strip():
+                continue
+            r = json.loads(line)
+            cls = (r.get("spec") or {}).get("class")
+            c = STRATEGY_CLASSES.get(cls)
+            fam = r.get("family")
+            if c is None or fam is None:
+                continue
+            if fam != getattr(c, "family", fam):
+                bad.append((cls, fam, c.family))
+        assert not bad, (
+            f"{mode}: records whose family contradicts the class definition — "
+            f"{sorted(set(bad))[:5]}")

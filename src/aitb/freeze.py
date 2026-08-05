@@ -62,7 +62,31 @@ log = get_logger("freeze")
 # real-data results were ever produced under either, so nothing is invalidated
 # retroactively; the synthetic v2 cohort stays in the registry and is filtered
 # out of the leaderboard by universe hash rather than deleted.
-FREEZE_VERSION = 3
+# v3 (hash 7edd4b56d181956d1d68645b08e03e04) governed the FIRST REAL STUDY:
+# 208 variants on real prices, 624 experiments, gate PASS WITH LIMITATIONS,
+# zero robust candidates. That study stands on the permanent record and is not
+# altered by what follows.
+#
+# v4 (2026-08-05) supersedes it for the NEXT study, for two reasons:
+#
+#   * A structural gap. All 208 v3 variants were long-only, so their high
+#     correlation to the index was a property of the study's own constraint,
+#     not a finding about technology stocks. The engine has supported shorts
+#     and charged borrow since v1 and nothing had used them. The `longshort`
+#     family lifts that constraint.
+#   * New data. The EDGAR concept set went from 5 fields to 13, adding gross
+#     profit, total assets, equity, net income, R&D, debt and cash — all free,
+#     all from a request already being made. R&D intensity is the canonical
+#     technology-specific quality signal and could not previously be measured
+#     at all; gross profitability was being approximated by a free-cash-flow
+#     margin that conflates it with capital intensity.
+#
+# HONEST ACCOUNTING. Both changes RAISE the bar rather than lower it: every
+# added variant enters the deflated-Sharpe trial count for the whole study.
+# And the holdout has already been opened once, under v3 — any v4 result on it
+# is a second look, which is development evidence however it is labelled.
+# Genuinely out-of-sample evidence now requires forward paper trading.
+FREEZE_VERSION = 4
 FREEZE_PATH = CONFIG_DIR / f"research_freeze_v{FREEZE_VERSION}.json"
 
 # Code whose behavior defines the study. Any edit to these invalidates the
@@ -84,6 +108,8 @@ _FROZEN_MODULES = [
     # bound since v3 (new families):
     "src/aitb/strategies/factor.py",
     "src/aitb/strategies/allocation.py",
+    # bound since v4 (long-short / hedged family):
+    "src/aitb/strategies/longshort.py",
     "src/aitb/portfolio.py",
     "src/aitb/features.py",
     "src/aitb/backtest/engine.py",

@@ -19,8 +19,10 @@ variant,stat,n_days,neighbor_stability
 "MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=2,rebalance=ME,top_n=8,weighting=equal)",0.8428076350750463,9021,0.015807313428771553
 "BreadthGatedBasket(basket=megacap_ai,breadth_window=200,fallback=IEF,min_exposure=0.0,rebalance=W-FRI,smooth_days=21,threshold=0.5)",0.8407132961660565,9021,0.0016587236501038052
 "LowVolatilityTech(basket=None,rebalance=ME,top_n=10,trend_filter=False,vol_window=126)",0.8395323720758896,9021,0.007287970068973025
-"MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=2,rebalance=ME,top_n=8,weighting=inverse_vol)",0.8275411972282826,9021,0.16724577825395884
-"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=252,rebalance=ME,skip_days=21,top_n=8)",0.5440447988810653,9021,0.1654838032499655
-"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=252,rebalance=ME,skip_days=21,top_n=12)",0.5378842034975605,9021,0.011165965719070579
-"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=126,rebalance=ME,skip_days=21,top_n=12)",0.5223749431065904,9021,0.018586319389683113
-"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=126,rebalance=ME,skip_days=21,top_n=8)",0.5008729341074964,9021,0.015204216372348277
+"MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=2,rebalance=ME,top_n=8,weighting=inverse_vol)",0.8275411972282826,9021,0.016779697436995762
+"DispersionTimedSelection(basket=None,disp_pct=0.5,disp_window=63,lookback_days=126,rebalance=ME,top_n=8)",0.8063921068576672,9021,0.014330563205704253
+"DispersionTimedSelection(basket=None,disp_pct=0.6,disp_window=63,lookback_days=126,rebalance=ME,top_n=8)",0.800214574328535,9021,0.149714854397464
+"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=252,rebalance=ME,skip_days=21,top_n=8)",0.5440447988810653,9021,0.14970979162399495
+"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=252,rebalance=ME,skip_days=21,top_n=12)",0.5378842034975605,9021,0.01116596571907395
+"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=126,rebalance=ME,skip_days=21,top_n=12)",0.5223749431065904,9021,0.018586319389685246
+"ResidualMomentum(basket=None,bench=QQQ,beta_window=252,lookback_days=126,rebalance=ME,skip_days=21,top_n=8)",0.5008729341074964,9021,0.015204216372353653

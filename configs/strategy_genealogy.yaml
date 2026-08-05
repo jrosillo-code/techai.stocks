@@ -145,3 +145,45 @@ lines:
           less-redundant corner of technology exists at all.
         outcome: "awaiting first evaluation"
         requires_freeze_bump: true
+
+  long_short:
+    title: "Hedged and market-neutral"
+    versions:
+      - id: ls_v1
+        strategy: MarketNeutralMomentum
+        date: 2026-08-05
+        freeze: v4
+        change: "NEW family: market-neutral momentum, beta-hedged basket, gross profitability, R&D intensity, accrual quality, post-earnings drift, dispersion-timed selection"
+        why: >-
+          The first real study returned zero robust candidates with almost
+          everything correlating 0.7-0.9 to holding QQQ. That was not a finding
+          about technology stocks: all 208 variants were long-only, so the
+          co-movement was a property of the study's own constraint. The engine
+          had supported shorts and charged borrow since v1 and nothing had used
+          them. Chosen from the structure of the study, deliberately not from
+          the leaderboard — building what would have scored well on a holdout
+          that has already been opened is fitting to an answer sheet.
+        outcome: "market-neutral book correlates -0.005 with QQQ on simulated data, against 0.63-0.84 for every long-only family; awaiting real-data evaluation"
+        requires_freeze_bump: true
+
+  fundamental_data:
+    title: "(cross-cutting) what can be measured about a company"
+    versions:
+      - {id: fund_v1, strategy: QualityGrowth, date: 2026-08-04, freeze: v1,
+         change: "5 EDGAR fields: revenue, EPS, operating cash flow, capex, shares",
+         why: "enough for growth and cash-flow screens", outcome: "superseded"}
+      - id: fund_v2
+        strategy: ResearchIntensity
+        date: 2026-08-05
+        freeze: v4
+        change: "13 EDGAR fields — adds gross profit, cost of revenue, total assets, equity, net income, R&D, debt, cash"
+        why: >-
+          All free, all returned by a companyfacts request already being made;
+          the fields were simply never asked for. Gross profitability was being
+          approximated by a free-cash-flow margin, which conflates profitability
+          with capital intensity — a large error in semiconductors. R&D
+          intensity, the canonical technology-specific quality signal, could not
+          be measured at all. A study of technology companies unable to measure
+          R&D had a gap worth more than another momentum variant.
+        outcome: "enables GrossProfitability (true Novy-Marx ratio), ResearchIntensity and AccrualQuality; stores collected before v4 must re-download fundamentals"
+        requires_freeze_bump: true

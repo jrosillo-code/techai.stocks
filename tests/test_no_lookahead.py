@@ -124,6 +124,64 @@ V3_STRATEGIES = [
 ]
 
 
+# Freeze v4: long-short and hedged constructions. These are the first
+# strategies in the study that can hold a negative position, so they exercise
+# engine paths (borrow accrual, short marks) nothing else has.
+V4_STRATEGIES = [
+    ("MarketNeutralMomentum", dict(top_n=10)),
+    ("BetaHedgedBasket", dict(basket="megacap_ai")),
+    ("GrossProfitability", dict(top_n=12)),
+    ("PostEarningsDrift", dict(top_n=10)),
+    ("DispersionTimedSelection", dict(top_n=8)),
+]
+
+
+@pytest.mark.parametrize("cls_name,params", V4_STRATEGIES,
+                         ids=[c for c, _ in V4_STRATEGIES])
+def test_v4_strategies_are_causal(synth_md, cls_name, params):
+    """Same guarantee as the v3 set: history ending at D must produce the same
+    weights for dates before D as a run that could see everything after."""
+    from aitb.strategies import STRATEGY_CLASSES
+    cut, compare_to = "2021-06-30", "2021-04-30"
+    strat = STRATEGY_CLASSES[cls_name](**params)
+    full = strat.build(synth_md).loc[:compare_to]
+    trunc = strat.build(_truncate(synth_md, cut)).loc[:compare_to]
+    cols = [c for c in full.columns if c in trunc.columns]
+    assert cols and full[cols].abs().to_numpy().sum() > 0
+    pd.testing.assert_frame_equal(full[cols], trunc[cols], atol=1e-12)
+
+
+def test_market_neutral_is_actually_neutral(synth_md):
+    """A dollar-neutral book must net to ~zero and carry real short exposure.
+
+    If the short leg silently evaporated — a masking bug, a basket too narrow
+    to fill both books — the strategy would quietly become long-only and would
+    correlate with the market exactly like everything else, while still being
+    labelled market-neutral.
+    """
+    from aitb.strategies import STRATEGY_CLASSES
+    w = STRATEGY_CLASSES["MarketNeutralMomentum"](top_n=10).build(synth_md)
+    active = w[w.abs().sum(axis=1) > 1e-9]
+    assert len(active) > 500, "market-neutral book almost never traded"
+    net = active.sum(axis=1)
+    assert net.abs().max() < 1e-9, f"book is not dollar-neutral (max net {net.abs().max()})"
+    assert (active < -1e-9).any().any(), "no short positions were ever taken"
+    gross = active.abs().sum(axis=1)
+    assert gross.max() <= 1.0 + 1e-9, f"gross exposure exceeded 1.0 ({gross.max()})"
+
+
+def test_beta_hedge_shorts_the_index(synth_md):
+    """The hedge leg must be negative and sized by a trailing beta."""
+    from aitb.strategies import STRATEGY_CLASSES
+    w = STRATEGY_CLASSES["BetaHedgedBasket"](basket="megacap_ai").build(synth_md)
+    hedge = w["QQQ"]
+    assert (hedge < -1e-9).any(), "hedge leg is never short"
+    assert hedge.min() >= -1.5 - 1e-9, "hedge exceeded max_hedge"
+    # Before enough history exists to estimate beta there must be no hedge —
+    # a default of 1.0 would be a fabricated position.
+    assert abs(hedge.iloc[0]) < 1e-12
+
+
 @pytest.mark.parametrize("cls_name,params", V3_STRATEGIES,
                          ids=[c for c, _ in V3_STRATEGIES])
 def test_v3_strategies_are_causal(synth_md, cls_name, params):

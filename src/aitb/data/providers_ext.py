@@ -97,6 +97,9 @@ class AlphaVantageProvider(PriceProvider):
 # XBRL concept preference lists (first match wins). Values are kept exactly as
 # originally filed; restatements/amendments arrive as later facts with later
 # `filed` dates and are dropped unless keep_amendments=True.
+# XBRL tags, in preference order — the first one a filer actually uses wins.
+# Companies tag the same economic quantity differently and change tags between
+# years, which is why each field lists alternatives rather than one concept.
 _CONCEPTS = {
     "revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax",
                 "Revenues", "SalesRevenueNet"],
@@ -105,7 +108,44 @@ _CONCEPTS = {
             "NetCashProvidedByUsedInOperatingActivitiesContinuingOperations"],
     "capex": ["PaymentsToAcquirePropertyPlantAndEquipment"],
     "shares": ["WeightedAverageNumberOfDilutedSharesOutstanding"],
+
+    # ---- added for freeze v4 -------------------------------------------
+    # All free, all from the same companyfacts call already being made, so
+    # they cost no extra requests — only the fields were never asked for.
+    #
+    # gross_profit + assets are the actual Novy-Marx profitability ratio.
+    # The study has been approximating it with the free-cash-flow margin
+    # because these were not collected; that proxy conflates profitability
+    # with capital intensity, which in semiconductors is a large error.
+    "gross_profit": ["GrossProfit"],
+    "cost_of_revenue": ["CostOfRevenue", "CostOfGoodsAndServicesSold"],
+    "assets": ["Assets"],
+    "equity": ["StockholdersEquity",
+               "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest"],
+    "net_income": ["NetIncomeLoss", "ProfitLoss"],
+    # R&D intensity is the tech-specific quality signal. Accounting expenses
+    # R&D immediately while its benefit is multi-year, so a research-heavy
+    # company looks less profitable than it is — a documented and persistent
+    # mispricing (Lev & Sougiannis 1996, Chan/Lakonishok/Sougiannis 2001).
+    # Nothing in a technology study should be missing this.
+    "rnd": ["ResearchAndDevelopmentExpense"],
+    # Balance-sheet quality: leverage and the accrual component of earnings
+    # (Sloan 1996 — accruals predict returns negatively, robustly).
+    "debt": ["LongTermDebtNoncurrent", "LongTermDebt"],
+    "cash": ["CashAndCashEquivalentsAtCarryingValue"],
 }
+
+
+def _opt(parts: dict, field: str, idx) -> pd.Series:
+    """A field that may be absent: NaN, never zero.
+
+    Zero would be a claim (this company had no R&D), NaN is the truth (this
+    filer did not tag it). Downstream ranking drops NaN rather than ranking a
+    fabricated zero as the worst value.
+    """
+    if field not in parts:
+        return pd.Series(np.nan, index=range(len(idx)))
+    return parts[field].reindex(idx).reset_index(drop=True)
 
 
 class EdgarFundamentals:
@@ -196,6 +236,17 @@ class EdgarFundamentals:
             "fcf": (parts.get("ocf", pd.Series(dtype=float)).reindex(idx)
                     - parts.get("capex", pd.Series(0.0, index=idx)).reindex(idx).fillna(0.0)),
             "shares": parts.get("shares", pd.Series(dtype=float)).reindex(idx),
+            # v4 additions — absent for filers that do not tag them, which is
+            # recorded as NaN rather than imputed. A strategy needing a field
+            # simply has fewer names to choose from on those dates.
+            "gross_profit": _opt(parts, "gross_profit", idx),
+            "cost_of_revenue": _opt(parts, "cost_of_revenue", idx),
+            "assets": _opt(parts, "assets", idx),
+            "equity": _opt(parts, "equity", idx),
+            "net_income": _opt(parts, "net_income", idx),
+            "rnd": _opt(parts, "rnd", idx),
+            "debt": _opt(parts, "debt", idx),
+            "cash": _opt(parts, "cash", idx),
         }).reset_index(drop=True)
         # Conservative fallback: if any published date is missing, assume a
         # 90-day lag rather than dropping the row silently.

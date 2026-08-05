@@ -92,6 +92,14 @@ CLASS_LABELS = {
     "FundamentalAcceleration": "Growth that's speeding up",
     "EqualRiskContribution": "Balance the risk, not the money",
     "MinCorrelationSleeve": "The least-alike corner",
+    # added with freeze v4
+    "MarketNeutralMomentum": "Bet winners against losers",
+    "BetaHedgedBasket": "Own the stocks, not the market",
+    "GrossProfitability": "The most profitable companies",
+    "PostEarningsDrift": "Buy the earnings surprise",
+    "DispersionTimedSelection": "Pick stocks only when it pays",
+    "ResearchIntensity": "The heaviest R&D spenders",
+    "AccrualQuality": "Profits backed by real cash",
 }
 
 _BASKETS = {"megacap_ai": "megacap AI", "target_holdings": "your shortlist",
@@ -318,16 +326,29 @@ dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
 .tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
 .tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
   border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.subnav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 1.4rem}
+.subnav a{font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface);color:var(--ink-2);text-decoration:none}
+.subnav a:hover{border-color:var(--s1);color:var(--s1)}
 .legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
 .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
 """
 
-_PAGES = [("index.html", "Overview"), ("data.html", "The data"),
-          ("experiments.html", "Experiments"),
-          ("strategies.html", "Strategies"), ("compare.html", "Compare"),
-          ("portfolio.html", "Portfolio lab"), ("ideas.html", "Ideas"),
-          ("roadmap.html", "Roadmap"), ("audit.html", "Trust & audit")]
+# Five tabs, not nine. Nine was a directory of internal artifacts; this is the
+# order a reader actually needs them in — what is this, what was it run on,
+# what was tried, what happened, and can any of it be trusted.
+_PAGES = [("index.html", "Overview"),
+          ("data.html", "The data"),
+          ("strategies.html", "Strategies"),
+          ("results.html", "Results"),
+          ("method.html", "Method &amp; trust")]
+
+
+def _subnav(items: list[tuple[str, str]]) -> str:
+    """In-page jump links for a merged page."""
+    links = "".join(f"<a href='#{anchor}'>{label}</a>" for anchor, label in items)
+    return f"<div class='subnav'>{links}</div>"
 
 
 def _nav(current: str, depth: int = 0) -> str:
@@ -405,20 +426,48 @@ _ETF_BENCH = ("SPY", "QQQ", "XLK", "SOXX", "SMH", "IGV", "VGT", "IWM",
 
 # ------------------------------------------------------------- dashboard ----
 def _pipeline(mode: str) -> str:
+    """Where the study actually stands — read from the artifacts, not written.
+
+    This card sat on "Step 3: not started" after the real study had already
+    run. The most-read statement on the site should not be a constant.
+    """
+    real_done = False
+    gate_status = ""
+    try:
+        from ..config import results_dir
+        gate = results_dir("real") / "data_quality.json"
+        reg = results_dir("real") / "experiments.jsonl"
+        if gate.exists() and reg.exists() and reg.stat().st_size > 0:
+            real_done = True
+            gate_status = json.loads(gate.read_text()).get("status", "")
+    except Exception:
+        pass
+
+    if real_done:
+        step3 = ("Run on real prices",
+                 f"Done. Real market data, quality gate: {gate_status.lower()}.",
+                 "done")
+        step4 = ("Decide", "Now live. The best available outcome is still "
+                 "“paper-trade it and watch” — never real money on one study.",
+                 "now")
+    else:
+        step3 = ("Run on real prices", "Not started. Needs one command run on "
+                 "a machine with internet access.", "now")
+        step4 = ("Decide", "Only after step 3. The best possible outcome is "
+                 "“paper-trade it and watch”.", "todo")
+
     steps = [
         ("Step 1", "Build the lab", "A backtesting engine with strict rules "
          "against fooling yourself.", "done"),
-        ("Step 2", "Audit it", "An adversarial review found and fixed 6 serious "
+        ("Step 2", "Audit it", "An adversarial review found and fixed serious "
          "flaws before any results were trusted.", "done"),
-        ("Step 3", "Run on real prices", "Not started. Needs one command run on "
-         "a machine with internet access.", "now"),
-        ("Step 4", "Decide", "Only after step 3. The best possible outcome is "
-         "“paper-trade it and watch”.", "todo"),
+        ("Step 3", *step3),
+        ("Step 4", *step4),
     ]
     return "<div class='pipe'>" + "".join(
         f"<div class='step {cls}'>{'<span class=tick>✅</span>' if cls == 'done' else ''}"
-        f"<div class='n'>{n}</div><div class='t'>{t}</div><div class='d'>{d}</div></div>"
-        for n, t, d, cls in steps) + "</div>"
+        f"<div class='n'>{n}</div><div class='t'>{t_}</div><div class='d'>{d}</div></div>"
+        for n, t_, d, cls in steps) + "</div>"
 
 
 def _dashboard(mode, stats, cat, registry) -> str:
@@ -505,7 +554,9 @@ simulated data.</div></div>
                   "meanrev": "Buy the dip", "breakout": "Breakouts",
                   "fundamental": "Company fundamentals", "regime": "Market conditions",
                   "ml": "Machine learning", "factor": "Diversifying factors",
-                  "allocation": "Smarter weighting"}
+                  "allocation": "Smarter weighting",
+                  "longshort": "Hedged & market-neutral",
+                  "quality": "Company quality"}
     fam_chart = _hbar(
         [(fam_labels.get(f, f), int(n), "var(--s1)") for f, n in fams.items()],
         "What kinds of ideas were tried",
@@ -639,7 +690,7 @@ paper-trading, never real money on its own.</li>
 
     return (hero + _mode_banner(mode)
             + "<h2>Where this stands</h2>"
-            + "<p class='lede'>Four steps from idea to decision. Two are done.</p>"
+            + "<p class='lede'>Four steps from idea to decision.</p>"
             + _pipeline(mode)
             + "<h2>What's been done so far</h2>" + stat_cards
             + "<div class='grid2' style='margin-top:1rem'>"
@@ -1019,17 +1070,7 @@ def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
         _page("The data — AI & Tech Strategy Research",
               _data_page(mode), current="data.html"))
 
-    # experiments
-    (out / "experiments.html").write_text(_page(
-        "Experiments",
-        head("Every test ever run",
-             "One row per test run. Nothing is ever deleted — failures and "
-             "retired ideas stay here permanently, which is what stops the same "
-             "dead end being explored twice. Click any row for the full record.")
-        + _mode_banner(mode) + _experiments_page(registry, reg_df),
-        current="experiments.html"))
-
-    # strategies index + pages
+    # --- Strategies: the ideas, plus the side-by-side tool -----------------
     rows = "".join(
         f"<tr><td><a href='strategy/{e.class_name}.html'>"
         f"{html.escape(CLASS_LABELS.get(e.class_name, e.class_name))}</a>"
@@ -1048,10 +1089,23 @@ def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
              "being probed; <b>deprecated</b> ones were retired on purpose, with "
              "the reason recorded. Click through for a plain-English explanation, "
              "its track record, and a TradingView script where one is possible.")
+        + _subnav([("ideas", "Every idea"), ("compare", "Compare side by side"),
+                   ("backlog", "Not built yet")])
         + _mode_banner(mode)
+        + "<h2 id='ideas'>Every idea tested</h2>"
         + "<div class='tbl-wrap'><table><thead><tr><th>Idea</th><th>Status</th>"
           "<th class='num'>Runs</th><th>TradingView</th><th>The bet it makes</th>"
-          "</tr></thead><tbody>" + rows + "</tbody></table></div>",
+          "</tr></thead><tbody>" + rows + "</tbody></table></div>"
+        + "<h2 id='compare'>Compare side by side</h2>"
+        + "<p class='lede'>Tick any two or more to line up their numbers, then "
+          "export the selection as a spreadsheet. Only runs against the current "
+          "list of companies appear — older runs used a narrower list and are "
+          "not comparable.</p>"
+        + _compare_page(registry, cur_df)
+        + "<h2 id='backlog'>Ideas not built yet</h2>"
+        + "<p class='lede'>Written down before any code exists, so a hypothesis "
+          "cannot be invented after seeing what worked.</p>"
+        + _ideas_page(),
         current="strategies.html"))
     for e in cat.values():
         if e.status == "unlisted":
@@ -1060,47 +1114,39 @@ def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
             _page(CLASS_LABELS.get(e.class_name, e.class_name),
                   _strategy_page(e, mode), depth=1))
 
-    # compare
-    (out / "compare.html").write_text(_page(
-        "Compare",
-        head("Put ideas side by side",
-             "Tick any two or more to line up their numbers. Export the "
-             "selection as a spreadsheet with the button. Only runs against the "
-             "current list of companies appear here — older runs used a narrower "
-             "list and are not comparable.")
-        + _mode_banner(mode) + _compare_page(registry, cur_df), current="compare.html"))
+    # --- Results: what happened, and whether the ideas work together --------
+    (out / "results.html").write_text(_page(
+        "Results",
+        head("What happened",
+             "Every test ever run, and whether the ideas actually complement "
+             "each other or just repeat the same bet in different clothing.")
+        + _subnav([("together", "Do they work together?"),
+                   ("runs", "Every test run")])
+        + _mode_banner(mode)
+        + "<h2 id='together'>Do these ideas work well together?</h2>"
+        + "<p class='lede'>Two mediocre strategies can beat a good one if they "
+          "fail at different times. This checks whether they actually do.</p>"
+        + _portfolio_page(mode)
+        + "<h2 id='runs'>Every test run</h2>"
+        + "<p class='lede'>One row per run. Nothing is ever deleted — failures "
+          "and retired ideas stay here permanently, which is what stops the same "
+          "dead end being explored twice.</p>"
+        + _experiments_page(registry, reg_df),
+        current="results.html"))
 
-    # portfolio lab
-    (out / "portfolio.html").write_text(_page(
-        "Portfolio lab",
-        head("Do these ideas work well together?",
-             "Two mediocre strategies can beat a good one if they fail at "
-             "different times. This page checks whether they actually do — how "
-             "closely they move together, whether they collapse in the same "
-             "market conditions, and whether combining them helps.")
-        + _mode_banner(mode) + _portfolio_page(mode), current="portfolio.html"))
-
-    # ideas + roadmap
-    (out / "ideas.html").write_text(_page(
-        "Ideas",
-        head("Ideas waiting to be tested",
-             "Written down before any code is built, so a hypothesis can't be "
-             "invented after seeing what worked.") + _ideas_page(),
-        current="ideas.html"))
-    (out / "roadmap.html").write_text(_page(
-        "Roadmap",
-        head("What to work on next",
-             "Ranked automatically by expected value against effort, and fed by "
-             "what the data is currently missing plus any unresolved audit "
-             "findings.") + _roadmap_page(mode), current="roadmap.html"))
-
-    # audit summary page
-    (out / "audit.html").write_text(_page(
-        "Trust & audit",
-        head("Why you can trust these numbers",
+    # --- Method & trust: governance, audit, and what to do next -------------
+    (out / "method.html").write_text(_page(
+        "Method & trust",
+        head("Why you can trust these numbers, and what is next",
              "This system was reviewed as if by a hostile auditor whose job was "
-             "to prove the results wrong. Everything found is listed below — "
-             "fixed or still open.") + _audit_page(), current="audit.html"))
+             "to prove the results wrong. Everything found is listed — fixed or "
+             "still open.")
+        + _subnav([("audit", "Audit findings"), ("next", "What to work on next")])
+        + "<h2 id='audit'>Audit and governance</h2>"
+        + _audit_page()
+        + "<h2 id='next'>What to work on next</h2>"
+        + _roadmap_page(mode),
+        current="method.html"))
 
     # tradingview exports
     export_all(out / "tradingview")
@@ -1123,7 +1169,9 @@ _FAMILY_LABELS = {
     "xsmom": "Pick the strongest", "meanrev": "Buy the dip",
     "breakout": "Breakouts", "fundamental": "Company fundamentals",
     "regime": "Market conditions", "ml": "Machine learning",
-    "factor": "Diversifying factors (new)", "allocation": "Smarter weighting (new)",
+    "factor": "Diversifying factors", "allocation": "Smarter weighting",
+    "longshort": "Hedged & market-neutral (new)",
+    "quality": "Company quality (new)",
     "benchmark": "Buy & hold baselines",
 }
 
@@ -1204,30 +1252,48 @@ def _independence_section(mode: str) -> str:
             f"{r.corr:.2f}</td></tr>"
             for r in d.tail(4).itertuples())
 
-        # The specific claim freeze v3 was built to test, checked out loud.
-        new_fams = [f for f in ("factor", "allocation") if f in med.index]
+        # The claim each freeze was built to test, checked out loud against the
+        # numbers rather than restated from memory.
         verdict = ""
-        if new_fams:
-            new_med = float(med[new_fams].median())
-            old_med = float(med.drop(new_fams).median())
-            mc = d[d["cls"] == "MinCorrelationSleeve"]["corr"]
-            mc_txt = ""
-            if len(mc):
-                mc_txt = (f" The sleeve built <i>only</i> to find the "
-                          f"least-alike corner of the sector still moves with the "
-                          f"index at <b>{float(mc.iloc[0]):.2f}</b>.")
-            better = new_med < old_med
+        long_only = [f for f in med.index if f != "longshort"]
+        if "longshort" in med.index and long_only:
+            ls = float(med["longshort"])
+            lo = float(med[long_only].min())      # the BEST long-only family
             verdict = (
-                f"<div class='warnbox' style='border-left-color:"
-                f"{'var(--good)' if better else 'var(--critical)'}'>"
-                f"<b>The honest answer: mostly no.</b> The two families added "
-                f"specifically to break this pattern land at a median "
-                f"correlation of <b>{new_med:.2f}</b>, against <b>{old_med:.2f}</b> "
-                f"for the families that already existed — "
-                f"{'better' if better else '<b>worse</b>, not better'}.{mc_txt} "
-                f"On this evidence the sector does not contain an independent "
-                f"corner to hide in, and the one thing that did help was "
-                f"reducing exposure, not re-picking stocks.</div>")
+                f"<div class='warnbox' style='border-left-color:var(--good)'>"
+                f"<b>Yes — but only by not being permanently long.</b> The "
+                f"hedged and market-neutral strategies sit at a median "
+                f"correlation of <b>{ls:.2f}</b>. The best long-only family "
+                f"manages <b>{lo:.2f}</b>, and most are far higher."
+                f"<p style='margin:.5rem 0 0'>That gap is the whole finding, and "
+                f"it is not subtle. Every earlier attempt to find something "
+                f"&ldquo;different&rdquo; kept the long-only constraint, so the "
+                f"co-movement it was trying to escape was built into it. "
+                f"Nothing about technology stocks was ever the cause. "
+                f"<b>The cost is real:</b> a hedged book pays borrow every day, "
+                f"trades two sides instead of one, and gives up most of the raw "
+                f"return — check it against the benchmarks before treating low "
+                f"correlation as a good thing on its own.</div>")
+        else:
+            new_fams = [f for f in ("factor", "allocation") if f in med.index]
+            if new_fams and len(med) > len(new_fams):
+                new_med = float(med[new_fams].median())
+                old_med = float(med.drop(new_fams).median())
+                mc = d[d["cls"] == "MinCorrelationSleeve"]["corr"]
+                mc_txt = (f" The sleeve built <i>only</i> to find the least-alike "
+                          f"corner of the sector still moves with the index at "
+                          f"<b>{float(mc.iloc[0]):.2f}</b>." if len(mc) else "")
+                better = new_med < old_med
+                verdict = (
+                    f"<div class='warnbox' style='border-left-color:"
+                    f"{'var(--good)' if better else 'var(--critical)'}'>"
+                    f"<b>The honest answer: mostly no.</b> The families added to "
+                    f"break this pattern land at a median correlation of "
+                    f"<b>{new_med:.2f}</b>, against <b>{old_med:.2f}</b> for those "
+                    f"that already existed — "
+                    f"{'better' if better else '<b>worse</b>, not better'}.{mc_txt} "
+                    f"Every one of them is still long-only, which forces "
+                    f"co-movement no amount of cleverer selection can undo.</div>")
 
         return f"""
 <h2>Does anything here actually behave differently?</h2>
@@ -1609,14 +1675,69 @@ figures. The ten worst of {len(found)} delisted names tested.</p>"""
             f"had no usable price history, and are excluded from everything on "
             f"this site.</b> They were not tested, so they are not shown.{bias}</div>")
 
+    # These limitations are generated, not written down once. A hardcoded list
+    # goes stale the moment the study advances — this page carried "the
+    # download has not run" for a while after it had.
+    items = []
+    if mode == "synthetic":
+        items.append(
+            "<li><b>Real prices.</b> Still the big one. The roster is defined; "
+            "the download has not run.</li>")
+        items.append(
+            "<li><b>Free data may not have the dead names.</b> Free providers "
+            "often serve no history at all for delisted tickers. If that "
+            "happens the study reports itself as survivorship-limited rather "
+            "than pretending the list above was honoured.</li>")
+    else:
+        n_dead_cfg = sum(1 for s in configured if s.delisted is not None)
+        if dropped_dead:
+            items.append(
+                f"<li><b>{len(dropped_dead)} dead companies are missing.</b> "
+                f"{len(dead)} of {n_dead_cfg} came through; no provider carries "
+                f"the rest. Everything on this site is therefore optimistic by "
+                f"an unknown amount — the missing names are, by definition, "
+                f"ones that failed. Closing this needs a paid source with "
+                f"delisting returns (CRSP, Norgate, EODHD).</li>")
+        else:
+            items.append(
+                f"<li><b>All {len(dead)} dead companies came through.</b> "
+                f"Unusual for free data, and the strongest thing about this "
+                f"dataset — a strategy here has to buy the losers too.</li>")
+        items.append(
+            "<li><b>Dividends depend on the provider.</b> Yahoo's adjusted "
+            "close includes them; Stooq's does not. Where the two disagree the "
+            "difference is recorded rather than averaged away, but a total-"
+            "return series is only as good as the vendor's adjustments.</li>")
+        items.append(
+            "<li><b>Macro data is revised, not real-time.</b> Inflation and "
+            "unemployment figures are shown as they read today, not as they "
+            "read at the time. Strategies using them are excluded from the "
+            "headline results for exactly this reason.</li>")
+
+    items.append(
+        f"<li><b>It is not the whole market.</b> {len(live)} live names is a "
+        "considered selection, not every listed technology company. What is "
+        "excluded is excluded by the list above, which is at least visible and "
+        "arguable.</li>")
+    items.append(
+        "<li><b>Delisting prices are optimistic.</b> A bankruptcy is modelled "
+        "as a sale at the last quoted price. In reality the exit is usually "
+        "worse, and often there is no exit at all.</li>")
+    items.append(
+        "<li><b>One market, one sector, one sample.</b> 36 years of US "
+        "technology is a single history. It cannot tell you whether a result "
+        "is a property of markets or a property of this particular run of "
+        "them.</li>")
+    missing_items = "\n".join(items)
+
     simulated = mode == "synthetic"
     reality = (
-        "<div class='warnbox'><b>This page describes the roster, not real "
-        "prices.</b> Everything listed here is what the study is <i>defined</i> "
-        "to look at. The price history it has actually run on is simulated — "
-        "the real download has not happened, because this machine cannot reach "
-        "any market-data provider. The list below is exactly what that download "
-        "would fetch.</div>" if simulated else "")
+        "<div class='warnbox'><b>These numbers are from a simulated market, not "
+        "the real one.</b> The list below is what the study is <i>defined</i> to "
+        "look at, and it is accurate. The price history behind the figures on "
+        "this page is simulated. A real study has been run separately — see the "
+        "pipeline on the overview page — but this build is showing the "
+        "demonstration data.</div>" if simulated else "")
 
     return f"""
 <h1>What the study is allowed to look at</h1>
@@ -1705,16 +1826,7 @@ companies and are never joined.</li>
 <div class='chart'><div class='ct'>What is still missing</div>
 <div class='cs'>Honest limitations of this list</div>
 <ul class='lede' style='margin:0;padding-left:1.1rem'>
-<li><b>Real prices.</b> Still the big one. The roster is defined; the download
-has not run.</li>
-<li><b>Free data may not have the dead names.</b> Free providers often serve no
-history at all for delisted tickers. If that happens, the study reports itself
-as survivorship-limited rather than pretending the list above was honoured.</li>
-<li><b>It is not the whole market.</b> {len(live)} live names is a considered
-selection, not every listed technology company. Anything excluded is excluded
-by the list above, which is at least visible and arguable.</li>
-<li><b>Delisting prices are optimistic.</b> A bankruptcy is modelled as a sale
-at the last quoted price. In reality the exit is usually worse.</li>
+{missing_items}
 </ul></div></div>
 <p class='note'>The full machine-readable definition lives in
 <code>configs/universe.yaml</code> and <code>configs/security_master.yaml</code>,
@@ -1740,25 +1852,69 @@ def _ideas_page() -> str:
             + rows + "</table>")
 
 
+_ROAD_CAT = {
+    "evidence": ("Get better evidence", "var(--critical)"),
+    "governance": ("Keep it honest", "var(--warning)"),
+    "strategy": ("Test something new", "var(--s1)"),
+    "data": ("Fill a data gap", "var(--s3)"),
+    "analytics": ("Measure it better", "var(--s2)"),
+    "portfolio": ("Combine them better", "var(--s2)"),
+}
+
+
 def _roadmap_page(mode: str) -> str:
     road = build_roadmap(mode)
+    if not road:
+        return "<p class='note'>Nothing on the roadmap.</p>"
+
+    top, rest = road[:4], road[4:]
+
+    def card(r) -> str:
+        label, colour = _ROAD_CAT.get(r["category"], (r["category"], "var(--s1)"))
+        return (f"<div class='chart' style='border-left:4px solid {colour}'>"
+                f"<div class='cs' style='color:{colour};font-weight:600'>"
+                f"{html.escape(label)}</div>"
+                f"<div class='ct' style='margin:.15rem 0 .4rem'>"
+                f"{html.escape(r['title'])}</div>"
+                f"<p class='lede' style='margin:0;font-size:.88rem'>"
+                f"{html.escape(str(r['rationale']))}</p></div>")
+
     rows = "".join(
-        f"<tr><td>{i + 1}</td><td>{r['id']}</td><td><b>{html.escape(r['title'])}</b><br>"
-        f"<span class='note'>{html.escape(str(r['rationale'])[:180])}</span></td>"
-        f"<td>{r['category']}</td><td>{r['priority_score']}</td>"
-        f"<td>{html.escape(', '.join(map(str, r['dependencies'])))}</td></tr>"
-        for i, r in enumerate(road))
+        f"<tr><td>{i + 5}</td><td>{html.escape(str(r['id']))}</td>"
+        f"<td><b>{html.escape(r['title'])}</b><br>"
+        f"<span class='note'>{html.escape(str(r['rationale'])[:260])}</span></td>"
+        f"<td>{html.escape(_ROAD_CAT.get(r['category'], (r['category'], ''))[0])}</td>"
+        f"<td class='num'>{r['priority_score']}</td>"
+        f"<td class='note'>{html.escape(', '.join(map(str, r['dependencies'])))}</td></tr>"
+        for i, r in enumerate(rest))
+
     sug = assistant_review(mode)
-    sug_html = "".join(f"<li><b>[{s.kind}]</b> {html.escape(s.target[:70])} — "
-                       f"{html.escape(s.detail)}</li>" for s in sug[:25]) or "<li>—</li>"
-    return (f"<p class='note'>Priorities scored by expected value / difficulty with a "
-            f"data-blocker boost; gate limitations and open audit findings are "
-            f"injected automatically.</p>"
-            f"<table><tr><th>#</th><th>id</th><th>item</th><th>category</th>"
-            f"<th>priority</th><th>dependencies</th></tr>{rows}</table>"
-            f"<h2>Heuristic assistant review (read-only, rule-based)</h2>"
-            f"<p class='note'>Never modifies studies; never touches holdout data "
-            f"beyond recorded metrics.</p><ul>{sug_html}</ul>")
+    sug_html = "".join(f"<li><b>{html.escape(s.kind)}</b> — "
+                       f"{html.escape(s.target[:70])}: {html.escape(s.detail)}</li>"
+                       for s in sug[:20]) or "<li>Nothing flagged.</li>"
+
+    return f"""
+<p class='lede'>This is generated, not written by hand. It combines what the
+completed study actually shows, what the data-quality gate said was missing,
+any audit finding still open, and the backlog of ideas recorded before any
+result existed. It re-ranks itself every time the site is built.</p>
+
+<h2>The four that matter</h2>
+<div class='grid2'>{''.join(card(r) for r in top)}</div>
+
+<h2>Everything else, ranked</h2>
+<p class='lede'>Scored by expected value against difficulty, with a boost for
+anything that unblocks a whole family of work. Low scores are not unimportant —
+they are cheap or narrow.</p>
+<div class='tbl-wrap'><table><thead><tr><th>#</th><th>ID</th><th>Item</th>
+<th>Kind</th><th class='num'>Priority</th><th>Needs</th></tr></thead>
+<tbody>{rows}</tbody></table></div>
+
+<h2>Automated review</h2>
+<p class='lede'>A rule-based pass over the recorded results. It only reads
+metrics that were already computed — it never runs a backtest, never touches
+the holdout, and never edits a study.</p>
+<ul class='lede'>{sug_html}</ul>"""
 
 
 def _audit_page() -> str:

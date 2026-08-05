@@ -221,3 +221,62 @@ target_holdings:
   - {class: XSMomentumTopN, status: core,
      hypothesis: "Concentrated rotation among the shortlist beats holding all of it",
      grid: {basket: [target_holdings], lookback_days: [126], top_n: [3, 5, 8], weighting: [equal]}}
+
+# ============================ NEW IN FREEZE v4 ==============================
+# The first real study tested 208 variants and returned zero robust candidates,
+# with almost everything correlating 0.7-0.9 to simply holding QQQ.
+#
+# That correlation was never a finding about technology stocks. Every one of
+# those 208 variants was LONG-ONLY, and a portfolio permanently long the same
+# market must co-move with it. The v3 families added to "find something that
+# behaves differently" could not have succeeded, because the constraint causing
+# the co-movement was never lifted. The engine has supported shorts and charged
+# borrow since v1; nothing had used them.
+#
+# These are chosen from that structural gap, not from the leaderboard. Building
+# what would have scored well on a holdout that has already been opened is
+# fitting to an answer sheet, not research.
+#
+# COST, STATED PLAINLY: every entry below raises the trial count, and the
+# deflated Sharpe ratio corrects across all trials ever run. These make the bar
+# higher for themselves AND for the 208 that came before. The holdout has also
+# been opened once already, so any result here is a SECOND look at it —
+# development evidence, not out-of-sample evidence, however it is labelled.
+
+longshort:
+  # ONLY the genuinely hedged constructions. `family` is part of every
+  # experiment's identity and groups the deflated-Sharpe trial batteries, so a
+  # long-only screen filed here would corrupt both — and did, until it was
+  # caught by the site claiming hedged strategies correlate 0.83 with the index
+  # when the actual hedged ones correlate about zero.
+  - {class: MarketNeutralMomentum, status: core,
+     hypothesis: "The winner-minus-loser spread inside technology is a real return stream that survives borrow costs; being dollar-neutral removes the market exposure that made every long-only variant a repackaged index fund",
+     grid: {lookback_days: [126, 252], top_n: [10, 15], gross: [1.0]}}
+  - {class: BetaHedgedBasket, status: core,
+     hypothesis: "Once the market component is hedged away, what remains in a megacap technology basket is either genuine selection value or nothing — this measures which",
+     grid: {basket: [megacap_ai, target_holdings], beta_window: [126, 252]}}
+
+quality:
+  # Long-only company-quality screens, unlocked by the v4 EDGAR concept set
+  # (gross profit, total assets, net income, R&D). These exist because the DATA
+  # changed, not because the ideas are new. R&D intensity in particular is the
+  # canonical technology-specific quality signal, and a study of technology
+  # companies that could not measure it had a gap worth more than another
+  # momentum variant.
+  - {class: GrossProfitability, status: core,
+     hypothesis: "Profitability predicts returns as strongly as growth and is close to independent of it, so it should select a materially different set of companies than the growth screens already tested",
+     grid: {top_n: [8, 12], rebalance: [QE]}}
+  - {class: ResearchIntensity, status: core,
+     hypothesis: "Accounting expenses R&D immediately while its payoff is multi-year, so R&D-intensive technology companies report earnings that understate their economics — a documented, tech-specific mispricing the study could not previously measure",
+     grid: {top_n: [10, 15], require_profitable: [false, true]}}
+  - {class: AccrualQuality, status: exploratory,
+     hypothesis: "Earnings backed by cash persist and earnings backed by accruals do not, and prices do not distinguish them; widely reported to have decayed since publication, so a null result is informative",
+     grid: {top_n: [10, 15]}}
+  - {class: PostEarningsDrift, status: exploratory,
+     hypothesis: "Prices under-react to earnings news and drift for weeks; filing dates alone are sufficient to test this honestly at a 63-day hold, with no intraday timestamps required",
+     grid: {hold_days: [42, 63], top_n: [10]}}
+
+meta_timing:
+  - {class: DispersionTimedSelection, status: exploratory,
+     hypothesis: "The payoff to stock selection scales with cross-sectional dispersion, which is measurable in advance, so conditioning on it should keep the upside and drop the cost drag of low-dispersion regimes",
+     grid: {lookback_days: [126], top_n: [8], disp_pct: [0.5, 0.6]}}

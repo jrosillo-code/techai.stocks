@@ -128,6 +128,7 @@ def test_site_build_is_read_only_over_governance(tmp_path):
         ROOT / "configs" / "research_freeze_v1.json",
         ROOT / "configs" / "research_freeze_v2.json",
         ROOT / "configs" / "research_freeze_v3.json",
+        ROOT / "configs" / "research_freeze_v4.json",
         ROOT / "results" / "synthetic" / "experiments.jsonl",
         ROOT / "audit" / "findings" / "findings.jsonl",
     ]
@@ -136,18 +137,26 @@ def test_site_build_is_read_only_over_governance(tmp_path):
     out = build_site("synthetic", out=tmp_path / "site")
     after = _hash_tree(governance)
     assert before == after
-    for page in ("index.html", "experiments.html", "strategies.html",
-                 "compare.html", "portfolio.html", "ideas.html",
-                 "roadmap.html", "audit.html"):
+    # Five pages, not nine: Compare folded into Strategies, Portfolio lab and
+    # the experiment explorer into Results, audit/roadmap/ideas into Method.
+    for page in ("index.html", "data.html", "strategies.html",
+                 "results.html", "method.html"):
         assert (out / page).exists(), page
+    # Nothing was dropped in the merge — each folded section must still render.
+    strat = (out / "strategies.html").read_text()
+    assert "id='compare'" in strat and "id='backlog'" in strat
+    res = (out / "results.html").read_text()
+    assert "id='together'" in res and "id='runs'" in res
+    meth = (out / "method.html").read_text()
+    assert "id='audit'" in meth and "id='next'" in meth
     assert (out / "strategy" / "TrendPlusVolTarget.html").exists()
     assert (out / "tradingview" / "QQQMovingAverage.pine").exists()
     # Every page showing numbers must warn that they are simulated. Assert the
     # GUARANTEE, not one exact sentence, so the copy can be improved without
     # silently dropping the warning: the styled warn box must be present and
     # must say the data is simulated/not real.
-    for page in ("index.html", "experiments.html", "compare.html",
-                 "portfolio.html", "strategies.html"):
+    for page in ("index.html", "data.html", "strategies.html",
+                 "results.html"):
         txt = (out / page).read_text()
         assert "warnbox" in txt, f"{page} has no warning box"
         assert "simulated" in txt.lower(), f"{page} does not say the data is simulated"

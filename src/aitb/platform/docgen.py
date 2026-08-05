@@ -38,6 +38,12 @@ FAMILY_ASSUMPTIONS = {
     "factor": ["the shared sector factor is separable from what is left over",
                "the residual, not the total return, is what carries information",
                "participation and consensus are measurable before prices confirm them"],
+    "quality": ["published accounts describe the business faithfully",
+                "profitability and research spending persist for years",
+                "filing dates are the availability dates, never period ends"],
+    "longshort": ["shares can actually be borrowed, at roughly the modelled rate",
+                  "the winner-minus-loser spread is separable from market direction",
+                  "a hedge ratio estimated on the past applies to the future"],
     "allocation": ["trailing covariance is a usable estimate of future covariance",
                    "risk balance is worth its rebalancing cost",
                    "no forecasting skill is required — only measurement"],
@@ -47,7 +53,8 @@ FAMILY_TIMEFRAME = {
     "meanrev": "days", "breakout": "weeks-months", "xsmom": "months",
     "tsmom": "months", "riskmanaged": "months-years", "fundamental": "quarters",
     "regime": "weeks-months", "ml": "weeks-months", "benchmark": "years",
-    "factor": "months", "allocation": "months-years",
+    "factor": "months", "allocation": "months-years", "longshort": "months",
+    "quality": "quarters",
 }
 
 
@@ -98,6 +105,10 @@ def _strengths(e: StrategyEntry) -> list[str]:
     if e.family == "riskmanaged":
         out.append("Changes how much you hold, not which stocks you pick — so "
                    "it does not depend on picking winners correctly")
+    if e.family == "longshort":
+        out.append("Can genuinely move independently of the market, because it "
+                   "is not permanently long it — the only construction here "
+                   "that can")
     if e.family == "allocation":
         out.append("Requires no forecasting at all — it only measures how "
                    "risky things have been, which is far easier than "
@@ -120,6 +131,11 @@ def _weaknesses(e: StrategyEntry) -> list[str]:
                    "as the list it ranks. That list now includes 39 firms that "
                    "went bust or were bought — but free price data often has no "
                    "history for them, which would flatter the result again")
+    if e.family == "longshort":
+        out.append("Shorting costs money every day you hold it, and a short "
+                   "that goes wrong grows into a bigger position instead of "
+                   "shrinking out of one. Borrow is modelled at a flat rate; "
+                   "real borrow on hard-to-find shares is far worse")
     if e.family == "allocation":
         out.append("Estimates how assets move together from the recent past. "
                    "Those relationships break down in exactly the crises where "

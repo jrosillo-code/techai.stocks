@@ -1,9 +1,11 @@
 family,n_variants,best_variant,best_dev_sharpe,sharpe_ci90_lo,sharpe_ci90_hi,deflated_sharpe_prob,walkforward_oos_sharpe,mc_mdd_median,mc_mdd_p95
 allocation,8,"EqualRiskContribution(basket=ai_broad,cov_window=252,max_weight=0.25,rebalance=ME)",0.867,0.568,1.149,1.0,0.694,-0.493,-0.647
 breakout,5,"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.2)",0.721,0.421,1.029,0.999,0.395,-0.639,-0.792
-factor,25,"BreadthGatedBasket(basket=ai_broad,breadth_window=200,fallback=IEF,min_exposure=0.0,rebalance=W-FRI,smooth_days=21,threshold=0.4)",1.162,0.846,1.475,1.0,0.617,-0.412,-0.544
+factor,27,"BreadthGatedBasket(basket=ai_broad,breadth_window=200,fallback=IEF,min_exposure=0.0,rebalance=W-FRI,smooth_days=21,threshold=0.4)",1.162,0.846,1.475,1.0,0.617,-0.412,-0.544
 fundamental,5,"ValuationAwareGrowth(history_days=756,max_ps_own_pct=1.0,rebalance=QE,top_n=8)",0.938,0.622,1.232,1.0,0.903,-0.578,-0.734
+longshort,8,"BetaHedgedBasket(basket=target_holdings,beta_window=252,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",0.936,0.653,1.234,1.0,0.801,-0.386,-0.524
 meanrev,3,"ShortTermReversal(lookback_days=5,rebalance=W-FRI,top_n=5,trend_window=200)",0.712,0.415,1.01,0.999,0.68,-0.679,-0.831
+quality,10,"PostEarningsDrift(basket=None,hold_days=63,rebalance=W-FRI,top_n=10)",0.998,0.698,1.274,1.0,0.96,-0.55,-0.696
 regime,5,"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.121,0.818,1.422,1.0,0.777,-0.313,-0.43
 riskmanaged,30,"TrendPlusVolTarget(basket=megacap_ai,fallback=IEF,hysteresis=0.0,min_exposure=0.2,rebalance=W-FRI,target_vol=0.15,trend_window=200,vol_window=63)",1.169,0.896,1.442,1.0,0.766,-0.26,-0.358
 tsmom,12,"TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=250)",1.275,0.952,1.605,1.0,0.81,-0.321,-0.437

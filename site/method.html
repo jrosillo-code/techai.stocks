@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Method &amp; trust</title><style>
+:root{
+  color-scheme: light;
+  --bg:#f4f4f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --mut:#78776f;
+  --line:#e3e2dd; --acc:#2a78d6; --acc-soft:#eaf2fd;
+  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --serious:#ec835a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+    --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+  --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+nav{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 1.2rem;display:flex;gap:.2rem;align-items:center;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+nav .brand{font-weight:700;margin-right:1rem;padding:.85rem 0;font-size:.95rem}
+nav a{color:var(--ink-2);text-decoration:none;font-size:.88rem;padding:.85rem .7rem;
+  border-bottom:2px solid transparent}
+nav a:hover{color:var(--ink);border-bottom-color:var(--line)}
+nav a.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+main{max-width:1120px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+h1{font-size:1.75rem;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.1rem;margin:2.2rem 0 .2rem;letter-spacing:-.01em}
+h2+.lede{margin:.1rem 0 .9rem}
+h3{font-size:.95rem;margin:1.4rem 0 .4rem}
+.lede{color:var(--ink-2);font-size:.95rem;max-width:70ch}
+.note{color:var(--mut);font-size:.83rem;max-width:78ch}
+
+/* hero */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.3rem 1.4rem;margin:.6rem 0 1.2rem}
+.hero h1{margin-top:0}
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;
+  font-weight:600;padding:.2rem .6rem;border-radius:99px;border:1px solid transparent}
+.pill-warn{background:#fdf5e3;color:#7a5600;border-color:#f2dfae}
+.pill-good{background:#e7f6e7;color:#075c07;border-color:#bde5bd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .pill-warn{background:#3a2f14;color:#f6cf72;border-color:#5b4a1d}
+:root:where(:not([data-theme="light"])) .pill-good{background:#123212;color:#7fd77f;border-color:#1e4d1e}}
+
+/* pipeline */
+.pipe{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 .3rem}
+.step{flex:1 1 170px;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:.7rem .85rem;position:relative}
+.step .n{font-size:.72rem;color:var(--mut);font-weight:600;letter-spacing:.04em}
+.step .t{font-weight:650;font-size:.92rem;margin:.15rem 0}
+.step .d{font-size:.79rem;color:var(--ink-2)}
+.step.done{border-color:#bde5bd;background:linear-gradient(0deg,#f4fbf4,var(--surface))}
+.step.now{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.step .tick{position:absolute;top:.6rem;right:.7rem;font-size:.9rem}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .step.done{background:var(--surface);border-color:#1e4d1e}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:.85rem 1rem}
+.stat .v{font-size:1.9rem;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.stat .k{font-size:.83rem;font-weight:600;margin-top:.1rem}
+.stat .d{font-size:.78rem;color:var(--mut);margin-top:.25rem;line-height:1.4}
+
+/* charts */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.1rem;margin:.5rem 0}
+.chart .ct{font-weight:650;font-size:.92rem}
+.chart .cs{font-size:.8rem;color:var(--mut);margin-bottom:.7rem}
+.bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;
+  gap:.7rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.bar-row .lab{color:var(--ink-2);text-align:right}
+.bar-track{background:var(--line);border-radius:5px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s}
+.bar-row .val{font-variant-numeric:tabular-nums;font-weight:650;min-width:2.4rem}
+.spark{display:flex;align-items:flex-end;gap:2px;height:64px;margin-top:.4rem}
+.spark i{background:var(--s1);border-radius:3px 3px 0 0;flex:1;min-width:3px;display:block}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:.55rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);font-weight:650;white-space:nowrap;background:var(--surface);
+  cursor:pointer;user-select:none}
+th:hover{color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--acc-soft)}
+td a{color:var(--acc);text-decoration:none;font-weight:600}
+td a:hover{text-decoration:underline}
+.sub{display:block;color:var(--mut);font-size:.76rem;font-weight:400}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* badges */
+.badge{display:inline-block;padding:.12rem .5rem;border-radius:99px;
+  font-size:.72rem;font-weight:600;white-space:nowrap}
+.b-robust_candidate,.b-core,.b-A{background:#e7f6e7;color:#075c07}
+.b-inconclusive,.b-exploratory,.b-B{background:#fdf5e3;color:#7a5600}
+.b-rejected,.b-deprecated,.b-C{background:#fbeaea;color:#8f1f1f}
+.b-benchmark{background:#eaf2fd;color:#12467e}
+.b-unlisted{background:var(--line);color:var(--ink-2)}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .badge{filter:brightness(1.7) saturate(.8)}}
+
+.warnbox{background:#fdf5e3;border:1px solid #f2dfae;border-left:4px solid var(--warning);
+  padding:.8rem 1rem;margin:1rem 0;border-radius:10px;font-size:.88rem;color:#5c4310}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .warnbox{background:#2c2410;border-color:#5b4a1d;color:#f0d79a}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:minmax(90px,130px) 1fr auto}}
+input,select{padding:.42rem .6rem;border:1px solid var(--line);border-radius:8px;
+  margin:.15rem;background:var(--surface);color:var(--ink);font-size:.86rem}
+pre{background:#15150f;color:#e8e7de;padding:.9rem;border-radius:10px;
+  overflow-x:auto;font-size:.78rem;line-height:1.5}
+details{margin:.4rem 0}summary{cursor:pointer;color:var(--acc);font-size:.88rem;font-weight:600}
+dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
+.score{display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.score .sn{width:190px;color:var(--ink-2)}
+.bar{height:9px;border-radius:5px;background:var(--s1);min-width:3px}
+.tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.subnav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 1.4rem}
+.subnav a{font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface);color:var(--ink-2);text-decoration:none}
+.subnav a:hover{border-color:var(--s1);color:var(--s1)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='index.html'>Overview</a><a href='data.html'>The data</a><a href='strategies.html'>Strategies</a><a href='results.html'>Results</a><a href='method.html' class=on>Method &amp; trust</a></nav><main><h1>Why you can trust these numbers, and what is next</h1><p class='lede'>This system was reviewed as if by a hostile auditor whose job was to prove the results wrong. Everything found is listed — fixed or still open.</p><div class='subnav'><a href='#audit'>Audit findings</a><a href='#next'>What to work on next</a></div><h2 id='audit'>Audit and governance</h2><p>Verdict: <b>READY WITH MATERIAL LIMITATIONS</b> · freeze v4 <code>384dc48714fc530de3f3a4a9168df12f</code> · v1 and v2 preserved and superseded · <a href='../audit/reports/adversarial_audit.md'>full report</a></p><p class='lede'>Findings are numbered in the order they were found and never renumbered or removed. <b>Open</b> means known and unfixed, which is a deliberate state, not an oversight — each one records why it has not been fixed yet.</p><table><tr><th>id</th><th>severity</th><th>status</th><th>finding</th></tr><tr><td>AUD-001</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Freeze did not bind analytics, tiers, calendar, or data layer</b><br><span class='note'>research_freeze_v1 fingerprinted only strategy/portfolio/engine/ranking modules. metrics.py, validation.py (bootstrap/DSR/walk-forward), tiers.py, calendar.py, experiments.py, holdout.py, tax.py and t</span></td></tr><tr><td>AUD-002</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Freeze verified only at experiment time, not at analysis/report time</b><br><span class='note'>run_robustness, run_capacity, run_company_analysis, make_report ran real mode without verify_freeze(). Rankings, robustness statistics, capacity estimates and the report itself could be produced by mo</span></td></tr><tr><td>AUD-003</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Holdout lock not tamper-evident: deleting the file restored clean status</b><br><span class='note'>holdout_lock.json was the only record; _load() returned a pristine state when the file was missing, so rm holdout_lock.json silently erased a compromised flag and the entire access log.</span></td></tr><tr><td>AUD-004</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Missing capacity estimate treated as passing (fail-open)</b><br><span class='note'>The advancement check `(not len(crow)) or capacity &gt;= 1e6` passed whenever a strategy had NO row in capacity.csv — an absent estimate counted as adequate capacity.</span></td></tr><tr><td>AUD-005</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Compromised holdout and failed/stale quality gate did not block advancement</b><br><span class='note'>The brief displayed a compromised-holdout banner but still computed survivors; it also never re-checked the gate status or whether the store fingerprint still matched the gate (results could be stale)</span></td></tr><tr><td>AUD-006</td><td><span class='badge b-MEDIUM'>MEDIUM</span></td><td>fixed</td><td><b>CAGR annualized by row-count/252 instead of elapsed calendar time</b><br><span class='note'>cagr() used len(returns)/252 as &#x27;years&#x27;. On the synthetic business-day calendar (~261 rows/yr) this overstated elapsed years and understated CAGR by ~35-40bp/yr (probe: true 10.00% reported as 9.63%).</span></td></tr><tr><td>AUD-007</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Experiment records carried no data-store fingerprint</b><br><span class='note'>Real-mode experiment records contained only a universe hash — no binding to the validated store contents or governing freeze, so the lineage chain raw-&gt;checksum-&gt;import-&gt;store-&gt;run-&gt;record-&gt;report was</span></td></tr><tr><td>AUD-008</td><td><span class='badge b-MEDIUM'>MEDIUM</span></td><td>fixed</td><td><b>Deflated-Sharpe trial battery excluded failed variants</b><br><span class='note'>run_robustness built trial_sharpes only from OK runs; errored variants (still trials) were dropped, understating N and making the DSR correction too lenient.</span></td></tr><tr><td>AUD-009</td><td><span class='badge b-MEDIUM'>MEDIUM</span></td><td>fixed</td><td><b>Tier assignment failed open: unknown/missing family promoted to Tier A</b><br><span class='note'>assign_tier fell through to Tier A for any record whose family was missing or unrecognized — omitted metadata produced the HIGHEST evidence tier.</span></td></tr><tr><td>AUD-010</td><td><span class='badge b-MEDIUM'>MEDIUM</span></td><td>open_documented</td><td><b>Verdict layer alone admits ~3% of pure-noise strategies</b><br><span class='note'>30 random-return strategies against a noise benchmark: 1 achieved robust_candidate through the composite-score + relative-hurdle verdict (probe 7). The verdict layer is not the last line of defense — </span></td></tr><tr><td>AUD-011</td><td><span class='badge b-MEDIUM'>MEDIUM</span></td><td>fixed</td><td><b>No per-bar accounting invariant existed</b><br><span class='note'>The engine had endpoint tests but no continuous invariant tying equity changes to P&amp;L + interest - costs each bar, so a future accounting regression could pass endpoint tests while leaking value mid-p</span></td></tr><tr><td>AUD-012</td><td><span class='badge b-INFORMATIONAL'>INFORMATIONAL</span></td><td>documented</td><td><b>Dividends modeled as continuous reinvestment, not cash ledger entries</b><br><span class='note'>Ratio-adjusted (total-return-consistent) prices embed dividends in the price path; there is no discrete cash dividend credit. Internally consistent and benchmark-consistent, but it assumes frictionles</span></td></tr><tr><td>AUD-013</td><td><span class='badge b-INFORMATIONAL'>INFORMATIONAL</span></td><td>documented</td><td><b>Freeze does not bind dependency versions or in-process monkey-patching</b><br><span class='note'>pip freeze is recorded in the run fingerprint but not enforced; a different pandas/numpy could alter numerics. In-process monkey-patching after verification is unpreventable in Python. Both are record</span></td></tr><tr><td>AUD-014</td><td><span class='badge b-LOW'>LOW</span></td><td>fixed</td><td><b>Dead logic in gate_flags (macro_revised &#x27;... or True&#x27;)</b><br><span class='note'>The macro_revised flag was computed then overridden by &#x27;or True&#x27; — harmless (FRED is always revised) but misleading.</span></td></tr><tr><td>AUD-015</td><td><span class='badge b-INFORMATIONAL'>INFORMATIONAL</span></td><td>documented</td><td><b>Composite score includes holdout Sharpe by design</b><br><span class='note'>The ranking&#x27;s 2x holdout-Sharpe term means the final ordering uses holdout results. This is the sanctioned single final evaluation (spec frozen before any real holdout view, one logged access), not se</span></td></tr><tr><td>AUD-016</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Experiment ID omitted the universe, so an expanded roster reused old results</b><br><span class='note'>experiment_id() hashed (spec, provider, data_mode, scenario, data_span) but NOT the investable universe. run_experiment skips any ID already in the registry and reloads its stored equity curve, so re-</span></td></tr><tr><td>AUD-017</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Append-only registry has no uniqueness guard on experiment IDs</b><br><span class='note'>ExperimentRegistry.append() writes unconditionally. Two runner processes started against the same registry both pass the existing_ids() check (read once at entry) and then both append records for the </span></td></tr><tr><td>AUD-018</td><td><span class='badge b-HIGH'>HIGH</span></td><td>fixed</td><td><b>Strategy family labelled by source file, not by construction</b><br><span class='note'>Five long-only screens (GrossProfitability, ResearchIntensity, AccrualQuality, PostEarningsDrift, DispersionTimedSelection) were assigned family=&#x27;longshort&#x27; because they were authored in longshort.py.</span></td></tr></table><h2>Standing controls</h2><ul><li>Research freeze v4 verified by every real-mode entry point</li><li>Tamper-evident holdout log (registry-mirrored, hash-chained)</li><li>Fail-closed decision brief (paper-trade / do-nothing only)</li><li>Evidence tiers A/B/C, never mixed in a leaderboard</li><li>One universe cohort per leaderboard: results from an earlier, narrower list of companies are retained but never ranked beside current ones</li><li>Experiment IDs bound to the universe fingerprint, so widening the roster cannot silently reuse the old roster's results</li><li>Experiment lineage bound to store fingerprint + freeze hash</li><li>Append-only registries; deprecated variants retained with reasons</li></ul><h2 id='next'>What to work on next</h2>
+<p class='lede'>This is generated, not written by hand. It combines what the
+completed study actually shows, what the data-quality gate said was missing,
+any audit finding still open, and the backlog of ideas recorded before any
+result existed. It re-ranks itself every time the site is built.</p>
+
+<h2>The four that matter</h2>
+<div class='grid2'><div class='chart' style='border-left:4px solid var(--s3)'><div class='cs' style='color:var(--s3);font-weight:600'>Fill a data gap</div><div class='ct' style='margin:.15rem 0 .4rem'>Price the short side properly before believing the hedged results</div><p class='lede' style='margin:0;font-size:.88rem'>The hedged family is the only thing here that decorrelates from the index, so its costs are the load-bearing assumption. Borrow is currently a flat rate (50bp base, 150bp stressed). Real borrow on hard-to-locate shares runs 5-50% and some names cannot be shorted at all — and the universe contains 39 companies that died, exactly the names a lender would have bought you in on. Until borrow is priced per name and per date, every long-short result is an upper bound.</p></div><div class='chart' style='border-left:4px solid var(--warning)'><div class='cs' style='color:var(--warning);font-weight:600'>Keep it honest</div><div class='ct' style='margin:.15rem 0 .4rem'>Retire or defend the 39 inconclusive variants</div><p class='lede' style='margin:0;font-size:.88rem'>39 variants are neither accepted nor rejected. Each one still counts as a trial in the multiple-testing correction, so carrying them costs statistical power for every other result. Either state the economic case for keeping each, or deprecate them with a reason on the record.</p></div><div class='chart' style='border-left:4px solid var(--s3)'><div class='cs' style='color:var(--s3);font-weight:600'>Fill a data gap</div><div class='ct' style='margin:.15rem 0 .4rem'>Resolve: macro series are revised data, not real-time vintages</div><p class='lede' style='margin:0;font-size:.88rem'>macro series are revised data, not real-time vintages — regime strategies using CPI/UNRATE carry look-ahead risk and are excluded from the first real run</p></div><div class='chart' style='border-left:4px solid var(--s3)'><div class='cs' style='color:var(--s3);font-weight:600'>Fill a data gap</div><div class='ct' style='margin:.15rem 0 .4rem'>Resolve: only 33/39 configured delisted names have real history</div><p class='lede' style='margin:0;font-size:.88rem'>only 33/39 configured delisted names have real history — free providers rarely carry delisted series; the universe is PARTIALLY current-constituent biased</p></div></div>
+
+<h2>Everything else, ranked</h2>
+<p class='lede'>Scored by expected value against difficulty, with a boost for
+anything that unblocks a whole family of work. Low scores are not unimportant —
+they are cheap or narrow.</p>
+<div class='tbl-wrap'><table><thead><tr><th>#</th><th>ID</th><th>Item</th>
+<th>Kind</th><th class='num'>Priority</th><th>Needs</th></tr></thead>
+<tbody><tr><td>5</td><td>AUD-010</td><td><b>Audit follow-up: Verdict layer alone admits ~3% of pure-noise strategies</b><br><span class='note'>30 random-return strategies against a noise benchmark: 1 achieved robust_candidate through the composite-score + relative-hurdle verdict (pr</span></td><td>Keep it honest</td><td class='num'>2.0</td><td class='note'></td></tr><tr><td>6</td><td>IDEA-001</td><td><b>Timestamped earnings-event dataset</b><br><span class='note'>Blocks the entire event-driven family (currently Tier C by design).</span></td><td>Fill a data gap</td><td class='num'>1.5</td><td class='note'>paid: Wall Street Horizon / Zacks; partial: EDGAR 8-K acceptance times</td></tr><tr><td>7</td><td>IDEA-002</td><td><b>Delisted-name price history</b><br><span class='note'>Half done as of freeze v3. The DEFINITION side is complete: the delisted roster went from 5 names to 39, covering the dot-com bankruptcies (NT, WCOM, SGI, JDSU, LU), the acquisition wave (ALTR, BRCM, RHT, VMW, ATVI, SPLK, ANSS, JNPR) and the take-privates (CTX</span></td><td>Fill a data gap</td><td class='num'>1.5</td><td class='note'>CRSP, Norgate, EODHD</td></tr><tr><td>8</td><td>IDEA-003</td><td><b>Macro vintage series (ALFRED)</b><br><span class='note'>Would lift regime family from B toward A.</span></td><td>Fill a data gap</td><td class='num'>1.5</td><td class='note'>FRED/ALFRED (free)</td></tr><tr><td>9</td><td>IDEA-005</td><td><b>Factor-exposure attribution (market/size/momentum/quality proxies)</b><br><span class='note'>Apparent alpha in tech strategies is often repackaged beta; regression attribution separates them.</span></td><td>Measure it better</td><td class='num'>1.5</td><td class='note'></td></tr><tr><td>10</td><td>IDEA-008</td><td><b>Historical index-constituent universe (Nasdaq-100 by date)</b><br><span class='note'>A reconstitution-aware benchmark universe removes the residual current-constituent bias in universe-sensitivity tests.</span></td><td>Fill a data gap</td><td class='num'>1.5</td><td class='note'>paid index data or curated public lists (reliability must be vetted)</td></tr><tr><td>11</td><td>IDEA-010</td><td><b>Correlation-aware strategy blending rules</b><br><span class='note'>Low-correlation mediocre strategies can dominate any single strategy after costs; the portfolio lab quantifies when.</span></td><td>Combine them better</td><td class='num'>1.5</td><td class='note'></td></tr><tr><td>12</td><td>IDEA-006</td><td><b>Dependency pinning enforcement in freeze</b><br><span class='note'>Recorded-but-unenforced package versions (AUD-013) leave a reproducibility gap over multi-year horizons.</span></td><td>Keep it honest</td><td class='num'>1.0</td><td class='note'></td></tr><tr><td>13</td><td>IDEA-007</td><td><b>Intraday execution study for mean reversion</b><br><span class='note'>Family currently kept as a falsification target; do not promote without this data.</span></td><td>Test something new</td><td class='num'>0.5</td><td class='note'>polygon (paid)</td></tr><tr><td>14</td><td>IDEA-009</td><td><b>PDF / PowerPoint report export</b><br><span class='note'>HTML/Markdown/CSV exist; PDF/PPTX are optional-dependency additions.</span></td><td>platform</td><td class='num'>0.5</td><td class='note'>python-pptx, weasyprint (optional deps)</td></tr><tr><td>15</td><td>IDEA-004</td><td><b>Discrete dividend cash ledger</b><br><span class='note'>Engine change ⇒ freeze bump required.</span></td><td>engine</td><td class='num'>0.33</td><td class='note'>tiingo, yahoo</td></tr></tbody></table></div>
+
+<h2>Automated review</h2>
+<p class='lede'>A rule-based pass over the recorded results. It only reads
+metrics that were already computed — it never runs a backtest, never touches
+the holdout, and never edits a study.</p>
+<ul class='lede'><li><b>degradation</b> — BuyAndHold(ticker=ADBE): dev→holdout Sharpe fell 1.44 — possible overfit to the development window</li><li><b>degradation</b> — BuyAndHold(ticker=ADBE): dev→holdout Sharpe fell 1.44 — possible overfit to the development window</li><li><b>degradation</b> — BuyAndHold(ticker=INTC): dev→holdout Sharpe fell 1.42 — possible overfit to the development window</li><li><b>degradation</b> — BuyAndHold(ticker=ADBE): dev→holdout Sharpe fell 1.44 — possible overfit to the development window</li><li><b>degradation</b> — BuyAndHold(ticker=INTC): dev→holdout Sharpe fell 1.42 — possible overfit to the development window</li><li><b>duplicate</b> — AbsoluteMomentum(basket=None,fallback=BIL,lookback_days=126,rebalance=: monthly-return correlation 0.953 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — AccrualQuality(basket=None,rebalance=QE,top_n=15) ~ EqualWeightUnivers: monthly-return correlation 0.951 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — BreadthGatedBasket(basket=ai_broad,breadth_window=200,fallback=IEF,min: monthly-return correlation 0.950 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=megacap_ai,max_weight=0.25,rebalance=QE) ~ Eq: monthly-return correlation 0.977 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=megacap_ai,max_weight=0.25,rebalance=QE) ~ Eq: monthly-return correlation 0.978 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=megacap_ai,max_weight=0.25,rebalance=QE) ~ Eq: monthly-return correlation 0.967 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=megacap_ai,max_weight=0.25,rebalance=QE) ~ In: monthly-return correlation 0.969 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=target_holdings,max_weight=0.25,rebalance=QE): monthly-return correlation 0.964 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=target_holdings,max_weight=0.25,rebalance=QE): monthly-return correlation 0.967 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=target_holdings,max_weight=0.25,rebalance=QE): monthly-return correlation 0.966 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — CapWeightUniverse(basket=target_holdings,max_weight=0.25,rebalance=QE): monthly-return correlation 0.967 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — DispersionTimedSelection(basket=None,disp_pct=0.6,disp_window=63,lookb: monthly-return correlation 0.956 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — EqualRiskContribution(basket=ai_broad,cov_window=252,max_weight=0.25,r: monthly-return correlation 0.953 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — EqualRiskContribution(basket=megacap_ai,cov_window=126,max_weight=0.25: monthly-return correlation 0.958 — consider consolidating; they are not independent evidence</li><li><b>duplicate</b> — EqualRiskContribution(basket=megacap_ai,cov_window=126,max_weight=0.25: monthly-return correlation 0.968 — consider consolidating; they are not independent evidence</li></ul><p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 16:19 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>

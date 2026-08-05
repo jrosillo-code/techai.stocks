@@ -1,0 +1,4148 @@
+{
+  "canonical": {
+    "backtest": {
+      "engine": {
+        "cash_rate_series": "FEDFUNDS",
+        "default_cost_scenario": "base",
+        "execution": "next_open",
+        "initial_capital": 1000000
+      },
+      "subperiods": {
+        "ai_rally": [
+          "2023-01-01",
+          "2026-08-01"
+        ],
+        "covid_shock": [
+          "2020-01-01",
+          "2020-12-31"
+        ],
+        "dotcom_aftermath": [
+          "2000-03-01",
+          "2003-03-31"
+        ],
+        "gfc": [
+          "2007-10-01",
+          "2009-03-31"
+        ],
+        "pre_gfc": [
+          "2003-04-01",
+          "2007-09-30"
+        ],
+        "qe_bull": [
+          "2009-04-01",
+          "2019-12-31"
+        ],
+        "rate_bear_2022": [
+          "2022-01-01",
+          "2022-12-31"
+        ],
+        "speculative_2021": [
+          "2021-01-01",
+          "2021-12-31"
+        ]
+      },
+      "validation": {
+        "holdout_months": 24,
+        "min_train_months": 60,
+        "n_bootstrap": 2000,
+        "seed": 20260804,
+        "step_months": 12
+      }
+    },
+    "code_fingerprints": {
+      "src/aitb/backtest/engine.py": "b7ec010ba2a07afa",
+      "src/aitb/calendar.py": "b0274e2bf2d78ab9",
+      "src/aitb/costs.py": "57284dfaf43c3b34",
+      "src/aitb/data/import_bundle.py": "ed90f845b29b3e22",
+      "src/aitb/data/loader.py": "ff1e58a2323fdc96",
+      "src/aitb/data/providers.py": "cd50ebe042d4bff7",
+      "src/aitb/data/providers_ext.py": "05aadc6b4a4a68f9",
+      "src/aitb/data/quality.py": "466fec042872e4e3",
+      "src/aitb/data/security_master.py": "418546f2027a31c1",
+      "src/aitb/experiments.py": "50f1bfbdedd08169",
+      "src/aitb/features.py": "8a63ab4c07c265a0",
+      "src/aitb/holdout.py": "0afa2b9a59ae411e",
+      "src/aitb/metrics.py": "c6fc3c708de41d29",
+      "src/aitb/portfolio.py": "9f1271248f33c9d4",
+      "src/aitb/ranking.py": "18f4fed603335e5b",
+      "src/aitb/strategies/allocation.py": "9aa3ac37989ac102",
+      "src/aitb/strategies/base.py": "6c4ef4bee0d49e26",
+      "src/aitb/strategies/benchmarks.py": "0b9943c4885c3e19",
+      "src/aitb/strategies/breakout.py": "12708486a2197878",
+      "src/aitb/strategies/factor.py": "a78de07341c398cf",
+      "src/aitb/strategies/fundamental.py": "86027b084a82e0cc",
+      "src/aitb/strategies/longshort.py": "765133b5f4153e33",
+      "src/aitb/strategies/meanrev.py": "f120c1feb62f9b92",
+      "src/aitb/strategies/ml.py": "aa8a4a0129103e3a",
+      "src/aitb/strategies/regime.py": "1969604756e9eec5",
+      "src/aitb/strategies/riskmanaged.py": "7ce1c534254b7ab0",
+      "src/aitb/strategies/tsmom.py": "b4f3a5ab14ade855",
+      "src/aitb/strategies/xsmom.py": "639e01b07ad453c3",
+      "src/aitb/tax.py": "62cab75bd899973e",
+      "src/aitb/tiers.py": "2ddd54be7a5973f1",
+      "src/aitb/universe.py": "37dfc0cd1e7ec578",
+      "src/aitb/validation.py": "6c8c2b950a8805ed"
+    },
+    "costs": {
+      "scenarios": {
+        "base": {
+          "borrow_bps": 50.0,
+          "commission_bps": 0.5,
+          "half_spread_bps": 2.5,
+          "impact_coeff_bps": 10.0,
+          "label": "Base case (realistic retail/small institutional)",
+          "slippage_bps": 2.5
+        },
+        "low": {
+          "borrow_bps": 25.0,
+          "commission_bps": 0.0,
+          "half_spread_bps": 1.0,
+          "impact_coeff_bps": 5.0,
+          "label": "Low cost (liquid large-cap, small size)",
+          "slippage_bps": 1.0
+        },
+        "stressed": {
+          "borrow_bps": 150.0,
+          "commission_bps": 1.0,
+          "half_spread_bps": 7.5,
+          "impact_coeff_bps": 25.0,
+          "label": "Stressed (wide spreads, poor fills)",
+          "slippage_bps": 7.5
+        },
+        "zero": {
+          "borrow_bps": 0.0,
+          "commission_bps": 0.0,
+          "half_spread_bps": 0.0,
+          "impact_coeff_bps": 0.0,
+          "label": "Zero cost (theoretical upper bound)",
+          "slippage_bps": 0.0
+        }
+      }
+    },
+    "experiments": {
+      "allocation": [
+        {
+          "class": "EqualRiskContribution",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "ai_broad",
+              "target_holdings"
+            ],
+            "cov_window": [
+              126,
+              252
+            ]
+          },
+          "hypothesis": "Accounting for correlation as well as volatility beats inverse-vol weighting, which double-counts the risk of clustered names",
+          "status": "core"
+        },
+        {
+          "class": "MinCorrelationSleeve",
+          "grid": {
+            "corr_window": [
+              252
+            ],
+            "top_n": [
+              10,
+              15
+            ]
+          },
+          "hypothesis": "A sleeve chosen purely for low average correlation to the rest of the sector diversifies a core technology holding better than any return-driven selection; if it STILL tracks QQQ, the sector has no independent corner",
+          "status": "core"
+        }
+      ],
+      "benchmarks": [
+        {
+          "class": "BuyAndHold",
+          "grid": {
+            "ticker": [
+              "SPY",
+              "QQQ",
+              "XLK",
+              "SOXX",
+              "SMH",
+              "IGV"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "BuyAndHold",
+          "grid": {
+            "ticker": [
+              "VGT",
+              "IWM",
+              "ARKK",
+              "SKYY",
+              "CIBR",
+              "BOTZ"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "EqualWeightUniverse",
+          "grid": {
+            "rebalance": [
+              "ME"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "EqualWeightUniverse",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "ai_compute"
+            ],
+            "rebalance": [
+              "ME"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "EqualWeightUniverse",
+          "grid": {
+            "basket": [
+              "ai_broad"
+            ],
+            "rebalance": [
+              "ME",
+              "QE"
+            ]
+          },
+          "hypothesis": "Equal-weighting the whole live cross-section is the honest passive baseline for any stock-picking claim",
+          "status": "core"
+        },
+        {
+          "class": "CapWeightUniverse",
+          "grid": {
+            "basket": [
+              null,
+              "megacap_ai",
+              "ai_broad"
+            ],
+            "rebalance": [
+              "QE"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "QQQMovingAverage",
+          "grid": {
+            "fallback": [
+              "IEF",
+              null
+            ],
+            "window": [
+              200
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "SimpleMomentum12_1",
+          "grid": {
+            "top_n": [
+              5
+            ]
+          },
+          "status": "core"
+        }
+      ],
+      "breakout": [
+        {
+          "class": "DonchianBreakout",
+          "grid": {
+            "entry_window": [
+              20,
+              55,
+              100
+            ],
+            "exit_window": [
+              20
+            ],
+            "regime_filter": [
+              true
+            ]
+          },
+          "hypothesis": "Multi-month highs with a risk-on regime filter precede continuation",
+          "status": "core"
+        },
+        {
+          "class": "DonchianBreakout",
+          "grid": {
+            "entry_window": [
+              20,
+              55,
+              100
+            ],
+            "exit_window": [
+              20
+            ],
+            "regime_filter": [
+              false
+            ]
+          },
+          "reason": "unfiltered variant whipsawed through bear markets and was dominated by the regime-filtered twin at every entry window",
+          "status": "deprecated"
+        },
+        {
+          "class": "VolCompressionBreakout",
+          "grid": {
+            "entry_window": [
+              40
+            ],
+            "squeeze_pct": [
+              0.2,
+              0.3
+            ]
+          },
+          "status": "exploratory"
+        }
+      ],
+      "buy_and_hold_companies": [
+        {
+          "class": "BuyAndHold",
+          "grid": {
+            "ticker": [
+              "NVDA",
+              "MSFT",
+              "GOOGL",
+              "AMZN",
+              "META",
+              "AAPL",
+              "AVGO",
+              "AMD",
+              "TSM",
+              "ASML",
+              "ARM",
+              "PLTR",
+              "ORCL",
+              "CRM",
+              "ADBE",
+              "NOW",
+              "SNOW",
+              "CRWD",
+              "PANW",
+              "ANET",
+              "SMCI",
+              "MU",
+              "MRVL",
+              "DELL",
+              "VRT",
+              "CEG",
+              "VST",
+              "TSLA"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "BuyAndHold",
+          "grid": {
+            "ticker": [
+              "TXN",
+              "ADI",
+              "KLAC",
+              "SNPS",
+              "CDNS",
+              "IBM",
+              "NFLX",
+              "INTU",
+              "CSCO",
+              "ISRG",
+              "UBER",
+              "SHOP",
+              "APP",
+              "TTD",
+              "DDOG",
+              "NET",
+              "ZS",
+              "OKTA",
+              "WDAY",
+              "NXPI",
+              "MPWR",
+              "GEV",
+              "NRG",
+              "PWR",
+              "HPE",
+              "WDC",
+              "INTC",
+              "QCOM"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "BuyAndHold",
+          "grid": {
+            "ticker": [
+              "NT",
+              "WCOM",
+              "SGI",
+              "JDSU",
+              "SUNW",
+              "LU",
+              "PALM",
+              "YHOO",
+              "VMW",
+              "RHT",
+              "ATVI",
+              "SPLK",
+              "TWTR",
+              "JNPR",
+              "CTXS",
+              "XLNX",
+              "ALTR",
+              "BRCM"
+            ]
+          },
+          "hypothesis": "Holding the losers is the point: these are the outcomes a survivorship-biased sample never shows",
+          "status": "core"
+        }
+      ],
+      "factor": [
+        {
+          "class": "ResidualMomentum",
+          "grid": {
+            "beta_window": [
+              252
+            ],
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              8,
+              12
+            ]
+          },
+          "hypothesis": "Ranking on benchmark-neutral residual return selects genuinely idiosyncratic winners and yields a portfolio less correlated with owning the sector outright",
+          "status": "core"
+        },
+        {
+          "class": "MultiHorizonMomentum",
+          "grid": {
+            "min_agree": [
+              3
+            ],
+            "top_n": [
+              5,
+              8,
+              12
+            ],
+            "weighting": [
+              "equal"
+            ]
+          },
+          "hypothesis": "Requiring agreement across 3/6/12-month horizons removes the lookback-selection degree of freedom and cuts whipsaw, at the cost of late entries",
+          "status": "core"
+        },
+        {
+          "class": "MultiHorizonMomentum",
+          "grid": {
+            "min_agree": [
+              2
+            ],
+            "top_n": [
+              8
+            ],
+            "weighting": [
+              "equal",
+              "inverse_vol"
+            ]
+          },
+          "hypothesis": "Relaxing consensus to 2 of 3 trades earlier; expected to raise turnover more than return",
+          "status": "exploratory"
+        },
+        {
+          "class": "LowVolatilityTech",
+          "grid": {
+            "top_n": [
+              10,
+              20
+            ],
+            "trend_filter": [
+              false,
+              true
+            ],
+            "vol_window": [
+              126
+            ]
+          },
+          "hypothesis": "The low-volatility anomaly survives inside a high-beta sector: lower CAGR, higher Sharpe, shallower drawdown. A clean falsification target either way",
+          "status": "core"
+        },
+        {
+          "class": "BreadthGatedBasket",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "ai_broad"
+            ],
+            "threshold": [
+              0.4,
+              0.5
+            ]
+          },
+          "hypothesis": "Deteriorating participation precedes index-level drawdowns, so a breadth gate exits earlier and whipsaws less than a price-trend gate on the index",
+          "status": "core"
+        },
+        {
+          "class": "ThemeRotation",
+          "grid": {
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_themes": [
+              2,
+              3,
+              4
+            ]
+          },
+          "hypothesis": "Capital-spending cycles rotate between layers of the technology stack with enough persistence to trade, without the single-name concentration that penalises stock-level momentum",
+          "status": "core"
+        },
+        {
+          "class": "FundamentalAcceleration",
+          "grid": {
+            "rebalance": [
+              "QE"
+            ],
+            "top_n": [
+              8,
+              12
+            ]
+          },
+          "hypothesis": "Acceleration in published revenue growth precedes revaluation more reliably than the level of growth, which is already discounted",
+          "status": "exploratory"
+        }
+      ],
+      "fundamental": [
+        {
+          "class": "QualityGrowth",
+          "grid": {
+            "rebalance": [
+              "QE"
+            ],
+            "top_n": [
+              5,
+              8
+            ]
+          },
+          "hypothesis": "Compounding fundamentals precede compounding prices",
+          "status": "core"
+        },
+        {
+          "class": "ValuationAwareGrowth",
+          "grid": {
+            "max_ps_own_pct": [
+              0.7,
+              0.85,
+              1.0
+            ],
+            "top_n": [
+              8
+            ]
+          },
+          "status": "exploratory"
+        }
+      ],
+      "longshort": [
+        {
+          "class": "MarketNeutralMomentum",
+          "grid": {
+            "gross": [
+              1.0
+            ],
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              10,
+              15
+            ]
+          },
+          "hypothesis": "The winner-minus-loser spread inside technology is a real return stream that survives borrow costs; being dollar-neutral removes the market exposure that made every long-only variant a repackaged index fund",
+          "status": "core"
+        },
+        {
+          "class": "BetaHedgedBasket",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "target_holdings"
+            ],
+            "beta_window": [
+              126,
+              252
+            ]
+          },
+          "hypothesis": "Once the market component is hedged away, what remains in a megacap technology basket is either genuine selection value or nothing \u2014 this measures which",
+          "status": "core"
+        }
+      ],
+      "meanrev": [
+        {
+          "class": "RSIReversion",
+          "grid": {
+            "entry": [
+              5,
+              10
+            ],
+            "exit": [
+              60
+            ]
+          },
+          "hypothesis": "Oversold snapback exceeds round-trip costs (expected: no)",
+          "status": "exploratory"
+        },
+        {
+          "class": "ShortTermReversal",
+          "grid": {
+            "lookback_days": [
+              5
+            ],
+            "top_n": [
+              5
+            ]
+          },
+          "status": "exploratory"
+        },
+        {
+          "class": "RSIReversion",
+          "grid": {
+            "entry": [
+              15
+            ],
+            "exit": [
+              60
+            ]
+          },
+          "reason": "entry=15 duplicates entry=10 with more trades and worse net Sharpe in shakedown",
+          "status": "deprecated"
+        },
+        {
+          "class": "BollingerReversion",
+          "grid": {
+            "entry_z": [
+              -2.0,
+              -2.5
+            ]
+          },
+          "reason": "mechanically duplicates RSI reversion (same oversold-in-uptrend trigger); cost-fragile in shakedown",
+          "status": "deprecated"
+        }
+      ],
+      "meta_timing": [
+        {
+          "class": "DispersionTimedSelection",
+          "grid": {
+            "disp_pct": [
+              0.5,
+              0.6
+            ],
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              8
+            ]
+          },
+          "hypothesis": "The payoff to stock selection scales with cross-sectional dispersion, which is measurable in advance, so conditioning on it should keep the upside and drop the cost drag of low-dispersion regimes",
+          "status": "exploratory"
+        }
+      ],
+      "ml": [
+        {
+          "class": "MLRankStrategy",
+          "grid": {
+            "alpha": [
+              10.0
+            ],
+            "horizon": [
+              21
+            ],
+            "top_n": [
+              6
+            ]
+          },
+          "hypothesis": "A shrunk linear feature blend ranks forward returns better than any single momentum feature",
+          "status": "exploratory"
+        }
+      ],
+      "quality": [
+        {
+          "class": "GrossProfitability",
+          "grid": {
+            "rebalance": [
+              "QE"
+            ],
+            "top_n": [
+              8,
+              12
+            ]
+          },
+          "hypothesis": "Profitability predicts returns as strongly as growth and is close to independent of it, so it should select a materially different set of companies than the growth screens already tested",
+          "status": "core"
+        },
+        {
+          "class": "ResearchIntensity",
+          "grid": {
+            "require_profitable": [
+              false,
+              true
+            ],
+            "top_n": [
+              10,
+              15
+            ]
+          },
+          "hypothesis": "Accounting expenses R&D immediately while its payoff is multi-year, so R&D-intensive technology companies report earnings that understate their economics \u2014 a documented, tech-specific mispricing the study could not previously measure",
+          "status": "core"
+        },
+        {
+          "class": "AccrualQuality",
+          "grid": {
+            "top_n": [
+              10,
+              15
+            ]
+          },
+          "hypothesis": "Earnings backed by cash persist and earnings backed by accruals do not, and prices do not distinguish them; widely reported to have decayed since publication, so a null result is informative",
+          "status": "exploratory"
+        },
+        {
+          "class": "PostEarningsDrift",
+          "grid": {
+            "hold_days": [
+              42,
+              63
+            ],
+            "top_n": [
+              10
+            ]
+          },
+          "hypothesis": "Prices under-react to earnings news and drift for weeks; filing dates alone are sufficient to test this honestly at a 63-day hold, with no intraday timestamps required",
+          "status": "exploratory"
+        }
+      ],
+      "regime": [
+        {
+          "class": "RegimeSwitchedTech",
+          "grid": {
+            "cut": [
+              0.2,
+              0.25,
+              0.34
+            ]
+          },
+          "status": "exploratory"
+        },
+        {
+          "class": "SemisLeadership",
+          "grid": {
+            "lookback_days": [
+              63,
+              126
+            ]
+          },
+          "status": "exploratory"
+        }
+      ],
+      "riskmanaged": [
+        {
+          "class": "VolTargetedBasket",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "rebalance": [
+              "W-FRI",
+              "ME"
+            ],
+            "target_vol": [
+              0.15,
+              0.2,
+              0.25
+            ],
+            "vol_window": [
+              21,
+              63
+            ]
+          },
+          "hypothesis": "Constant-risk sizing improves compounding vs constant-dollar",
+          "status": "core"
+        },
+        {
+          "class": "DrawdownDeRisk",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "dd_full": [
+              -0.3,
+              -0.4
+            ],
+            "dd_start": [
+              -0.1,
+              -0.15
+            ]
+          },
+          "hypothesis": "Drawdowns cluster; scaling down into them cuts the left tail",
+          "status": "core"
+        },
+        {
+          "class": "TrendPlusVolTarget",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "hysteresis": [
+              0.0,
+              0.02
+            ],
+            "target_vol": [
+              0.15,
+              0.2
+            ],
+            "trend_window": [
+              150,
+              200
+            ]
+          },
+          "hypothesis": "Trend gates tail risk, vol targeting smooths the path \u2014 complementary overlays",
+          "status": "core"
+        },
+        {
+          "class": "InverseVolBasket",
+          "grid": {
+            "basket": [
+              "megacap_ai",
+              "semiconductors",
+              "ai_broad"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "TrendFollowCash",
+          "grid": {
+            "basket": [
+              "ai_broad"
+            ],
+            "fallback": [
+              "IEF"
+            ],
+            "sma_window": [
+              200
+            ]
+          },
+          "hypothesis": "Per-name trend filtering matters more over a wide roster, where many names are in their own bear markets while the index rises",
+          "status": "core"
+        }
+      ],
+      "target_holdings": [
+        {
+          "class": "EqualWeightUniverse",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "rebalance": [
+              "ME"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "CapWeightUniverse",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "rebalance": [
+              "QE"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "InverseVolBasket",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "TrendFollowCash",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "fallback": [
+              "IEF"
+            ],
+            "sma_window": [
+              200
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "VolTargetedBasket",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "target_vol": [
+              0.2
+            ],
+            "vol_window": [
+              63
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "TrendPlusVolTarget",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "hysteresis": [
+              0.02
+            ],
+            "target_vol": [
+              0.2
+            ],
+            "trend_window": [
+              200
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "XSMomentumTopN",
+          "grid": {
+            "basket": [
+              "target_holdings"
+            ],
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              3,
+              5,
+              8
+            ],
+            "weighting": [
+              "equal"
+            ]
+          },
+          "hypothesis": "Concentrated rotation among the shortlist beats holding all of it",
+          "status": "core"
+        }
+      ],
+      "tsmom": [
+        {
+          "class": "TrendFollowCash",
+          "grid": {
+            "fallback": [
+              "IEF"
+            ],
+            "sma_window": [
+              100,
+              150,
+              200,
+              250
+            ]
+          },
+          "hypothesis": "Per-name absolute trend cuts the deep tech drawdowns for a CAGR toll",
+          "status": "core"
+        },
+        {
+          "class": "TrendFollowCash",
+          "grid": {
+            "basket": [
+              "megacap_ai"
+            ],
+            "fallback": [
+              "BIL"
+            ],
+            "sma_window": [
+              200
+            ]
+          },
+          "status": "core"
+        },
+        {
+          "class": "AbsoluteMomentum",
+          "grid": {
+            "fallback": [
+              "BIL"
+            ],
+            "lookback_days": [
+              126,
+              252
+            ]
+          },
+          "status": "exploratory"
+        },
+        {
+          "class": "DualMomentum",
+          "grid": {
+            "lookback_days": [
+              63,
+              126,
+              252
+            ]
+          },
+          "status": "exploratory"
+        }
+      ],
+      "xsmom": [
+        {
+          "class": "XSMomentumTopN",
+          "grid": {
+            "lookback_days": [
+              63,
+              126,
+              252
+            ],
+            "top_n": [
+              3,
+              5,
+              8
+            ],
+            "weighting": [
+              "equal"
+            ]
+          },
+          "hypothesis": "Relative strength persists among tech leaders",
+          "status": "core"
+        },
+        {
+          "class": "XSMomentumTopN",
+          "grid": {
+            "basket": [
+              "ai_broad"
+            ],
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              10,
+              20
+            ],
+            "weighting": [
+              "equal"
+            ]
+          },
+          "hypothesis": "Given a wide cross-section, relative-strength selection adds value over equal-weighting the same universe",
+          "status": "core"
+        },
+        {
+          "class": "XSMomentumTopN",
+          "grid": {
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              5
+            ],
+            "weighting": [
+              "inverse_vol"
+            ]
+          },
+          "status": "exploratory"
+        },
+        {
+          "class": "XSMomentumTopN",
+          "grid": {
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              5
+            ],
+            "weighting": [
+              "momentum"
+            ]
+          },
+          "reason": "momentum-weighting concentrated ~all P&L in the single hottest name (top_name_share \u2248 1); rank information is already in selection",
+          "status": "deprecated"
+        },
+        {
+          "class": "XSRiskAdjMomentum",
+          "grid": {
+            "lookback_days": [
+              126,
+              252
+            ],
+            "top_n": [
+              5
+            ]
+          },
+          "status": "exploratory"
+        },
+        {
+          "class": "RelativeStrengthVsBench",
+          "grid": {
+            "lookback_days": [
+              126
+            ],
+            "top_n": [
+              5,
+              8
+            ]
+          },
+          "status": "exploratory"
+        }
+      ]
+    },
+    "freeze_version": 4,
+    "min_data_quality": {
+      "fundamental_leak_tolerance": 0,
+      "gate_statuses_permitted": [
+        "PASS FOR RESEARCH",
+        "PASS WITH LIMITATIONS"
+      ],
+      "max_missing_session_pct": 0.03,
+      "min_universe_names": 10,
+      "required_benchmarks": [
+        "SPY",
+        "QQQ"
+      ]
+    },
+    "no_optimization_clause": "The first real run executes exactly the frozen grids. No parameter search, selection, or re-ranking outside them is permitted; walk-forward selection in robustness reporting is diagnostic only and does not alter the frozen specification.",
+    "ranking_criteria": "composite score = 2*holdout_sharpe + dev_sharpe + 0.5*min(calmar,3) + stability + (PSR-0.5) - degradation - turnover/concentration/complexity/regime penalties + max_dd; verdict relative to best diversified benchmark score + 0.25 margin (see ranking.py fingerprint)",
+    "rejection_criteria": [
+      "fails to beat the best simple diversified benchmark score by the margin",
+      "negative holdout Sharpe",
+      "cost-fragile: base-cost edge collapses under the stressed scenario",
+      ">50% of P&L from a single security (concentration penalty)",
+      "performance dependent on one calendar year (leave-one-year-out)",
+      "performance existing only post-2023 (AI-rally dependence)",
+      "bootstrap 90% CI on Sharpe includes zero by a wide margin",
+      "requires data that failed the quality gate (assigned Tier C, not run)"
+    ],
+    "security_master": {
+      "securities": [
+        {
+          "exchange": "XNAS",
+          "name": "NVIDIA",
+          "sector": "semiconductors",
+          "sid": "SEC_NVDA",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1999-01-22",
+              "symbol": "NVDA",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Meta Platforms (formerly Facebook)",
+          "sector": "internet",
+          "sid": "SEC_META",
+          "theme": "ai_applications",
+          "tickers": [
+            {
+              "from": "2012-05-18",
+              "symbol": "FB",
+              "to": "2022-06-08"
+            },
+            {
+              "from": "2022-06-09",
+              "symbol": "META",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Alphabet Class A",
+          "notes": "Class C trades separately as GOOG post 2014; only Class A is in the universe.",
+          "sector": "internet",
+          "sid": "SEC_GOOGL",
+          "theme": "ai_platforms",
+          "tickers": [
+            {
+              "from": "2004-08-19",
+              "symbol": "GOOG",
+              "to": "2014-04-02"
+            },
+            {
+              "from": "2014-04-03",
+              "symbol": "GOOGL",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Xilinx",
+          "sector": "semiconductors",
+          "sid": "SEC_XLNX",
+          "successor": {
+            "date": "2022-02-14",
+            "kind": "acquisition",
+            "sid": "SEC_AMD"
+          },
+          "tickers": [
+            {
+              "from": "1990-06-12",
+              "symbol": "XLNX",
+              "to": "2022-02-14"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Advanced Micro Devices",
+          "sector": "semiconductors",
+          "sid": "SEC_AMD",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1979-10-15",
+              "symbol": "AMD",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Maxim Integrated",
+          "sector": "semiconductors",
+          "sid": "SEC_MXIM",
+          "successor": {
+            "date": "2021-08-26",
+            "kind": "acquisition",
+            "notes": "acquired by Analog Devices (ADI, outside universe)",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1988-02-29",
+              "symbol": "MXIM",
+              "to": "2021-08-26"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "EMC Corp",
+          "sector": "hardware",
+          "sid": "SEC_EMC",
+          "successor": {
+            "date": "2016-09-07",
+            "kind": "acquisition",
+            "sid": "SEC_DELL"
+          },
+          "tickers": [
+            {
+              "from": "1986-04-04",
+              "symbol": "EMC",
+              "to": "2016-09-07"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Dell Technologies",
+          "notes": "Re-listed 2018; prior Dell Inc. history (delisted 2013) is a distinct security.",
+          "sector": "hardware",
+          "sid": "SEC_DELL",
+          "theme": "dc_infrastructure",
+          "tickers": [
+            {
+              "from": "2018-12-28",
+              "symbol": "DELL",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Sun Microsystems",
+          "sector": "hardware",
+          "sid": "SEC_SUNW",
+          "successor": {
+            "date": "2010-01-27",
+            "kind": "acquisition",
+            "sid": "SEC_ORCL"
+          },
+          "tickers": [
+            {
+              "from": "1986-03-04",
+              "symbol": "SUNW",
+              "to": "2007-08-23"
+            },
+            {
+              "from": "2007-08-24",
+              "symbol": "JAVA",
+              "to": "2010-01-27"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Oracle",
+          "sector": "software",
+          "sid": "SEC_ORCL",
+          "theme": "cloud_platforms",
+          "tickers": [
+            {
+              "from": "1986-03-12",
+              "symbol": "ORCL",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Yahoo",
+          "sector": "internet",
+          "sid": "SEC_YHOO",
+          "successor": {
+            "date": "2017-06-16",
+            "kind": "asset_sale",
+            "notes": "operating business to Verizon; remainder became Altaba (AABA)",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1996-04-12",
+              "symbol": "YHOO",
+              "to": "2017-06-16"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Microsoft",
+          "sector": "software",
+          "sid": "SEC_MSFT",
+          "theme": "ai_platforms",
+          "tickers": [
+            {
+              "from": "1986-03-13",
+              "symbol": "MSFT",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Amazon",
+          "sector": "internet",
+          "sid": "SEC_AMZN",
+          "theme": "cloud_platforms",
+          "tickers": [
+            {
+              "from": "1997-05-15",
+              "symbol": "AMZN",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Apple",
+          "sector": "hardware",
+          "sid": "SEC_AAPL",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "1980-12-12",
+              "symbol": "AAPL",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Broadcom",
+          "sector": "semiconductors",
+          "sid": "SEC_AVGO",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2009-08-06",
+              "symbol": "AVGO",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Taiwan Semiconductor ADR",
+          "sector": "semiconductors",
+          "security_type": "ADR",
+          "sid": "SEC_TSM",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1997-10-08",
+              "symbol": "TSM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "ASML ADR",
+          "sector": "semi_equipment",
+          "security_type": "ADR",
+          "sid": "SEC_ASML",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1995-03-15",
+              "symbol": "ASML",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Arm Holdings ADR",
+          "sector": "semiconductors",
+          "security_type": "ADR",
+          "sid": "SEC_ARM",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2023-09-14",
+              "symbol": "ARM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Micron",
+          "sector": "semiconductors",
+          "sid": "SEC_MU",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1984-06-01",
+              "symbol": "MU",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Marvell",
+          "sector": "semiconductors",
+          "sid": "SEC_MRVL",
+          "theme": "networking",
+          "tickers": [
+            {
+              "from": "2000-06-27",
+              "symbol": "MRVL",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Intel",
+          "sector": "semiconductors",
+          "sid": "SEC_INTC",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1971-10-13",
+              "symbol": "INTC",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Qualcomm",
+          "sector": "semiconductors",
+          "sid": "SEC_QCOM",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "1991-12-13",
+              "symbol": "QCOM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Applied Materials",
+          "sector": "semi_equipment",
+          "sid": "SEC_AMAT",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1972-10-05",
+              "symbol": "AMAT",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Lam Research",
+          "sector": "semi_equipment",
+          "sid": "SEC_LRCX",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1984-05-04",
+              "symbol": "LRCX",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Tesla",
+          "sector": "ai_consumer",
+          "sid": "SEC_TSLA",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "2010-06-29",
+              "symbol": "TSLA",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Salesforce",
+          "sector": "software",
+          "sid": "SEC_CRM",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "2004-06-23",
+              "symbol": "CRM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Adobe",
+          "sector": "software",
+          "sid": "SEC_ADBE",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "1986-08-20",
+              "symbol": "ADBE",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "ServiceNow",
+          "sector": "software",
+          "sid": "SEC_NOW",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "2012-06-29",
+              "symbol": "NOW",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Snowflake",
+          "sector": "software",
+          "sid": "SEC_SNOW",
+          "theme": "cloud_platforms",
+          "tickers": [
+            {
+              "from": "2020-09-16",
+              "symbol": "SNOW",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Palantir",
+          "sector": "software",
+          "sid": "SEC_PLTR",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "2020-09-30",
+              "symbol": "PLTR",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "CrowdStrike",
+          "sector": "cybersecurity",
+          "sid": "SEC_CRWD",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2019-06-12",
+              "symbol": "CRWD",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Palo Alto Networks",
+          "sector": "cybersecurity",
+          "sid": "SEC_PANW",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2012-07-20",
+              "symbol": "PANW",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Fortinet",
+          "sector": "cybersecurity",
+          "sid": "SEC_FTNT",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2009-11-18",
+              "symbol": "FTNT",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Arista Networks",
+          "sector": "networking",
+          "sid": "SEC_ANET",
+          "theme": "networking",
+          "tickers": [
+            {
+              "from": "2014-06-06",
+              "symbol": "ANET",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Super Micro Computer",
+          "sector": "dc_infrastructure",
+          "sid": "SEC_SMCI",
+          "theme": "dc_infrastructure",
+          "tickers": [
+            {
+              "from": "2007-03-29",
+              "symbol": "SMCI",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Vertiv",
+          "sector": "dc_infrastructure",
+          "sid": "SEC_VRT",
+          "theme": "power_cooling",
+          "tickers": [
+            {
+              "from": "2020-02-10",
+              "symbol": "VRT",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Constellation Energy",
+          "sector": "power",
+          "sid": "SEC_CEG",
+          "theme": "power_cooling",
+          "tickers": [
+            {
+              "from": "2022-02-02",
+              "symbol": "CEG",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Vistra",
+          "sector": "power",
+          "sid": "SEC_VST",
+          "theme": "power_cooling",
+          "tickers": [
+            {
+              "from": "2016-10-04",
+              "symbol": "VST",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Broadcom Corporation (legacy)",
+          "notes": "THE trap in this universe. Avago acquired Broadcom Corp and took the Broadcom NAME, but AVGO's price history is Avago's, starting 2009. A vendor series labelled \"Broadcom\" therefore skips 1998-2009 entirely and shows none of the dot-com boom and bust this company actually lived through. BRCM and AVGO are separate securities here and are never joined.",
+          "sector": "semiconductors",
+          "sid": "SEC_BRCM",
+          "successor": {
+            "date": "2016-02-01",
+            "kind": "acquisition",
+            "sid": "SEC_AVGO"
+          },
+          "tickers": [
+            {
+              "from": "1998-04-17",
+              "symbol": "BRCM",
+              "to": "2016-02-01"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "JDS Uniphase",
+          "sector": "networking",
+          "sid": "SEC_JDSU",
+          "successor": {
+            "date": "2015-08-03",
+            "kind": "split",
+            "notes": "split into Viavi (VIAV) and Lumentum (LITE); neither inherits the pre-split history cleanly",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1993-11-16",
+              "symbol": "JDSU",
+              "to": "2015-08-03"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Nortel Networks",
+          "notes": "Once ~a third of the TSX by market cap. Equity went to zero.",
+          "sector": "networking",
+          "sid": "SEC_NT",
+          "successor": {
+            "date": "2009-02-10",
+            "kind": "bankruptcy",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "NT",
+              "to": "2009-02-10"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "WorldCom",
+          "sector": "networking",
+          "sid": "SEC_WCOM",
+          "successor": {
+            "date": "2002-07-22",
+            "kind": "bankruptcy",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "WCOM",
+              "to": "2002-07-22"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Silicon Graphics",
+          "sector": "hardware",
+          "sid": "SEC_SGI",
+          "successor": {
+            "date": "2009-04-01",
+            "kind": "bankruptcy",
+            "notes": "assets to Rackable, which then renamed itself SGI \u2014 a recycled symbol, not a continuation",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "SGI",
+              "to": "2009-04-01"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Lucent Technologies",
+          "sector": "networking",
+          "sid": "SEC_LU",
+          "successor": {
+            "date": "2006-11-30",
+            "kind": "merger",
+            "notes": "Alcatel-Lucent",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1996-04-04",
+              "symbol": "LU",
+              "to": "2006-11-30"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Compaq Computer",
+          "sector": "hardware",
+          "sid": "SEC_CPQ",
+          "successor": {
+            "date": "2002-05-03",
+            "kind": "acquisition",
+            "notes": "Hewlett-Packard",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "CPQ",
+              "to": "2002-05-03"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Gateway",
+          "sector": "hardware",
+          "sid": "SEC_GTW",
+          "successor": {
+            "date": "2007-10-16",
+            "kind": "acquisition",
+            "notes": "Acer",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1993-12-09",
+              "symbol": "GTW",
+              "to": "2007-10-16"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Palm Inc",
+          "sector": "hardware",
+          "sid": "SEC_PALM",
+          "successor": {
+            "date": "2010-07-01",
+            "kind": "acquisition",
+            "notes": "Hewlett-Packard",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "2000-03-02",
+              "symbol": "PALM",
+              "to": "2010-07-01"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Altera",
+          "notes": "ALTR was later reused by Altair Engineering \u2014 a recycled symbol; resolve() is date-scoped for exactly this reason.",
+          "sector": "semiconductors",
+          "sid": "SEC_ALTR",
+          "successor": {
+            "date": "2015-12-28",
+            "kind": "acquisition",
+            "sid": "SEC_INTC"
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "ALTR",
+              "to": "2015-12-28"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Atmel",
+          "sector": "semiconductors",
+          "sid": "SEC_ATML",
+          "successor": {
+            "date": "2016-04-04",
+            "kind": "acquisition",
+            "notes": "Microchip (MCHP)",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1991-03-15",
+              "symbol": "ATML",
+              "to": "2016-04-04"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "LSI Corporation",
+          "sector": "semiconductors",
+          "sid": "SEC_LSI",
+          "successor": {
+            "date": "2014-05-06",
+            "kind": "acquisition",
+            "notes": "Avago",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "LSI",
+              "to": "2014-05-06"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Red Hat",
+          "sector": "software",
+          "sid": "SEC_RHT",
+          "successor": {
+            "date": "2019-07-09",
+            "kind": "acquisition",
+            "sid": "SEC_IBM"
+          },
+          "tickers": [
+            {
+              "from": "1999-08-11",
+              "symbol": "RHT",
+              "to": "2019-07-09"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "VMware",
+          "sector": "software",
+          "sid": "SEC_VMW",
+          "successor": {
+            "date": "2023-11-22",
+            "kind": "acquisition",
+            "sid": "SEC_AVGO"
+          },
+          "tickers": [
+            {
+              "from": "2007-08-14",
+              "symbol": "VMW",
+              "to": "2023-11-22"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Activision Blizzard",
+          "sector": "software",
+          "sid": "SEC_ATVI",
+          "successor": {
+            "date": "2023-10-13",
+            "kind": "acquisition",
+            "sid": "SEC_MSFT"
+          },
+          "tickers": [
+            {
+              "from": "1993-10-25",
+              "symbol": "ATVI",
+              "to": "2023-10-13"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Splunk",
+          "sector": "software",
+          "sid": "SEC_SPLK",
+          "successor": {
+            "date": "2024-03-18",
+            "kind": "acquisition",
+            "sid": "SEC_CSCO"
+          },
+          "tickers": [
+            {
+              "from": "2012-04-19",
+              "symbol": "SPLK",
+              "to": "2024-03-18"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Ansys",
+          "sector": "eda",
+          "sid": "SEC_ANSS",
+          "successor": {
+            "date": "2025-07-17",
+            "kind": "acquisition",
+            "sid": "SEC_SNPS"
+          },
+          "tickers": [
+            {
+              "from": "1996-06-20",
+              "symbol": "ANSS",
+              "to": "2025-07-17"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Juniper Networks",
+          "sector": "networking",
+          "sid": "SEC_JNPR",
+          "successor": {
+            "date": "2025-07-02",
+            "kind": "acquisition",
+            "sid": "SEC_HPE"
+          },
+          "tickers": [
+            {
+              "from": "1999-06-25",
+              "symbol": "JNPR",
+              "to": "2025-07-02"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Twitter",
+          "sector": "internet",
+          "sid": "SEC_TWTR",
+          "successor": {
+            "date": "2022-10-27",
+            "kind": "take_private",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "2013-11-07",
+              "symbol": "TWTR",
+              "to": "2022-10-27"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "LinkedIn",
+          "sector": "internet",
+          "sid": "SEC_LNKD",
+          "successor": {
+            "date": "2016-12-08",
+            "kind": "acquisition",
+            "sid": "SEC_MSFT"
+          },
+          "tickers": [
+            {
+              "from": "2011-05-19",
+              "symbol": "LNKD",
+              "to": "2016-12-08"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Citrix Systems",
+          "sector": "software",
+          "sid": "SEC_CTXS",
+          "successor": {
+            "date": "2022-09-30",
+            "kind": "take_private",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1995-12-08",
+              "symbol": "CTXS",
+              "to": "2022-09-30"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "FireEye / Mandiant",
+          "notes": "Renamed Mandiant in 2021 after selling the FireEye product line; the listed entity kept trading under FEYE until the Google deal.",
+          "sector": "cybersecurity",
+          "sid": "SEC_FEYE",
+          "successor": {
+            "date": "2022-09-12",
+            "kind": "acquisition",
+            "sid": "SEC_GOOGL"
+          },
+          "tickers": [
+            {
+              "from": "2013-09-20",
+              "symbol": "FEYE",
+              "to": "2022-09-12"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Texas Instruments",
+          "sector": "semiconductors",
+          "sid": "SEC_TXN",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "TXN",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Analog Devices",
+          "sector": "semiconductors",
+          "sid": "SEC_ADI",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "ADI",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "NXP Semiconductors",
+          "sector": "semiconductors",
+          "sid": "SEC_NXPI",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "2010-08-06",
+              "symbol": "NXPI",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "ON Semiconductor",
+          "sector": "semiconductors",
+          "sid": "SEC_ON",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "2000-04-28",
+              "symbol": "ON",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Microchip Technology",
+          "sector": "semiconductors",
+          "sid": "SEC_MCHP",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "1993-03-19",
+              "symbol": "MCHP",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Skyworks Solutions",
+          "sector": "semiconductors",
+          "sid": "SEC_SWKS",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "2002-06-25",
+              "symbol": "SWKS",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Qorvo",
+          "sector": "semiconductors",
+          "sid": "SEC_QRVO",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "2015-01-02",
+              "symbol": "QRVO",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Monolithic Power Systems",
+          "sector": "semiconductors",
+          "sid": "SEC_MPWR",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2004-11-19",
+              "symbol": "MPWR",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "GlobalFoundries",
+          "sector": "semiconductors",
+          "sid": "SEC_GFS",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2021-10-28",
+              "symbol": "GFS",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Wolfspeed",
+          "notes": "Traded as CREE until 2021; symbol change not modelled \u2014 treated as one continuous listing.",
+          "sector": "semiconductors",
+          "sid": "SEC_WOLF",
+          "theme": "ai_consumer",
+          "tickers": [
+            {
+              "from": "1993-08-27",
+              "symbol": "WOLF",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Astera Labs",
+          "sector": "semiconductors",
+          "sid": "SEC_ALAB",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2024-03-20",
+              "symbol": "ALAB",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Credo Technology",
+          "sector": "semiconductors",
+          "sid": "SEC_CRDO",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2022-01-27",
+              "symbol": "CRDO",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "KLA Corporation",
+          "sector": "semi_equipment",
+          "sid": "SEC_KLAC",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "KLAC",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Teradyne",
+          "sector": "semi_equipment",
+          "sid": "SEC_TER",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "TER",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Entegris",
+          "sector": "semi_equipment",
+          "sid": "SEC_ENTG",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "2000-07-11",
+              "symbol": "ENTG",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Synopsys",
+          "sector": "eda",
+          "sid": "SEC_SNPS",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1992-02-26",
+              "symbol": "SNPS",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Cadence Design Systems",
+          "sector": "eda",
+          "sid": "SEC_CDNS",
+          "theme": "ai_compute",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "CDNS",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Mentor Graphics",
+          "sector": "eda",
+          "sid": "SEC_MENT",
+          "successor": {
+            "date": "2017-03-30",
+            "kind": "acquisition",
+            "notes": "Siemens",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "MENT",
+              "to": "2017-03-30"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "IBM",
+          "sector": "software",
+          "sid": "SEC_IBM",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "IBM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Netflix",
+          "sector": "internet",
+          "sid": "SEC_NFLX",
+          "theme": "ai_applications",
+          "tickers": [
+            {
+              "from": "2002-05-23",
+              "symbol": "NFLX",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Intuit",
+          "sector": "software",
+          "sid": "SEC_INTU",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "1993-03-12",
+              "symbol": "INTU",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Workday",
+          "sector": "software",
+          "sid": "SEC_WDAY",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "2012-10-12",
+              "symbol": "WDAY",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Datadog",
+          "sector": "software",
+          "sid": "SEC_DDOG",
+          "theme": "cloud_platforms",
+          "tickers": [
+            {
+              "from": "2019-09-19",
+              "symbol": "DDOG",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "MongoDB",
+          "sector": "software",
+          "sid": "SEC_MDB",
+          "theme": "cloud_platforms",
+          "tickers": [
+            {
+              "from": "2017-10-19",
+              "symbol": "MDB",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Cloudflare",
+          "sector": "software",
+          "sid": "SEC_NET",
+          "theme": "cloud_platforms",
+          "tickers": [
+            {
+              "from": "2019-09-13",
+              "symbol": "NET",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Atlassian",
+          "sector": "software",
+          "sid": "SEC_TEAM",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "2015-12-10",
+              "symbol": "TEAM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "UiPath",
+          "sector": "software",
+          "sid": "SEC_PATH",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "2021-04-21",
+              "symbol": "PATH",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Samsara",
+          "sector": "software",
+          "sid": "SEC_IOT",
+          "theme": "enterprise_ai",
+          "tickers": [
+            {
+              "from": "2021-12-15",
+              "symbol": "IOT",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Shopify",
+          "sector": "internet",
+          "sid": "SEC_SHOP",
+          "theme": "ai_applications",
+          "tickers": [
+            {
+              "from": "2015-05-21",
+              "symbol": "SHOP",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Uber Technologies",
+          "sector": "internet",
+          "sid": "SEC_UBER",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "2019-05-10",
+              "symbol": "UBER",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Airbnb",
+          "sector": "internet",
+          "sid": "SEC_ABNB",
+          "theme": "ai_applications",
+          "tickers": [
+            {
+              "from": "2020-12-10",
+              "symbol": "ABNB",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "AppLovin",
+          "sector": "internet",
+          "sid": "SEC_APP",
+          "theme": "ai_applications",
+          "tickers": [
+            {
+              "from": "2021-04-15",
+              "symbol": "APP",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "The Trade Desk",
+          "sector": "internet",
+          "sid": "SEC_TTD",
+          "theme": "ai_applications",
+          "tickers": [
+            {
+              "from": "2016-09-21",
+              "symbol": "TTD",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Zscaler",
+          "sector": "cybersecurity",
+          "sid": "SEC_ZS",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2018-03-16",
+              "symbol": "ZS",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Okta",
+          "sector": "cybersecurity",
+          "sid": "SEC_OKTA",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2017-04-07",
+              "symbol": "OKTA",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "CyberArk",
+          "sector": "cybersecurity",
+          "sid": "SEC_CYBR",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2014-09-24",
+              "symbol": "CYBR",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "SentinelOne",
+          "notes": "Single-letter symbol S previously belonged to Sprint (delisted 2020); date-scoped resolution keeps them distinct.",
+          "sector": "cybersecurity",
+          "sid": "SEC_S",
+          "theme": "cybersecurity",
+          "tickers": [
+            {
+              "from": "2021-06-30",
+              "symbol": "S",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "McAfee (legacy)",
+          "sector": "cybersecurity",
+          "sid": "SEC_MFE",
+          "successor": {
+            "date": "2011-02-28",
+            "kind": "acquisition",
+            "sid": "SEC_INTC"
+          },
+          "tickers": [
+            {
+              "from": "1992-10-02",
+              "symbol": "MFE",
+              "to": "2011-02-28"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Proofpoint",
+          "sector": "cybersecurity",
+          "sid": "SEC_PFPT",
+          "successor": {
+            "date": "2021-08-31",
+            "kind": "take_private",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "2012-04-20",
+              "symbol": "PFPT",
+              "to": "2021-08-31"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Zendesk",
+          "sector": "software",
+          "sid": "SEC_ZEN",
+          "successor": {
+            "date": "2022-11-22",
+            "kind": "take_private",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "2014-05-15",
+              "symbol": "ZEN",
+              "to": "2022-11-22"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Nuance Communications",
+          "sector": "software",
+          "sid": "SEC_NUAN",
+          "successor": {
+            "date": "2022-03-04",
+            "kind": "acquisition",
+            "sid": "SEC_MSFT"
+          },
+          "tickers": [
+            {
+              "from": "2000-01-03",
+              "symbol": "NUAN",
+              "to": "2022-03-04"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "CA Technologies",
+          "sector": "software",
+          "sid": "SEC_CA",
+          "successor": {
+            "date": "2018-11-05",
+            "kind": "acquisition",
+            "sid": "SEC_AVGO"
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "CA",
+              "to": "2018-11-05"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Novell",
+          "sector": "software",
+          "sid": "SEC_NOVL",
+          "successor": {
+            "date": "2011-04-27",
+            "kind": "acquisition",
+            "notes": "Attachmate",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "NOVL",
+              "to": "2011-04-27"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Cisco Systems",
+          "sector": "networking",
+          "sid": "SEC_CSCO",
+          "theme": "networking",
+          "tickers": [
+            {
+              "from": "1990-02-16",
+              "symbol": "CSCO",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Keysight Technologies",
+          "sector": "networking",
+          "sid": "SEC_KEYS",
+          "theme": "networking",
+          "tickers": [
+            {
+              "from": "2014-11-03",
+              "symbol": "KEYS",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Brocade Communications",
+          "sector": "networking",
+          "sid": "SEC_BRCD",
+          "successor": {
+            "date": "2017-11-17",
+            "kind": "acquisition",
+            "sid": "SEC_AVGO"
+          },
+          "tickers": [
+            {
+              "from": "1999-05-25",
+              "symbol": "BRCD",
+              "to": "2017-11-17"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Tellabs",
+          "sector": "networking",
+          "sid": "SEC_TLAB",
+          "successor": {
+            "date": "2013-12-02",
+            "kind": "take_private",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "TLAB",
+              "to": "2013-12-02"
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Hewlett Packard Enterprise",
+          "sector": "hardware",
+          "sid": "SEC_HPE",
+          "theme": "dc_infrastructure",
+          "tickers": [
+            {
+              "from": "2015-11-02",
+              "symbol": "HPE",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "NetApp",
+          "sector": "hardware",
+          "sid": "SEC_NTAP",
+          "theme": "dc_infrastructure",
+          "tickers": [
+            {
+              "from": "1995-11-21",
+              "symbol": "NTAP",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Pure Storage",
+          "sector": "hardware",
+          "sid": "SEC_PSTG",
+          "theme": "dc_infrastructure",
+          "tickers": [
+            {
+              "from": "2015-10-07",
+              "symbol": "PSTG",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Western Digital",
+          "sector": "hardware",
+          "sid": "SEC_WDC",
+          "theme": "dc_infrastructure",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "WDC",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Intuitive Surgical",
+          "sector": "robotics",
+          "sid": "SEC_ISRG",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "2000-06-13",
+              "symbol": "ISRG",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Rockwell Automation",
+          "sector": "robotics",
+          "sid": "SEC_ROK",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "ROK",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Symbotic",
+          "sector": "robotics",
+          "sid": "SEC_SYM",
+          "theme": "robotics",
+          "tickers": [
+            {
+              "from": "2022-06-08",
+              "symbol": "SYM",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "NRG Energy",
+          "sector": "power",
+          "sid": "SEC_NRG",
+          "theme": "power_cooling",
+          "tickers": [
+            {
+              "from": "2003-12-05",
+              "symbol": "NRG",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "GE Vernova",
+          "sector": "power",
+          "sid": "SEC_GEV",
+          "theme": "power_cooling",
+          "tickers": [
+            {
+              "from": "2024-04-02",
+              "symbol": "GEV",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNYS",
+          "name": "Quanta Services",
+          "sector": "power",
+          "sid": "SEC_PWR",
+          "theme": "power_cooling",
+          "tickers": [
+            {
+              "from": "1998-02-12",
+              "symbol": "PWR",
+              "to": null
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Fairchild Semiconductor",
+          "sector": "semiconductors",
+          "sid": "SEC_FCS",
+          "successor": {
+            "date": "2016-09-19",
+            "kind": "acquisition",
+            "sid": "SEC_ON"
+          },
+          "tickers": [
+            {
+              "from": "1999-08-04",
+              "symbol": "FCS",
+              "to": "2016-09-19"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Integrated Device Technology",
+          "sector": "semiconductors",
+          "sid": "SEC_IDTI",
+          "successor": {
+            "date": "2019-04-04",
+            "kind": "acquisition",
+            "notes": "Renesas",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "IDTI",
+              "to": "2019-04-04"
+            }
+          ]
+        },
+        {
+          "exchange": "XNAS",
+          "name": "Cypress Semiconductor",
+          "sector": "semiconductors",
+          "sid": "SEC_CY",
+          "successor": {
+            "date": "2020-04-16",
+            "kind": "acquisition",
+            "notes": "Infineon",
+            "sid": null
+          },
+          "tickers": [
+            {
+              "from": "1990-01-02",
+              "symbol": "CY",
+              "to": "2020-04-16"
+            }
+          ]
+        }
+      ]
+    },
+    "universe": {
+      "baskets": {
+        "ai_broad": [
+          "NVDA",
+          "AMD",
+          "AVGO",
+          "TSM",
+          "ARM",
+          "MU",
+          "MRVL",
+          "INTC",
+          "QCOM",
+          "TXN",
+          "ADI",
+          "NXPI",
+          "ON",
+          "MCHP",
+          "SWKS",
+          "QRVO",
+          "MPWR",
+          "GFS",
+          "WOLF",
+          "ALAB",
+          "CRDO",
+          "ASML",
+          "AMAT",
+          "LRCX",
+          "KLAC",
+          "TER",
+          "ENTG",
+          "SNPS",
+          "CDNS",
+          "MSFT",
+          "GOOGL",
+          "AMZN",
+          "META",
+          "AAPL",
+          "TSLA",
+          "ORCL",
+          "IBM",
+          "NFLX",
+          "CRM",
+          "ADBE",
+          "NOW",
+          "SNOW",
+          "PLTR",
+          "INTU",
+          "WDAY",
+          "DDOG",
+          "MDB",
+          "NET",
+          "TEAM",
+          "PATH",
+          "IOT",
+          "SHOP",
+          "UBER",
+          "ABNB",
+          "APP",
+          "TTD",
+          "CRWD",
+          "PANW",
+          "FTNT",
+          "ZS",
+          "OKTA",
+          "CYBR",
+          "S",
+          "CSCO",
+          "ANET",
+          "KEYS",
+          "SMCI",
+          "DELL",
+          "HPE",
+          "NTAP",
+          "PSTG",
+          "WDC",
+          "VRT",
+          "ISRG",
+          "ROK",
+          "SYM",
+          "CEG",
+          "VST",
+          "NRG",
+          "GEV",
+          "PWR"
+        ],
+        "ai_compute": [
+          "NVDA",
+          "AMD",
+          "AVGO",
+          "TSM",
+          "ARM",
+          "MRVL",
+          "ALAB",
+          "CRDO",
+          "GFS"
+        ],
+        "ai_power": [
+          "CEG",
+          "VST",
+          "NRG",
+          "GEV",
+          "PWR"
+        ],
+        "cloud_platforms": [
+          "MSFT",
+          "GOOGL",
+          "AMZN",
+          "ORCL",
+          "SNOW",
+          "IBM",
+          "NET",
+          "DDOG",
+          "MDB"
+        ],
+        "cybersecurity": [
+          "CRWD",
+          "PANW",
+          "FTNT",
+          "ZS",
+          "OKTA",
+          "CYBR",
+          "S",
+          "FEYE",
+          "PFPT",
+          "MFE"
+        ],
+        "dc_infrastructure": [
+          "ANET",
+          "SMCI",
+          "DELL",
+          "VRT",
+          "HPE",
+          "NTAP",
+          "PSTG",
+          "WDC",
+          "CSCO"
+        ],
+        "eda_tools": [
+          "SNPS",
+          "CDNS",
+          "ANSS",
+          "MENT"
+        ],
+        "enterprise_ai": [
+          "MSFT",
+          "CRM",
+          "NOW",
+          "PLTR",
+          "SNOW",
+          "ADBE",
+          "ORCL",
+          "INTU",
+          "WDAY",
+          "TEAM",
+          "DDOG",
+          "MDB",
+          "PATH",
+          "IOT",
+          "VMW",
+          "SPLK",
+          "RHT",
+          "CA",
+          "CTXS",
+          "ZEN",
+          "NUAN"
+        ],
+        "internet_platforms": [
+          "GOOGL",
+          "AMZN",
+          "META",
+          "NFLX",
+          "SHOP",
+          "UBER",
+          "ABNB",
+          "APP",
+          "TTD",
+          "YHOO",
+          "TWTR",
+          "LNKD"
+        ],
+        "megacap_ai": [
+          "NVDA",
+          "MSFT",
+          "GOOGL",
+          "AMZN",
+          "META",
+          "AAPL",
+          "AVGO",
+          "TSLA"
+        ],
+        "networking": [
+          "CSCO",
+          "ANET",
+          "KEYS",
+          "JNPR",
+          "BRCD",
+          "TLAB",
+          "NT",
+          "WCOM",
+          "LU",
+          "JDSU"
+        ],
+        "robotics": [
+          "ISRG",
+          "ROK",
+          "SYM",
+          "TER",
+          "PATH"
+        ],
+        "semi_equipment": [
+          "ASML",
+          "AMAT",
+          "LRCX",
+          "KLAC",
+          "TER",
+          "ENTG"
+        ],
+        "semiconductors": [
+          "NVDA",
+          "AMD",
+          "AVGO",
+          "TSM",
+          "MU",
+          "MRVL",
+          "INTC",
+          "QCOM",
+          "TXN",
+          "ADI",
+          "NXPI",
+          "ON",
+          "MCHP",
+          "SWKS",
+          "QRVO",
+          "MPWR",
+          "WOLF",
+          "GFS",
+          "ALAB",
+          "CRDO",
+          "ARM",
+          "XLNX",
+          "MXIM",
+          "ALTR",
+          "BRCM",
+          "ATML",
+          "LSI",
+          "FCS",
+          "IDTI",
+          "CY"
+        ],
+        "target_holdings": [
+          "NVDA",
+          "MSFT",
+          "GOOGL",
+          "AMZN",
+          "META",
+          "AVGO",
+          "AMD",
+          "TSM",
+          "ASML",
+          "ARM",
+          "PLTR",
+          "ORCL",
+          "CRWD",
+          "PANW",
+          "ANET",
+          "MU",
+          "VRT",
+          "CEG"
+        ]
+      },
+      "benchmarks": [
+        {
+          "expense_ratio": 0.0009,
+          "ipo": "1993-01-29",
+          "name": "S&P 500 ETF",
+          "ticker": "SPY"
+        },
+        {
+          "expense_ratio": 0.002,
+          "ipo": "1999-03-10",
+          "name": "Nasdaq-100 ETF",
+          "ticker": "QQQ"
+        },
+        {
+          "expense_ratio": 0.0009,
+          "ipo": "1998-12-16",
+          "name": "Technology Select SPDR",
+          "ticker": "XLK"
+        },
+        {
+          "expense_ratio": 0.0035,
+          "ipo": "2001-07-10",
+          "name": "iShares Semiconductor",
+          "ticker": "SOXX"
+        },
+        {
+          "expense_ratio": 0.0035,
+          "ipo": "2000-05-05",
+          "name": "VanEck Semiconductor",
+          "ticker": "SMH"
+        },
+        {
+          "expense_ratio": 0.004,
+          "ipo": "2001-07-10",
+          "name": "iShares Software",
+          "ticker": "IGV"
+        },
+        {
+          "expense_ratio": 0.0009,
+          "ipo": "2004-01-26",
+          "name": "Vanguard Information Technology",
+          "ticker": "VGT"
+        },
+        {
+          "expense_ratio": 0.0019,
+          "ipo": "2000-05-22",
+          "name": "Russell 2000 ETF",
+          "ticker": "IWM"
+        },
+        {
+          "expense_ratio": 0.0075,
+          "ipo": "2014-10-31",
+          "name": "ARK Innovation ETF",
+          "ticker": "ARKK"
+        },
+        {
+          "expense_ratio": 0.006,
+          "ipo": "2011-07-05",
+          "name": "First Trust Cloud Computing",
+          "ticker": "SKYY"
+        },
+        {
+          "expense_ratio": 0.006,
+          "ipo": "2015-07-07",
+          "name": "First Trust Cybersecurity",
+          "ticker": "CIBR"
+        },
+        {
+          "expense_ratio": 0.0068,
+          "ipo": "2016-09-12",
+          "name": "Global X Robotics & AI",
+          "ticker": "BOTZ"
+        },
+        {
+          "expense_ratio": 0.0015,
+          "ipo": "2002-07-22",
+          "name": "7-10y Treasury ETF",
+          "ticker": "IEF"
+        },
+        {
+          "expense_ratio": 0.0014,
+          "ipo": "2007-05-25",
+          "name": "1-3m T-Bill ETF",
+          "ticker": "BIL"
+        }
+      ],
+      "securities": [
+        {
+          "ipo": "1999-01-22",
+          "name": "NVIDIA",
+          "sector": "semiconductors",
+          "ticker": "NVDA"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Advanced Micro Devices",
+          "sector": "semiconductors",
+          "ticker": "AMD"
+        },
+        {
+          "ipo": "2009-08-06",
+          "name": "Broadcom",
+          "sector": "semiconductors",
+          "ticker": "AVGO"
+        },
+        {
+          "ipo": "1997-10-08",
+          "name": "Taiwan Semiconductor ADR",
+          "sector": "semiconductors",
+          "ticker": "TSM"
+        },
+        {
+          "ipo": "2023-09-14",
+          "name": "Arm Holdings ADR",
+          "sector": "semiconductors",
+          "ticker": "ARM"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Micron",
+          "sector": "semiconductors",
+          "ticker": "MU"
+        },
+        {
+          "ipo": "2000-06-27",
+          "name": "Marvell",
+          "sector": "semiconductors",
+          "ticker": "MRVL"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Intel",
+          "sector": "semiconductors",
+          "ticker": "INTC"
+        },
+        {
+          "ipo": "1991-12-13",
+          "name": "Qualcomm",
+          "sector": "semiconductors",
+          "ticker": "QCOM"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Texas Instruments",
+          "sector": "semiconductors",
+          "ticker": "TXN"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Analog Devices",
+          "sector": "semiconductors",
+          "ticker": "ADI"
+        },
+        {
+          "ipo": "2010-08-06",
+          "name": "NXP Semiconductors",
+          "sector": "semiconductors",
+          "ticker": "NXPI"
+        },
+        {
+          "ipo": "2000-04-28",
+          "name": "ON Semiconductor",
+          "sector": "semiconductors",
+          "ticker": "ON"
+        },
+        {
+          "ipo": "1993-03-19",
+          "name": "Microchip Technology",
+          "sector": "semiconductors",
+          "ticker": "MCHP"
+        },
+        {
+          "ipo": "2002-06-25",
+          "name": "Skyworks Solutions",
+          "sector": "semiconductors",
+          "ticker": "SWKS"
+        },
+        {
+          "ipo": "2015-01-02",
+          "name": "Qorvo",
+          "sector": "semiconductors",
+          "ticker": "QRVO"
+        },
+        {
+          "ipo": "2004-11-19",
+          "name": "Monolithic Power Systems",
+          "sector": "semiconductors",
+          "ticker": "MPWR"
+        },
+        {
+          "ipo": "2021-10-28",
+          "name": "GlobalFoundries",
+          "sector": "semiconductors",
+          "ticker": "GFS"
+        },
+        {
+          "ipo": "1993-08-27",
+          "name": "Wolfspeed",
+          "sector": "semiconductors",
+          "ticker": "WOLF"
+        },
+        {
+          "ipo": "2024-03-20",
+          "name": "Astera Labs",
+          "sector": "semiconductors",
+          "ticker": "ALAB"
+        },
+        {
+          "ipo": "2022-01-27",
+          "name": "Credo Technology",
+          "sector": "semiconductors",
+          "ticker": "CRDO"
+        },
+        {
+          "ipo": "1995-03-15",
+          "name": "ASML ADR",
+          "sector": "semi_equipment",
+          "ticker": "ASML"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Applied Materials",
+          "sector": "semi_equipment",
+          "ticker": "AMAT"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Lam Research",
+          "sector": "semi_equipment",
+          "ticker": "LRCX"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "KLA Corporation",
+          "sector": "semi_equipment",
+          "ticker": "KLAC"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Teradyne",
+          "sector": "semi_equipment",
+          "ticker": "TER"
+        },
+        {
+          "ipo": "2000-07-11",
+          "name": "Entegris",
+          "sector": "semi_equipment",
+          "ticker": "ENTG"
+        },
+        {
+          "ipo": "1992-02-26",
+          "name": "Synopsys",
+          "sector": "eda",
+          "ticker": "SNPS"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Cadence Design Systems",
+          "sector": "eda",
+          "ticker": "CDNS"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Microsoft",
+          "sector": "software",
+          "ticker": "MSFT"
+        },
+        {
+          "ipo": "2004-08-19",
+          "name": "Alphabet",
+          "sector": "internet",
+          "ticker": "GOOGL"
+        },
+        {
+          "ipo": "1997-05-15",
+          "name": "Amazon",
+          "sector": "internet",
+          "ticker": "AMZN"
+        },
+        {
+          "ipo": "2012-05-18",
+          "name": "Meta Platforms",
+          "sector": "internet",
+          "ticker": "META"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Apple",
+          "sector": "hardware",
+          "ticker": "AAPL"
+        },
+        {
+          "ipo": "2010-06-29",
+          "name": "Tesla",
+          "sector": "ai_consumer",
+          "ticker": "TSLA"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Oracle",
+          "sector": "software",
+          "ticker": "ORCL"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "IBM",
+          "sector": "software",
+          "ticker": "IBM"
+        },
+        {
+          "ipo": "2002-05-23",
+          "name": "Netflix",
+          "sector": "internet",
+          "ticker": "NFLX"
+        },
+        {
+          "ipo": "2004-06-23",
+          "name": "Salesforce",
+          "sector": "software",
+          "ticker": "CRM"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Adobe",
+          "sector": "software",
+          "ticker": "ADBE"
+        },
+        {
+          "ipo": "2012-06-29",
+          "name": "ServiceNow",
+          "sector": "software",
+          "ticker": "NOW"
+        },
+        {
+          "ipo": "2020-09-16",
+          "name": "Snowflake",
+          "sector": "software",
+          "ticker": "SNOW"
+        },
+        {
+          "ipo": "2020-09-30",
+          "name": "Palantir",
+          "sector": "software",
+          "ticker": "PLTR"
+        },
+        {
+          "ipo": "1993-03-12",
+          "name": "Intuit",
+          "sector": "software",
+          "ticker": "INTU"
+        },
+        {
+          "ipo": "2012-10-12",
+          "name": "Workday",
+          "sector": "software",
+          "ticker": "WDAY"
+        },
+        {
+          "ipo": "2019-09-19",
+          "name": "Datadog",
+          "sector": "software",
+          "ticker": "DDOG"
+        },
+        {
+          "ipo": "2017-10-19",
+          "name": "MongoDB",
+          "sector": "software",
+          "ticker": "MDB"
+        },
+        {
+          "ipo": "2019-09-13",
+          "name": "Cloudflare",
+          "sector": "software",
+          "ticker": "NET"
+        },
+        {
+          "ipo": "2015-12-10",
+          "name": "Atlassian",
+          "sector": "software",
+          "ticker": "TEAM"
+        },
+        {
+          "ipo": "2021-04-21",
+          "name": "UiPath",
+          "sector": "software",
+          "ticker": "PATH"
+        },
+        {
+          "ipo": "2021-12-15",
+          "name": "Samsara",
+          "sector": "software",
+          "ticker": "IOT"
+        },
+        {
+          "ipo": "2015-05-21",
+          "name": "Shopify",
+          "sector": "internet",
+          "ticker": "SHOP"
+        },
+        {
+          "ipo": "2019-05-10",
+          "name": "Uber Technologies",
+          "sector": "internet",
+          "ticker": "UBER"
+        },
+        {
+          "ipo": "2020-12-10",
+          "name": "Airbnb",
+          "sector": "internet",
+          "ticker": "ABNB"
+        },
+        {
+          "ipo": "2021-04-15",
+          "name": "AppLovin",
+          "sector": "internet",
+          "ticker": "APP"
+        },
+        {
+          "ipo": "2016-09-21",
+          "name": "The Trade Desk",
+          "sector": "internet",
+          "ticker": "TTD"
+        },
+        {
+          "ipo": "2019-06-12",
+          "name": "CrowdStrike",
+          "sector": "cybersecurity",
+          "ticker": "CRWD"
+        },
+        {
+          "ipo": "2012-07-20",
+          "name": "Palo Alto Networks",
+          "sector": "cybersecurity",
+          "ticker": "PANW"
+        },
+        {
+          "ipo": "2009-11-18",
+          "name": "Fortinet",
+          "sector": "cybersecurity",
+          "ticker": "FTNT"
+        },
+        {
+          "ipo": "2018-03-16",
+          "name": "Zscaler",
+          "sector": "cybersecurity",
+          "ticker": "ZS"
+        },
+        {
+          "ipo": "2017-04-07",
+          "name": "Okta",
+          "sector": "cybersecurity",
+          "ticker": "OKTA"
+        },
+        {
+          "ipo": "2014-09-24",
+          "name": "CyberArk",
+          "sector": "cybersecurity",
+          "ticker": "CYBR"
+        },
+        {
+          "ipo": "2021-06-30",
+          "name": "SentinelOne",
+          "sector": "cybersecurity",
+          "ticker": "S"
+        },
+        {
+          "ipo": "1990-02-16",
+          "name": "Cisco Systems",
+          "sector": "networking",
+          "ticker": "CSCO"
+        },
+        {
+          "ipo": "2014-06-06",
+          "name": "Arista Networks",
+          "sector": "networking",
+          "ticker": "ANET"
+        },
+        {
+          "ipo": "2014-11-03",
+          "name": "Keysight Technologies",
+          "sector": "networking",
+          "ticker": "KEYS"
+        },
+        {
+          "ipo": "2007-03-29",
+          "name": "Super Micro Computer",
+          "sector": "dc_infrastructure",
+          "ticker": "SMCI"
+        },
+        {
+          "ipo": "2018-12-28",
+          "name": "Dell Technologies",
+          "sector": "hardware",
+          "ticker": "DELL"
+        },
+        {
+          "ipo": "2015-11-02",
+          "name": "Hewlett Packard Enterprise",
+          "sector": "hardware",
+          "ticker": "HPE"
+        },
+        {
+          "ipo": "1995-11-21",
+          "name": "NetApp",
+          "sector": "hardware",
+          "ticker": "NTAP"
+        },
+        {
+          "ipo": "2015-10-07",
+          "name": "Pure Storage",
+          "sector": "hardware",
+          "ticker": "PSTG"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Western Digital",
+          "sector": "hardware",
+          "ticker": "WDC"
+        },
+        {
+          "ipo": "2020-02-10",
+          "name": "Vertiv",
+          "sector": "dc_infrastructure",
+          "ticker": "VRT"
+        },
+        {
+          "ipo": "2000-06-13",
+          "name": "Intuitive Surgical",
+          "sector": "robotics",
+          "ticker": "ISRG"
+        },
+        {
+          "ipo": "1990-01-02",
+          "name": "Rockwell Automation",
+          "sector": "robotics",
+          "ticker": "ROK"
+        },
+        {
+          "ipo": "2022-06-08",
+          "name": "Symbotic",
+          "sector": "robotics",
+          "ticker": "SYM"
+        },
+        {
+          "ipo": "2022-02-02",
+          "name": "Constellation Energy",
+          "sector": "power",
+          "ticker": "CEG"
+        },
+        {
+          "ipo": "2016-10-04",
+          "name": "Vistra",
+          "sector": "power",
+          "ticker": "VST"
+        },
+        {
+          "ipo": "2003-12-05",
+          "name": "NRG Energy",
+          "sector": "power",
+          "ticker": "NRG"
+        },
+        {
+          "ipo": "2024-04-02",
+          "name": "GE Vernova",
+          "sector": "power",
+          "ticker": "GEV"
+        },
+        {
+          "ipo": "1998-02-12",
+          "name": "Quanta Services",
+          "sector": "power",
+          "ticker": "PWR"
+        },
+        {
+          "delisted": "2010-01-27",
+          "ipo": "1990-01-02",
+          "name": "Sun Microsystems",
+          "sector": "hardware",
+          "ticker": "SUNW"
+        },
+        {
+          "delisted": "2009-02-10",
+          "ipo": "1990-01-02",
+          "name": "Nortel Networks",
+          "sector": "networking",
+          "ticker": "NT"
+        },
+        {
+          "delisted": "2002-07-22",
+          "ipo": "1990-01-02",
+          "name": "WorldCom",
+          "sector": "networking",
+          "ticker": "WCOM"
+        },
+        {
+          "delisted": "2009-04-01",
+          "ipo": "1990-01-02",
+          "name": "Silicon Graphics",
+          "sector": "hardware",
+          "ticker": "SGI"
+        },
+        {
+          "delisted": "2015-08-03",
+          "ipo": "1993-11-16",
+          "name": "JDS Uniphase",
+          "sector": "networking",
+          "ticker": "JDSU"
+        },
+        {
+          "delisted": "2006-11-30",
+          "ipo": "1996-04-04",
+          "name": "Lucent Technologies",
+          "sector": "networking",
+          "ticker": "LU"
+        },
+        {
+          "delisted": "2007-10-16",
+          "ipo": "1993-12-09",
+          "name": "Gateway",
+          "sector": "hardware",
+          "ticker": "GTW"
+        },
+        {
+          "delisted": "2010-07-01",
+          "ipo": "2000-03-02",
+          "name": "Palm Inc",
+          "sector": "hardware",
+          "ticker": "PALM"
+        },
+        {
+          "delisted": "2002-05-03",
+          "ipo": "1990-01-02",
+          "name": "Compaq Computer",
+          "sector": "hardware",
+          "ticker": "CPQ"
+        },
+        {
+          "delisted": "2022-02-14",
+          "ipo": "1990-06-12",
+          "name": "Xilinx",
+          "sector": "semiconductors",
+          "ticker": "XLNX"
+        },
+        {
+          "delisted": "2021-08-26",
+          "ipo": "1990-01-02",
+          "name": "Maxim Integrated",
+          "sector": "semiconductors",
+          "ticker": "MXIM"
+        },
+        {
+          "delisted": "2015-12-28",
+          "ipo": "1990-01-02",
+          "name": "Altera",
+          "sector": "semiconductors",
+          "ticker": "ALTR"
+        },
+        {
+          "delisted": "2016-02-01",
+          "ipo": "1998-04-17",
+          "name": "Broadcom Corp (legacy)",
+          "sector": "semiconductors",
+          "ticker": "BRCM"
+        },
+        {
+          "delisted": "2016-04-04",
+          "ipo": "1991-03-15",
+          "name": "Atmel",
+          "sector": "semiconductors",
+          "ticker": "ATML"
+        },
+        {
+          "delisted": "2014-05-06",
+          "ipo": "1990-01-02",
+          "name": "LSI Corporation",
+          "sector": "semiconductors",
+          "ticker": "LSI"
+        },
+        {
+          "delisted": "2016-09-19",
+          "ipo": "1999-08-04",
+          "name": "Fairchild Semiconductor",
+          "sector": "semiconductors",
+          "ticker": "FCS"
+        },
+        {
+          "delisted": "2019-04-04",
+          "ipo": "1990-01-02",
+          "name": "Integrated Device Technology",
+          "sector": "semiconductors",
+          "ticker": "IDTI"
+        },
+        {
+          "delisted": "2020-04-16",
+          "ipo": "1990-01-02",
+          "name": "Cypress Semiconductor",
+          "sector": "semiconductors",
+          "ticker": "CY"
+        },
+        {
+          "delisted": "2016-09-07",
+          "ipo": "1990-01-02",
+          "name": "EMC Corp",
+          "sector": "hardware",
+          "ticker": "EMC"
+        },
+        {
+          "delisted": "2017-06-16",
+          "ipo": "1996-04-12",
+          "name": "Yahoo",
+          "sector": "internet",
+          "ticker": "YHOO"
+        },
+        {
+          "delisted": "2019-07-09",
+          "ipo": "1999-08-11",
+          "name": "Red Hat",
+          "sector": "software",
+          "ticker": "RHT"
+        },
+        {
+          "delisted": "2023-11-22",
+          "ipo": "2007-08-14",
+          "name": "VMware",
+          "sector": "software",
+          "ticker": "VMW"
+        },
+        {
+          "delisted": "2023-10-13",
+          "ipo": "1993-10-25",
+          "name": "Activision Blizzard",
+          "sector": "software",
+          "ticker": "ATVI"
+        },
+        {
+          "delisted": "2024-03-18",
+          "ipo": "2012-04-19",
+          "name": "Splunk",
+          "sector": "software",
+          "ticker": "SPLK"
+        },
+        {
+          "delisted": "2025-07-17",
+          "ipo": "1996-06-20",
+          "name": "Ansys",
+          "sector": "eda",
+          "ticker": "ANSS"
+        },
+        {
+          "delisted": "2017-03-30",
+          "ipo": "1990-01-02",
+          "name": "Mentor Graphics",
+          "sector": "eda",
+          "ticker": "MENT"
+        },
+        {
+          "delisted": "2018-11-05",
+          "ipo": "1990-01-02",
+          "name": "CA Technologies",
+          "sector": "software",
+          "ticker": "CA"
+        },
+        {
+          "delisted": "2011-04-27",
+          "ipo": "1990-01-02",
+          "name": "Novell",
+          "sector": "software",
+          "ticker": "NOVL"
+        },
+        {
+          "delisted": "2022-03-04",
+          "ipo": "2000-01-03",
+          "name": "Nuance Communications",
+          "sector": "software",
+          "ticker": "NUAN"
+        },
+        {
+          "delisted": "2016-12-08",
+          "ipo": "2011-05-19",
+          "name": "LinkedIn",
+          "sector": "internet",
+          "ticker": "LNKD"
+        },
+        {
+          "delisted": "2022-10-27",
+          "ipo": "2013-11-07",
+          "name": "Twitter",
+          "sector": "internet",
+          "ticker": "TWTR"
+        },
+        {
+          "delisted": "2025-07-02",
+          "ipo": "1999-06-25",
+          "name": "Juniper Networks",
+          "sector": "networking",
+          "ticker": "JNPR"
+        },
+        {
+          "delisted": "2017-11-17",
+          "ipo": "1999-05-25",
+          "name": "Brocade Communications",
+          "sector": "networking",
+          "ticker": "BRCD"
+        },
+        {
+          "delisted": "2013-12-02",
+          "ipo": "1990-01-02",
+          "name": "Tellabs",
+          "sector": "networking",
+          "ticker": "TLAB"
+        },
+        {
+          "delisted": "2011-02-28",
+          "ipo": "1992-10-02",
+          "name": "McAfee (legacy)",
+          "sector": "cybersecurity",
+          "ticker": "MFE"
+        },
+        {
+          "delisted": "2022-09-12",
+          "ipo": "2013-09-20",
+          "name": "FireEye / Mandiant",
+          "sector": "cybersecurity",
+          "ticker": "FEYE"
+        },
+        {
+          "delisted": "2021-08-31",
+          "ipo": "2012-04-20",
+          "name": "Proofpoint",
+          "sector": "cybersecurity",
+          "ticker": "PFPT"
+        },
+        {
+          "delisted": "2022-09-30",
+          "ipo": "1995-12-08",
+          "name": "Citrix Systems",
+          "sector": "software",
+          "ticker": "CTXS"
+        },
+        {
+          "delisted": "2022-11-22",
+          "ipo": "2014-05-15",
+          "name": "Zendesk",
+          "sector": "software",
+          "ticker": "ZEN"
+        }
+      ],
+      "settings": {
+        "max_names": 120,
+        "min_median_dollar_volume": "5e6",
+        "min_price": 3.0,
+        "seasoning_days": 126
+      }
+    }
+  },
+  "created_at": "2026-08-05T16:08:21.375354+00:00",
+  "git_commit": "d77d66ff9e60199191838db5b0f36f68c7df75b1",
+  "hash": "384dc48714fc530de3f3a4a9168df12f"
+}

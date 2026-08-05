@@ -13,6 +13,7 @@ import pandas as pd
 
 from ..config import load_yaml, results_dir
 from ..experiments import ExperimentRegistry
+from ..holdout import holdout_status
 from ..utils import get_logger
 
 log = get_logger("platform.research")
@@ -46,6 +47,120 @@ def genealogy_for(class_name: str) -> list[dict]:
 
 
 # ----------------------------------------------------------------- roadmap --
+
+def _result_driven_items(mode: str) -> list[dict]:
+    """Priorities read off the study's OWN results.
+
+    A backlog of ideas written before any result is a plan, not a response.
+    These entries come from what the completed study actually shows, so the
+    roadmap says what would change the answer rather than what was interesting
+    to think about beforehand.
+    """
+    import pandas as pd
+    out: list[dict] = []
+    rank_path = results_dir(mode) / "strategy_ranking.csv"
+    if not rank_path.exists():
+        return out
+    try:
+        r = pd.read_csv(rank_path)
+    except Exception:
+        return out
+    if r.empty or "verdict" not in r.columns:
+        return out
+
+    vc = r["verdict"].value_counts().to_dict()
+    robust = int(vc.get("robust_candidate", 0))
+    inconclusive = int(vc.get("inconclusive", 0))
+    active = r[r["verdict"] != "benchmark"]
+
+    if robust == 0 and len(active):
+        best = active.sort_values("score", ascending=False).iloc[0]
+        bench = r[r["verdict"] == "benchmark"]["score"].max()
+        gap = float(bench) + 0.25 - float(best["score"])
+        if gap > 0:
+            out.append({
+                "id": "RES-1",
+                "title": "Add evidence, not strategies — the best result is inside the noise",
+                "category": "evidence", "status": "planned",
+                "priority_score": 5.0,
+                "rationale": (
+                    f"Nothing cleared the bar. The best strategy scored "
+                    f"{float(best['score']):.2f} against a benchmark hurdle of "
+                    f"{float(bench):.2f} plus a 0.25 margin — short by {gap:.2f}. "
+                    "A gap that small cannot be resolved by trying more "
+                    "strategies: each additional trial raises the deflated-Sharpe "
+                    "correction and makes the bar higher for everything. It is "
+                    "resolved by more independent data — other markets, longer "
+                    "history, or the missing delisted names."),
+                "dependencies": ["additional market history"]})
+
+    if inconclusive >= 10:
+        out.append({
+            "id": "RES-2",
+            "title": f"Retire or defend the {inconclusive} inconclusive variants",
+            "category": "governance", "status": "planned",
+            "priority_score": 3.5,
+            "rationale": (
+                f"{inconclusive} variants are neither accepted nor rejected. Each "
+                "one still counts as a trial in the multiple-testing correction, "
+                "so carrying them costs statistical power for every other result. "
+                "Either state the economic case for keeping each, or deprecate "
+                "them with a reason on the record."),
+            "dependencies": []})
+
+    # Long-only concentration: the structural finding of the v3 study.
+    if "family" in r.columns:
+        fams = set(r["family"].dropna().unique())
+        if "longshort" not in fams:
+            out.append({
+                "id": "RES-3",
+                "title": "Test whether anything survives once the market is hedged out",
+                "category": "strategy", "status": "planned",
+                "priority_score": 4.0,
+                "rationale": (
+                    "Every variant tested so far is long-only, which mechanically "
+                    "forces a high correlation to the index — that was never a "
+                    "finding about technology stocks, it was a property of the "
+                    "study's own constraint. The engine has supported shorts and "
+                    "charged borrow since v1 and nothing had used them."),
+                "dependencies": []})
+        else:
+            out.append({
+                "id": "RES-3",
+                "title": "Price the short side properly before believing the hedged results",
+                "category": "data", "status": "planned",
+                "priority_score": 4.0,
+                "rationale": (
+                    "The hedged family is the only thing here that decorrelates "
+                    "from the index, so its costs are the load-bearing assumption. "
+                    "Borrow is currently a flat rate (50bp base, 150bp stressed). "
+                    "Real borrow on hard-to-locate shares runs 5-50% and some "
+                    "names cannot be shorted at all — and the universe contains "
+                    "39 companies that died, exactly the names a lender would have "
+                    "bought you in on. Until borrow is priced per name and per "
+                    "date, every long-short result is an upper bound."),
+                "dependencies": ["per-name borrow rates (IBKR shortable-shares file)"]})
+
+    try:
+        hs = holdout_status(mode)
+        if len(hs.get("access_log", [])) >= 1:
+            out.append({
+                "id": "RES-4",
+                "title": "The holdout is spent — the next honest test is forward, not backward",
+                "category": "governance", "status": "planned",
+                "priority_score": 4.5,
+                "rationale": (
+                    "The locked-away slice of history has been opened. Every "
+                    "further backtest on it is development evidence, however it "
+                    "is labelled. Genuinely out-of-sample evidence now has to "
+                    "come from data nobody has seen: paper-trade forward under "
+                    "docs/prospective_testing_protocol.md."),
+                "dependencies": []})
+    except Exception:
+        pass
+    return out
+
+
 def build_roadmap(mode: str = "synthetic") -> list[dict]:
     """Ranked next research priorities: expected value / difficulty, with
     dependency and evidence context pulled from the backlog, the quality
@@ -73,10 +188,15 @@ def build_roadmap(mode: str = "synthetic") -> list[dict]:
         import json
         gate = json.loads(gate_path.read_text())
         for i, lim in enumerate(gate.get("limitations", [])):
-            items.append({"id": f"GATE-{i+1}", "title": f"Resolve: {lim[:90]}",
+            # Title is the first clause; the full text is the rationale. Cutting
+            # mid-word produced entries nobody could act on.
+            head = lim.split(" — ")[0].split(";")[0].strip()
+            items.append({"id": f"GATE-{i+1}", "title": f"Resolve: {head}",
                           "category": "data", "status": "planned",
                           "priority_score": 3.0, "rationale": lim,
                           "dependencies": []})
+
+    items.extend(_result_driven_items(mode))
 
     # Open audit findings stay on the roadmap until closed.
     import json

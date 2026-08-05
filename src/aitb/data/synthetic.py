@@ -514,7 +514,34 @@ class SyntheticProvider(PriceProvider):
 
         lag = (40 + rng.integers(0, 21, size=n)).astype("timedelta64[D]")
         published = q_ends.to_numpy() + lag
+
+        # v4 fields, mirroring what EDGAR now collects so the two modes carry
+        # the same schema. Sector-plausible ratios with per-name dispersion:
+        # semiconductor firms run lower gross margin and far heavier capital
+        # and R&D intensity than software firms.
+        try:
+            sector = self._ucfg.security(ticker).sector
+        except KeyError:
+            sector = "software"
+        hardware_like = sector in ("semiconductors", "semi_equipment", "hardware",
+                                   "dc_infrastructure", "networking", "robotics")
+        gm_base = 0.45 if hardware_like else 0.72
+        rd_base = 0.16 if hardware_like else 0.20
+        gm = np.clip(gm_base + 0.08 * rng.standard_normal(n), 0.10, 0.95)
+        gross_profit = revenue * gm
+        cost_of_revenue = revenue - gross_profit
+        rnd = revenue * np.clip(rd_base + 0.05 * rng.standard_normal(n), 0.01, 0.5)
+        net_income = fcf * np.clip(0.85 + 0.15 * rng.standard_normal(n), 0.2, 1.6)
+        # Asset turnover ~0.6-0.9/yr on quarterly revenue.
+        assets = revenue * np.clip(4.0 + 1.2 * rng.standard_normal(n), 1.2, 12.0)
+        equity = assets * np.clip(0.55 + 0.12 * rng.standard_normal(n), 0.1, 0.95)
+        debt = assets * np.clip(0.18 + 0.10 * rng.standard_normal(n), 0.0, 0.6)
+        cash = assets * np.clip(0.22 + 0.10 * rng.standard_normal(n), 0.01, 0.7)
+
         return pd.DataFrame(
             {"period_end": q_ends, "published": pd.DatetimeIndex(published),
-             "revenue": revenue, "eps": eps, "fcf": fcf, "shares": shares}
+             "revenue": revenue, "eps": eps, "fcf": fcf, "shares": shares,
+             "gross_profit": gross_profit, "cost_of_revenue": cost_of_revenue,
+             "assets": assets, "equity": equity, "net_income": net_income,
+             "rnd": rnd, "debt": debt, "cash": cash}
         )

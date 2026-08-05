@@ -1,14 +1,19 @@
 # Real-data manifest — what the research run still needs
 
-Status: **NO REAL DATA HAS BEEN ACQUIRED.** This build environment blocks all
-market-data hosts (Stooq, Yahoo, FRED, SEC EDGAR, Tiingo, Polygon — re-verified
-2026-08-05: every one returns `CONNECT tunnel failed, 403`). The pipeline,
-importer, validation gate and real-mode runner are complete and tested; only the
-download step requires a network-enabled machine.
+Status: **the first real study has run** (2026-08-05, elsewhere). 113 of 120
+universe names and 33 of 39 delisted names had usable history; the quality gate
+returned `PASS WITH LIMITATIONS`; 208 variants produced 624 experiments and zero
+robust candidates. Results are committed under `results/real/`.
 
-Everything currently published — every Sharpe ratio, drawdown and verdict — is
-simulated. Swapping in real prices requires **no code change**. It requires
-running the commands below somewhere with internet access.
+**This build environment still has no market data and cannot acquire any.** Every
+provider host returns `CONNECT tunnel failed, 403` under the egress policy —
+re-verified 2026-08-05 across Stooq, Yahoo, FRED, SEC EDGAR, Tiingo, Polygon,
+AlphaVantage, FMP, Nasdaq Data Link, TwelveData and EODHD. The download must be
+run on a machine with unrestricted outbound HTTPS; everything after it runs
+anywhere.
+
+Freeze v4 adds a long-short family and eight new fundamental fields, so the
+NEXT study needs fundamentals re-downloaded — see below.
 
 ---
 
@@ -23,10 +28,10 @@ export SEC_USER_AGENT="Your Name your@email.com"    # SEC requires a real contac
 ./scripts/run_first_real_study.sh
 ```
 
-That single script runs all nine phases: environment check → freeze
+That single script runs all ten phases: environment check → freeze
 verification → download → checksum-verified import → **quality gate (hard stop
 on FAIL)** → frozen backtests → robustness → capacity → company analysis →
-reports. It never substitutes synthetic data, and it never tunes a parameter —
+reports, and a site rebuild on the real results. It never substitutes synthetic data, and it never tunes a parameter —
 the freeze hash is verified before any backtest runs, so the study that executes
 is exactly the study specified in advance.
 
@@ -69,7 +74,7 @@ runner refuses to proceed on the third:
 
 ## Required datasets
 
-Universe as of freeze v3: **120 securities** (81 live, 39 delisted) plus
+Universe as of freeze v4: **120 securities** (81 live, 39 delisted) plus
 **14 benchmark funds** — see `configs/universe.yaml`.
 
 | Dataset | Symbols | Source (free) | Notes |
@@ -77,7 +82,7 @@ Universe as of freeze v3: **120 securities** (81 live, 39 delisted) plus
 | Daily OHLCV + adjusted close | 120 universe names + 14 benchmark ETFs | Yahoo (total-return adj) + Stooq (cross-check) | Yahoo `adjclose` includes dividends; Stooq is split-only. The importer prefers Yahoo, keeps both, and records the difference — they are never averaged together. |
 | Dividends & splits | same | Yahoo events / Tiingo | carried alongside prices where the provider returns them |
 | Macro series | FEDFUNDS, DGS2, DGS10, T10Y2Y, CPIAUCSL→CPIYOY, UNRATE, VIXCLS, BAA10Y | FRED (keyless CSV) | revised data, not vintages — the gate records this and the regime family is labelled accordingly |
-| PIT fundamentals | universe names (best-effort) | SEC EDGAR companyfacts | filing dates are the availability dates, never fiscal period ends; set `SEC_USER_AGENT` |
+| PIT fundamentals | universe names (best-effort) | SEC EDGAR companyfacts | filing dates are the availability dates, never fiscal period ends; set `SEC_USER_AGENT`. **13 fields as of freeze v4** — revenue, EPS, operating cash flow, capex, shares, plus gross profit, cost of revenue, total assets, equity, net income, **R&D**, debt and cash. All from the same request; the extra fields cost no additional calls. |
 | Earnings events | universe names | none free with timestamps | optional; event strategies stay disabled without it |
 
 Setting `TIINGO_API_KEY` adds Tiingo as the preferred price source
@@ -85,6 +90,22 @@ automatically. Its delisted coverage is better than Yahoo's and it has a free
 tier.
 
 ---
+
+## Re-download fundamentals after upgrading to freeze v4
+
+A store collected before v4 has only 5 of the 13 fundamental fields, so
+`ResearchIntensity` and `AccrualQuality` will refuse to run and
+`GrossProfitability` falls back to a free-cash-flow margin (which conflates
+profitability with capital intensity — a large error in semiconductors).
+
+Prices do not need re-downloading. Fundamentals do:
+
+```bash
+rm -rf data/export_bundle/fundamentals
+python scripts/download_real_data.py --providers sec --output data/export_bundle
+python scripts/import_data_bundle.py --input data/export_bundle
+python scripts/validate_real_data.py
+```
 
 ## Known gaps no free provider fills
 
@@ -119,8 +140,16 @@ tier.
 * **Macro vintages** (ALFRED is free but per-series; not wired yet). Until it
   is, regime strategies use revised data and their results are upper bounds.
 
-* **Earnings timestamps** with BMO/AMC precision. Event-driven strategies stay
-  disabled rather than run on a guess.
+* **Earnings timestamps** with BMO/AMC precision. Same-day event strategies
+  stay disabled rather than run on a guess. Note that `PostEarningsDrift` (v4)
+  does NOT need them: at a 63-day hold, the SEC filing date is precise enough
+  and the open-versus-close ambiguity is irrelevant.
+
+* **Borrow availability and cost.** The v4 long-short family charges a flat
+  borrow rate (50bp base, 150bp stressed). Real borrow on hard-to-locate shares
+  runs to 5–50%+, and some names cannot be shorted at all. Every long-short
+  result is therefore an upper bound. No free source covers this; Interactive
+  Brokers publishes a daily shortable-shares file if you have an account.
 
 ---
 
@@ -129,5 +158,5 @@ tier.
 Real prices raise the study from "the machinery works" to "here is evidence".
 They do not raise it to "trade this". The frozen decision rules cap the best
 possible outcome at *paper-trade it and watch* — see
-`docs/prospective_protocol.md`. One historical study, however clean, is one
+`docs/prospective_testing_protocol.md`. One historical study, however clean, is one
 sample.

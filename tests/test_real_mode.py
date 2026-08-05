@@ -256,3 +256,47 @@ def test_dashboard_reports_actual_coverage_not_configured(monkeypatch):
     assert f">{configured}</div><div class='k'>companies in the test" not in html_out, (
         "dashboard claims the full configured roster was tested")
     assert "had no data and were excluded" in html_out
+
+
+def test_pipeline_card_reflects_actual_state(tmp_path, monkeypatch):
+    """"Where this stands" must be read from the artifacts, not hardcoded.
+
+    This card announced "Step 3: Run on real prices — Not started" after the
+    real study had already run. It is the most-read statement on the site and
+    it was a constant.
+    """
+    import aitb.platform.site as site
+
+    empty = tmp_path / "real"
+    empty.mkdir()
+    monkeypatch.setattr(site, "results_dir", lambda m: empty, raising=False)
+    monkeypatch.setattr("aitb.config.results_dir", lambda m: empty)
+    assert "Not started" in site._pipeline("synthetic")
+
+    (empty / "data_quality.json").write_text('{"status": "PASS WITH LIMITATIONS"}')
+    (empty / "experiments.jsonl").write_text('{"id": "x", "status": "ok"}\n')
+    done = site._pipeline("real")
+    assert "Not started" not in done
+    assert "pass with limitations" in done.lower()
+
+
+def test_portfolio_analysis_degrades_visibly_without_curves(monkeypatch):
+    """Sections needing equity curves must vanish cleanly, never render empty.
+
+    Curves are gitignored (340 MB, regenerable), so a checkout that has the
+    committed results but not the curves can build a site — and the
+    correlation analysis silently has nothing to work with. It must return
+    nothing at all rather than an empty chart that reads as "no correlation".
+
+    Practical consequence: a REAL-mode site rebuild has to happen wherever the
+    curves are, not from a fresh clone.
+    """
+    from aitb.platform import site
+    from aitb.experiments import ExperimentRegistry
+
+    monkeypatch.setattr(ExperimentRegistry, "load_curve", lambda self, i: None)
+    assert site._independence_section("synthetic") == ""
+
+    page = site._portfolio_page("synthetic")
+    # The page itself must still explain what is missing and how to get it.
+    assert "Nothing to compare yet" in page or "run_all.py" in page
