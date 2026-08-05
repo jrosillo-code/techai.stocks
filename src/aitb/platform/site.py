@@ -19,7 +19,7 @@ import pandas as pd
 from ..config import PROJECT_ROOT, load_backtest_config, results_dir
 from ..experiments import ExperimentRegistry
 from ..utils import get_logger
-from .catalog import build_catalog, platform_stats
+from .catalog import build_catalog, load_registry, platform_stats
 from .docgen import research_notebook, strategy_doc
 from .portfolio_lab import (blend_report, correlation_matrix,
                             load_strategy_returns, regime_cofailure)
@@ -31,141 +31,526 @@ log = get_logger("platform.site")
 
 SITE_DIR = PROJECT_ROOT / "site"
 
+GLOSSARY = {
+    "strategy": "A rule for deciding what to hold and when. Tested, not traded.",
+    "experiment": "One strategy run once, under one set of trading-cost assumptions.",
+    "benchmark": "The simple thing you'd do instead — buy an index fund and wait. "
+                 "Everything is measured against this.",
+    "robust candidate": "Beat the simple benchmark AND survived the extra checks. "
+                        "The best label available — it still is not a recommendation.",
+    "inconclusive": "Did something, but not clearly better than the simple option.",
+    "rejected": "Failed. Kept on record so the same idea isn't retried by accident.",
+    "deprecated": "Deliberately retired, with the reason written down.",
+    "Sharpe": "Return earned per unit of bumpiness. Higher is better; "
+              "above 1 is good, above 2 is rare and usually too good to be true.",
+    "drawdown": "The worst peak-to-trough fall. -50% means the account halved "
+                "before recovering.",
+    "holdout": "A slice of history locked away and looked at exactly once, so the "
+               "final score isn't tuned.",
+    "freeze": "A fingerprint of every rule and every line of code, taken before "
+              "results were seen, so nothing can be quietly changed afterwards.",
+    "Tier A/B/C": "How trustworthy the underlying data is. A = clean, "
+                  "B = known gaps, C = not usable.",
+}
+
+# Plain-English names for strategy classes. The site should never show a raw
+# Python constructor call to a human.
+CLASS_LABELS = {
+    "BuyAndHold": "Buy & hold",
+    "EqualWeightUniverse": "Equal weight",
+    "CapWeightUniverse": "Market-cap weight",
+    "QQQMovingAverage": "QQQ 200-day trend",
+    "SimpleMomentum12_1": "12-month momentum",
+    "TrendFollowCash": "Per-stock trend filter",
+    "AbsoluteMomentum": "Absolute momentum",
+    "DualMomentum": "Dual momentum",
+    "XSMomentumTopN": "Pick the strongest stocks",
+    "XSRiskAdjMomentum": "Strongest, risk-adjusted",
+    "RelativeStrengthVsBench": "Beating the index",
+    "RSIReversion": "Buy the dip (RSI)",
+    "ShortTermReversal": "Buy the weekly losers",
+    "BollingerReversion": "Buy the dip (bands)",
+    "DonchianBreakout": "Breakout to new highs",
+    "VolCompressionBreakout": "Breakout after a squeeze",
+    "QualityGrowth": "Quality & growth",
+    "ValuationAwareGrowth": "Growth at a fair price",
+    "RegimeSwitchedTech": "Risk-off when markets turn",
+    "SemisLeadership": "Follow the chipmakers",
+    "VolTargetedBasket": "Steady-risk basket",
+    "DrawdownDeRisk": "Cut exposure in drawdowns",
+    "InverseVolBasket": "Calm-stock weighting",
+    "TrendPlusVolTarget": "Trend filter + steady risk",
+    "MLRankStrategy": "Machine-learning ranking",
+    "GoldenCrossRotation": "Golden cross",
+}
+
+_BASKETS = {"megacap_ai": "megacap AI", "target_holdings": "your shortlist",
+            "ai_compute": "AI compute", "semiconductors": "semiconductors",
+            "cloud_platforms": "cloud", "enterprise_ai": "enterprise AI",
+            "cybersecurity": "cybersecurity", "dc_infrastructure": "data centres"}
+_REBAL = {"ME": "monthly", "QE": "quarterly", "W-FRI": "weekly", "YE": "yearly"}
+
+
+def humanize(strategy: str) -> tuple[str, str]:
+    """'TrendPlusVolTarget(basket=megacap_ai,target_vol=0.15,…)' ->
+    ('Trend filter + steady risk', 'megacap AI · 15% target vol')."""
+    cls, _, rest = strategy.partition("(")
+    label = CLASS_LABELS.get(cls, cls)
+    params = {}
+    for kv in rest.rstrip(")").split(","):
+        k, _, v = kv.partition("=")
+        if k.strip():
+            params[k.strip()] = v.strip()
+
+    if cls == "BuyAndHold":
+        return f"Buy & hold {params.get('ticker', '')}".strip(), ""
+
+    bits = []
+    if params.get("basket") and params["basket"] != "None":
+        bits.append(_BASKETS.get(params["basket"], params["basket"]))
+    elif "basket" in params:
+        bits.append("whole universe")
+    if "ticker" in params:
+        bits.append(params["ticker"])
+    if "top_n" in params:
+        bits.append(f"top {params['top_n']}")
+    if "target_vol" in params:
+        try:
+            bits.append(f"{float(params['target_vol']):.0%} target vol")
+        except ValueError:
+            pass
+    for key, fmt in (("sma_window", "{}-day average"),
+                     ("lookback_days", "{}-day lookback"),
+                     ("entry_window", "{}-day high"),
+                     ("trend_window", "{}-day trend"),
+                     ("vol_window", "{}-day vol"),
+                     ("entry", "enter below {}"),
+                     ("weighting", "{} weighted")):
+        if key in params:
+            bits.append(fmt.format(str(params[key]).replace("_", " ")))
+    # de-risking depths, written as percentages a human reads
+    for key, fmt in (("dd_start", "trim from {}"), ("dd_full", "flat by {}")):
+        if key in params:
+            try:
+                bits.append(fmt.format(f"{float(params[key]):.0%}"))
+            except ValueError:
+                pass
+    if params.get("hysteresis") not in (None, "0.0"):
+        bits.append("with a buffer")
+    if "rebalance" in params:
+        bits.append(_REBAL.get(params["rebalance"], params["rebalance"]))
+    return label, " · ".join(bits)
+
+
+
+_ACRONYMS = (("PIT ", "point-in-time "), ("SMA", "moving average"),
+             ("maxDD", "worst fall"), ("vol ", "volatility "),
+             ("RLS", "row-level security"))
+
+
+def _plain(text: str) -> str:
+    """Expand jargon for display. Never mutates the underlying record."""
+    out = str(text)
+    for a, b in _ACRONYMS:
+        out = out.replace(a, b)
+    return out
+
+
+def _strategy_link(strategy: str, depth: int = 0) -> str:
+    cls = strategy.split("(")[0]
+    label, sub = humanize(strategy)
+    prefix = "../" * depth
+    sub_html = f"<span class='sub'>{html.escape(sub)}</span>" if sub else ""
+    return (f"<a href='{prefix}strategy/{html.escape(cls)}.html'>"
+            f"{html.escape(label)}</a>{sub_html}")
+
+
 _CSS = """
-:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--mut:#64748b;--acc:#2563eb;
---good:#166534;--warn:#92400e;--bad:#991b1b;--line:#e2e8f0}
-*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Helvetica,sans-serif;
-margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
-nav{background:#0f172a;color:#e2e8f0;padding:.7rem 1.2rem;display:flex;gap:1.1rem;
-flex-wrap:wrap;position:sticky;top:0;z-index:5}
-nav a{color:#cbd5e1;text-decoration:none;font-size:.92rem}nav a:hover{color:#fff}
-nav .brand{color:#fff;font-weight:700}
-main{max-width:1180px;margin:1.4rem auto;padding:0 1.2rem}
-h1{font-size:1.5rem;margin:.4rem 0 1rem}h2{font-size:1.15rem;margin-top:1.8rem;
-border-bottom:1px solid var(--line);padding-bottom:.25rem}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:8px;
-padding:.7rem .9rem}.card .v{font-size:1.45rem;font-weight:700}
-.card .k{color:var(--mut);font-size:.78rem}
-table{border-collapse:collapse;width:100%;font-size:.82rem;background:var(--card)}
-th,td{border:1px solid var(--line);padding:.3rem .5rem;text-align:left}
-th{background:#f1f5f9;cursor:pointer;position:sticky;top:46px}
-tr:hover{background:#f8fafc}
-.badge{display:inline-block;padding:.05rem .45rem;border-radius:99px;font-size:.72rem}
-.b-core{background:#dcfce7;color:var(--good)}.b-exploratory{background:#fef9c3;color:var(--warn)}
-.b-deprecated{background:#fee2e2;color:var(--bad)}.b-benchmark{background:#e0e7ff;color:#3730a3}
-.b-A{background:#dcfce7;color:var(--good)}.b-B{background:#fef9c3;color:var(--warn)}
-.b-C{background:#fee2e2;color:var(--bad)}.b-unlisted{background:#e2e8f0;color:#475569}
-.warnbox{background:#fef3c7;border-left:4px solid #f59e0b;padding:.6rem .9rem;margin:.8rem 0;font-size:.88rem}
-.note{color:var(--mut);font-size:.82rem}
-input,select{padding:.3rem .45rem;border:1px solid var(--line);border-radius:6px;margin:.15rem}
-pre{background:#0f172a;color:#e2e8f0;padding:.9rem;border-radius:8px;overflow-x:auto;font-size:.78rem}
-img{max-width:100%;border:1px solid var(--line);border-radius:8px;margin:.4rem 0}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-@media(max-width:800px){.grid2{grid-template-columns:1fr}}
-.score{display:flex;gap:.4rem;align-items:center;margin:.2rem 0;font-size:.85rem}
-.bar{height:8px;border-radius:4px;background:var(--acc);min-width:2px}
-details{margin:.3rem 0}summary{cursor:pointer;color:var(--acc)}
-.tree{border-left:3px solid var(--line);margin-left:.5rem;padding-left:1rem}
-.tree .node{margin:.6rem 0;background:var(--card);border:1px solid var(--line);
-border-radius:8px;padding:.5rem .8rem;font-size:.85rem}
+:root{
+  color-scheme: light;
+  --bg:#f4f4f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --mut:#78776f;
+  --line:#e3e2dd; --acc:#2a78d6; --acc-soft:#eaf2fd;
+  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --serious:#ec835a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+    --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+  --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+nav{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 1.2rem;display:flex;gap:.2rem;align-items:center;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+nav .brand{font-weight:700;margin-right:1rem;padding:.85rem 0;font-size:.95rem}
+nav a{color:var(--ink-2);text-decoration:none;font-size:.88rem;padding:.85rem .7rem;
+  border-bottom:2px solid transparent}
+nav a:hover{color:var(--ink);border-bottom-color:var(--line)}
+nav a.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+main{max-width:1120px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+h1{font-size:1.75rem;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.1rem;margin:2.2rem 0 .2rem;letter-spacing:-.01em}
+h2+.lede{margin:.1rem 0 .9rem}
+h3{font-size:.95rem;margin:1.4rem 0 .4rem}
+.lede{color:var(--ink-2);font-size:.95rem;max-width:70ch}
+.note{color:var(--mut);font-size:.83rem;max-width:78ch}
+
+/* hero */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.3rem 1.4rem;margin:.6rem 0 1.2rem}
+.hero h1{margin-top:0}
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;
+  font-weight:600;padding:.2rem .6rem;border-radius:99px;border:1px solid transparent}
+.pill-warn{background:#fdf5e3;color:#7a5600;border-color:#f2dfae}
+.pill-good{background:#e7f6e7;color:#075c07;border-color:#bde5bd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .pill-warn{background:#3a2f14;color:#f6cf72;border-color:#5b4a1d}
+:root:where(:not([data-theme="light"])) .pill-good{background:#123212;color:#7fd77f;border-color:#1e4d1e}}
+
+/* pipeline */
+.pipe{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 .3rem}
+.step{flex:1 1 170px;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:.7rem .85rem;position:relative}
+.step .n{font-size:.72rem;color:var(--mut);font-weight:600;letter-spacing:.04em}
+.step .t{font-weight:650;font-size:.92rem;margin:.15rem 0}
+.step .d{font-size:.79rem;color:var(--ink-2)}
+.step.done{border-color:#bde5bd;background:linear-gradient(0deg,#f4fbf4,var(--surface))}
+.step.now{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.step .tick{position:absolute;top:.6rem;right:.7rem;font-size:.9rem}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .step.done{background:var(--surface);border-color:#1e4d1e}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:.85rem 1rem}
+.stat .v{font-size:1.9rem;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.stat .k{font-size:.83rem;font-weight:600;margin-top:.1rem}
+.stat .d{font-size:.78rem;color:var(--mut);margin-top:.25rem;line-height:1.4}
+
+/* charts */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.1rem;margin:.5rem 0}
+.chart .ct{font-weight:650;font-size:.92rem}
+.chart .cs{font-size:.8rem;color:var(--mut);margin-bottom:.7rem}
+.bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;
+  gap:.7rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.bar-row .lab{color:var(--ink-2);text-align:right}
+.bar-track{background:var(--line);border-radius:5px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s}
+.bar-row .val{font-variant-numeric:tabular-nums;font-weight:650;min-width:2.4rem}
+.spark{display:flex;align-items:flex-end;gap:2px;height:64px;margin-top:.4rem}
+.spark i{background:var(--s1);border-radius:3px 3px 0 0;flex:1;min-width:3px;display:block}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:.55rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);font-weight:650;white-space:nowrap;background:var(--surface);
+  cursor:pointer;user-select:none}
+th:hover{color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--acc-soft)}
+td a{color:var(--acc);text-decoration:none;font-weight:600}
+td a:hover{text-decoration:underline}
+.sub{display:block;color:var(--mut);font-size:.76rem;font-weight:400}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* badges */
+.badge{display:inline-block;padding:.12rem .5rem;border-radius:99px;
+  font-size:.72rem;font-weight:600;white-space:nowrap}
+.b-robust_candidate,.b-core,.b-A{background:#e7f6e7;color:#075c07}
+.b-inconclusive,.b-exploratory,.b-B{background:#fdf5e3;color:#7a5600}
+.b-rejected,.b-deprecated,.b-C{background:#fbeaea;color:#8f1f1f}
+.b-benchmark{background:#eaf2fd;color:#12467e}
+.b-unlisted{background:var(--line);color:var(--ink-2)}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .badge{filter:brightness(1.7) saturate(.8)}}
+
+.warnbox{background:#fdf5e3;border:1px solid #f2dfae;border-left:4px solid var(--warning);
+  padding:.8rem 1rem;margin:1rem 0;border-radius:10px;font-size:.88rem;color:#5c4310}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .warnbox{background:#2c2410;border-color:#5b4a1d;color:#f0d79a}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:minmax(90px,130px) 1fr auto}}
+input,select{padding:.42rem .6rem;border:1px solid var(--line);border-radius:8px;
+  margin:.15rem;background:var(--surface);color:var(--ink);font-size:.86rem}
+pre{background:#15150f;color:#e8e7de;padding:.9rem;border-radius:10px;
+  overflow-x:auto;font-size:.78rem;line-height:1.5}
+details{margin:.4rem 0}summary{cursor:pointer;color:var(--acc);font-size:.88rem;font-weight:600}
+dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
+.score{display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.score .sn{width:190px;color:var(--ink-2)}
+.bar{height:9px;border-radius:5px;background:var(--s1);min-width:3px}
+.tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
 """
 
-_NAV = """<nav><span class="brand">AITB Research</span>
-<a href="{p}index.html">Dashboard</a><a href="{p}experiments.html">Experiments</a>
-<a href="{p}strategies.html">Strategies</a><a href="{p}compare.html">Compare</a>
-<a href="{p}portfolio.html">Portfolio lab</a><a href="{p}ideas.html">Ideas</a>
-<a href="{p}roadmap.html">Roadmap</a><a href="{p}audit.html">Audit</a></nav>"""
+_PAGES = [("index.html", "Overview"), ("experiments.html", "Experiments"),
+          ("strategies.html", "Strategies"), ("compare.html", "Compare"),
+          ("portfolio.html", "Portfolio lab"), ("ideas.html", "Ideas"),
+          ("roadmap.html", "Roadmap"), ("audit.html", "Trust & audit")]
 
 
-def _page(title: str, body: str, depth: int = 0) -> str:
-    prefix = "../" * depth
-    return (f"<!DOCTYPE html><html><head><meta charset='utf-8'>"
+def _nav(current: str, depth: int = 0) -> str:
+    p = "../" * depth
+    links = "".join(
+        f"<a href='{p}{href}'{' class=on' if href == current else ''}>{label}</a>"
+        for href, label in _PAGES)
+    return f"<nav><span class='brand'>AI &amp; Tech Strategy Research</span>{links}</nav>"
+
+
+def _page(title: str, body: str, depth: int = 0, current: str = "") -> str:
+    return (f"<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>"
+            f"<meta name='viewport' content='width=device-width,initial-scale=1'>"
             f"<title>{html.escape(title)}</title><style>{_CSS}</style></head>"
-            f"<body>{_NAV.format(p=prefix)}<main><h1>{html.escape(title)}</h1>"
-            f"{body}<p class='note'>Generated "
-            f"{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} · "
-            f"read-only view over the registries · research tool, not "
-            f"investment advice.</p></main></body></html>")
+            f"<body>{_nav(current, depth)}<main>{body}"
+            f"<p class='note' style='margin-top:2.5rem'>Generated "
+            f"{datetime.now(timezone.utc).strftime('%d %b %Y %H:%M UTC')} · "
+            f"a read-only view of the research record · "
+            f"research tool, not investment advice.</p></main>"
+            f"<script>document.querySelectorAll('table th').forEach((th,i)=>{{"
+            f"th.onclick=()=>{{const tb=th.closest('table').tBodies[0];"
+            f"const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';"
+            f"rows.sort((a,b)=>{{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';"
+            f"const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));"
+            f"return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));}});"
+            f"rows.forEach(r=>tb.appendChild(r));}};}});</script>"
+            f"</body></html>")
 
 
 def _badge(x: str) -> str:
-    return f"<span class='badge b-{html.escape(str(x))}'>{html.escape(str(x))}</span>"
+    txt = str(x).replace("_", " ")
+    return f"<span class='badge b-{html.escape(str(x))}'>{html.escape(txt)}</span>"
+
+
+def _dfn(term: str, label: str | None = None) -> str:
+    tip = GLOSSARY.get(term, "")
+    return f"<dfn title=\"{html.escape(tip)}\">{html.escape(label or term)}</dfn>"
 
 
 def _mode_banner(mode: str) -> str:
     if mode == "synthetic":
-        return ("<div class='warnbox'><b>SYNTHETIC DATA MODE.</b> All numbers on "
-                "this site are demonstrations of the machinery on generated data "
-                "— not market history. The real-data study has not run yet.</div>")
+        return ("<div class='warnbox'><b>These numbers are from a simulated "
+                "market, not the real one.</b> The system has been built and "
+                "audited, but the study against real market prices has not run "
+                "yet. Everything here demonstrates that the machinery works — "
+                "none of it says anything about how these ideas would have "
+                "actually performed.</div>")
     return ""
 
 
+def _hbar(rows: list[tuple[str, float, str]], title: str, subtitle: str,
+          unit: str = "") -> str:
+    """Horizontal bars: (label, value, css-color). Direct-labelled — required
+    relief for the sub-3:1 contrast slots in the palette."""
+    if not rows:
+        return ""
+    mx = max((v for _, v, _ in rows), default=1) or 1
+    bars = "".join(
+        f"<div class='bar-row'><div class='lab'>{html.escape(l)}</div>"
+        f"<div class='bar-track'><div class='bar-fill' style='width:{max(v / mx * 100, 1.5):.1f}%;"
+        f"background:{c}' title='{html.escape(l)}: {v:g}{unit}'></div></div>"
+        f"<div class='val'>{v:g}{unit}</div></div>"
+        for l, v, c in rows)
+    return (f"<div class='chart'><div class='ct'>{html.escape(title)}</div>"
+            f"<div class='cs'>{html.escape(subtitle)}</div>{bars}</div>")
+
+
 # ------------------------------------------------------------- dashboard ----
-def _dashboard(mode, stats, cat, registry) -> str:
-    cards = [
-        ("Strategy classes", stats.get("total_strategies", 0)),
-        ("Core", stats.get("core", 0)), ("Exploratory", stats.get("exploratory", 0)),
-        ("Deprecated", stats.get("deprecated", 0)),
-        ("Robust candidates", stats.get("robust_candidates", "—")),
-        ("Rejected", stats.get("rejected", "—")),
-        ("Experiments OK", stats.get("experiments_ok", 0)),
-        ("Failed runs", stats.get("experiments_failed", 0)),
-        ("Holdout events", stats.get("holdout_events", 0)),
-        ("Last experiment", stats.get("last_experiment", "—")),
-        ("Freeze", "v2"), ("Audit", "READY w/ LIMITATIONS"),
-        ("Real study", "NOT RUN"), ("Data mode", mode),
+def _pipeline(mode: str) -> str:
+    steps = [
+        ("Step 1", "Build the lab", "A backtesting engine with strict rules "
+         "against fooling yourself.", "done"),
+        ("Step 2", "Audit it", "An adversarial review found and fixed 6 serious "
+         "flaws before any results were trusted.", "done"),
+        ("Step 3", "Run on real prices", "Not started. Needs one command run on "
+         "a machine with internet access.", "now"),
+        ("Step 4", "Decide", "Only after step 3. The best possible outcome is "
+         "“paper-trade it and watch”.", "todo"),
     ]
-    tiers = stats.get("tiers", {})
-    for t in ("A", "B", "C"):
-        if tiers:
-            cards.append((f"Tier {t}", tiers.get(t, 0)))
-    cards_html = "".join(f"<div class='card'><div class='v'>{v}</div>"
-                         f"<div class='k'>{k}</div></div>" for k, v in cards)
+    return "<div class='pipe'>" + "".join(
+        f"<div class='step {cls}'>{'<span class=tick>✅</span>' if cls == 'done' else ''}"
+        f"<div class='n'>{n}</div><div class='t'>{t}</div><div class='d'>{d}</div></div>"
+        for n, t, d, cls in steps) + "</div>"
+
+
+def _dashboard(mode, stats, cat, registry) -> str:
+    synthetic = mode == "synthetic"
+    pill = ("<span class='pill pill-warn'>● Simulated data — real study not run</span>"
+            if synthetic else "<span class='pill pill-good'>● Real market data</span>")
+
+    hero = f"""<div class='hero'>
+<h1>AI &amp; Technology Strategy Research</h1>
+<p style='margin:.2rem 0 .7rem'>{pill}</p>
+<p class='lede'>This is a laboratory for testing investing ideas on US tech and
+AI stocks — things like <i>“only hold it while it’s trending up”</i> or
+<i>“spread the money across the ten biggest names”</i>. Every idea is measured
+against the boring alternative of just buying an index fund and waiting.
+The point is to find out which ideas are <b>actually</b> better, and to be
+honest when they aren’t.</p>
+</div>"""
+
+    # --- what happened, in plain numbers ---------------------------------
+    n_strat = stats.get("total_strategies", 0)
+    n_exp = stats.get("experiments_ok", 0)
+    robust = stats.get("robust_candidates", 0)
+    rejected = stats.get("rejected", 0)
+    inconc = stats.get("inconclusive", 0)
+
+    stat_cards = f"""<div class='stats'>
+<div class='stat'><div class='v'>{n_strat}</div><div class='k'>ideas tested</div>
+<div class='d'>Distinct strategies, each with several parameter settings.</div></div>
+<div class='stat'><div class='v'>{n_exp:,}</div><div class='k'>test runs recorded</div>
+<div class='d'>Every run is kept forever — including the failures, so nothing is
+quietly retried.</div></div>
+<div class='stat'><div class='v'>{robust}</div><div class='k'>beat the benchmark</div>
+<div class='d'>Passed every check. Still only a <i>candidate</i>, and only on
+simulated data.</div></div>
+<div class='stat'><div class='v'>{rejected}</div><div class='k'>failed outright</div>
+<div class='d'>Kept on the record with the reason why.</div></div>
+</div>"""
+
+    # --- verdict chart (status colours + labels; never colour alone) ------
+    verdict_rows = [
+        ("Beat the benchmark", robust, "var(--good)"),
+        ("Unclear", inconc, "var(--warning)"),
+        ("Failed", rejected, "var(--critical)"),
+    ]
+    verdicts = _hbar(verdict_rows, "How the ideas scored",
+                     "Each idea, judged against simply buying an index fund and "
+                     "holding it. Simulated data.")
 
     fams = pd.Series({e.class_name: e.family for e in cat.values()
                       if e.status != "unlisted"}).value_counts()
-    fam_rows = "".join(f"<tr><td>{f}</td><td>{n}</td></tr>" for f, n in fams.items())
+    fam_labels = {"benchmark": "Buy & hold baselines", "riskmanaged": "Risk management",
+                  "tsmom": "Trend following", "xsmom": "Pick the strongest",
+                  "meanrev": "Buy the dip", "breakout": "Breakouts",
+                  "fundamental": "Company fundamentals", "regime": "Market conditions",
+                  "ml": "Machine learning"}
+    fam_chart = _hbar(
+        [(fam_labels.get(f, f), int(n), "var(--s1)") for f, n in fams.items()],
+        "What kinds of ideas were tried",
+        "Grouped by the reasoning behind them, not by how well they did.")
 
+    # --- timeline ---------------------------------------------------------
+    timeline = ""
+    by_day = stats.get("experiments_by_day", {})
+    if len(by_day) > 8:
+        mx = max(by_day.values())
+        bars = "".join(f"<i style='height:{max(8, 100 * n / mx):.0f}%' "
+                       f"title='{d}: {n} runs'></i>" for d, n in by_day.items())
+        timeline = (f"<div class='chart'><div class='ct'>Research activity</div>"
+                    f"<div class='cs'>Test runs per day · hover a bar for the count"
+                    f"</div><div class='spark'>{bars}</div></div>")
+    elif by_day:
+        # A handful of days: a sparkline would just be a solid slab. Name the
+        # days instead — the honest reading is "this ran in a couple of bursts".
+        timeline = _hbar([(str(d), int(n), "var(--s1)") for d, n in by_day.items()],
+                         "Research activity",
+                         "Test runs per day. The work happened in a few "
+                         "concentrated bursts, not continuously.")
+
+    # --- leaderboard ------------------------------------------------------
     rank_path = registry.root / "strategy_ranking.csv"
     leaders = ""
     if rank_path.exists():
         r = pd.read_csv(rank_path)
-        bench = r[r["verdict"] == "benchmark"].head(5)
-        top = r[r["verdict"] != "benchmark"].head(5)
+        # One row per IDEA. The grid runs many parameter variants of the same
+        # strategy; listing five near-identical rows of the same idea reads as
+        # five findings when it is one.
+        r["_cls"] = r["strategy"].str.split("(").str[0]
+        top = (r[r["verdict"] != "benchmark"]
+               .sort_values("score", ascending=False)
+               .drop_duplicates("_cls").head(6))
+        bench = (r[r["verdict"] == "benchmark"]
+                 .sort_values("score", ascending=False)
+                 .drop_duplicates("_cls").head(4))
+
         def rows(d):
             return "".join(
-                f"<tr><td><a href='strategy/{html.escape(x.strategy.split('(')[0])}.html'>"
-                f"{html.escape(x.strategy[:60])}</a></td><td>{x.score}</td>"
+                f"<tr><td>{_strategy_link(x.strategy)}</td>"
+                f"<td class='num'>{x.score:.1f}</td>"
+                f"<td class='num'>{x.holdout_sharpe:.2f}</td>"
+                f"<td class='num'>{x.max_drawdown:.0%}</td>"
                 f"<td>{_badge(x.verdict)}</td></tr>" for x in d.itertuples())
-        leaders = (f"<h2>Benchmark leaders</h2><table><tr><th>benchmark</th>"
-                   f"<th>score</th><th>verdict</th></tr>{rows(bench)}</table>"
-                   f"<h2>Top active strategies</h2><table><tr><th>strategy</th>"
-                   f"<th>score</th><th>verdict</th></tr>{rows(top)}</table>")
 
-    timeline = ""
-    by_day = stats.get("experiments_by_day", {})
-    if by_day:
-        mx = max(by_day.values())
-        bars = "".join(
-            f"<div title='{d}: {n}' style='display:inline-block;width:10px;"
-            f"height:{6 + 54 * n / mx}px;background:var(--acc);margin-right:2px;"
-            f"vertical-align:bottom'></div>" for d, n in by_day.items())
-        timeline = f"<h2>Cumulative experiment timeline</h2><div>{bars}</div>" \
-                   f"<p class='note'>experiments per day (hover for counts)</p>"
+        head = ("<tr><th>Strategy</th><th class='num'>Score</th>"
+                "<th class='num'>Sharpe</th><th class='num'>Worst fall</th>"
+                "<th>Verdict</th></tr>")
+        leaders = f"""
+<h2>Best-performing ideas</h2>
+<p class='lede'>Best setting of each distinct idea — the grid tests many
+parameter variants of each, and listing near-identical siblings would read as
+several findings when it is really one. Ranked by a composite score (0–10) that rewards steady
+risk-adjusted returns and punishes fragility — never raw return alone.
+<b>Sharpe</b> is return per unit of bumpiness; above 1 is good.
+<b>Worst fall</b> is the deepest peak-to-trough drop you'd have sat through.</p>
+<div class='tbl-wrap'><table><thead>{head}</thead><tbody>{rows(top)}</tbody></table></div>
 
-    road = build_roadmap(mode)[:5]
-    road_html = "".join(f"<li><b>{html.escape(r['title'])}</b> "
-                        f"<span class='note'>(priority {r['priority_score']}, "
-                        f"{html.escape(r['category'])})</span></li>" for r in road)
+<h2>The baselines they had to beat</h2>
+<p class='lede'>Buying and holding, with no cleverness at all.</p>
+<div class='tbl-wrap'><table><thead>{head}</thead><tbody>{rows(bench)}</tbody></table></div>"""
 
-    return (_mode_banner(mode) + f"<div class='cards'>{cards_html}</div>"
-            + timeline
-            + "<div class='grid2'><div><h2>Strategy families</h2><table>"
-              f"<tr><th>family</th><th>classes</th></tr>{fam_rows}</table></div>"
-              f"<div><h2>Current roadmap (top 5)</h2><ol>{road_html}</ol>"
-              f"<p><a href='roadmap.html'>full roadmap →</a></p></div></div>"
-            + leaders)
+    # --- next actions -----------------------------------------------------
+    road = build_roadmap(mode)[:4]
+    road_html = "".join(
+        f"<li><b>{html.escape(r['title'])}</b> <span class='note'>"
+        f"({html.escape(r['category'])})</span></li>" for r in road)
+
+    trust = f"""
+<h2>Why you can trust these numbers (or not)</h2>
+<div class='grid2'>
+<div class='chart'><div class='ct'>What's guarded</div>
+<div class='cs'>Controls that were built in before any result was seen</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li><b>No peeking ahead.</b> A strategy decides using yesterday's information and
+trades at tomorrow's opening price. It cannot cheat.</li>
+<li><b>Locked rules.</b> Every rule and every line of code was fingerprinted
+before results existed, so nothing can be tweaked afterwards to look better.</li>
+<li><b>Failures kept.</b> {rejected} rejected and {stats.get('deprecated', 0)}
+retired ideas stay on the record with reasons.</li>
+<li><b>Costs charged.</b> Trading fees, spreads and market impact are all
+subtracted — several ideas that looked good stop working once they are.</li>
+</ul></div>
+<div class='chart'><div class='ct'>What's still missing</div>
+<div class='cs'>Honest limitations</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li><b>Real prices.</b> The biggest one. Everything here is simulated.</li>
+<li><b>Failed companies.</b> Free data sources drop firms that went bust, which
+flatters results. Fixing this needs a paid data source.</li>
+<li><b>One test is not proof.</b> Even a perfect run would only justify
+paper-trading, never real money on its own.</li>
+</ul></div></div>
+<p class='note'><a href='audit.html'>Full audit and governance detail →</a></p>"""
+
+    return (hero + _mode_banner(mode)
+            + "<h2>Where this stands</h2>"
+            + "<p class='lede'>Four steps from idea to decision. Two are done.</p>"
+            + _pipeline(mode)
+            + "<h2>What's been done so far</h2>" + stat_cards
+            + "<div class='grid2' style='margin-top:1rem'>"
+            + verdicts + fam_chart + "</div>"
+            + timeline + leaders + trust
+            + "<h2>What happens next</h2>"
+            + "<p class='lede'>The top priorities, generated from what the data "
+              "is currently missing:</p><ol class='lede'>" + road_html
+            + "</ol><p class='note'><a href='roadmap.html'>Full roadmap →</a></p>")
 
 
 # ----------------------------------------------------- experiment explorer ---
@@ -174,8 +559,8 @@ def _dict(x) -> dict:
     return x if isinstance(x, dict) else {}
 
 
-def _experiments_page(registry) -> str:
-    df = registry.load()
+def _experiments_page(registry, df=None) -> str:
+    df = registry.load() if df is None else df
     if df.empty:
         return "<p>No experiments recorded.</p>"
     rows = []
@@ -260,11 +645,32 @@ render();
 
 
 # --------------------------------------------------------- strategy pages ----
+SCORE_LABELS = {
+    "implementation_quality": ("Built correctly", "Is the code doing what it claims?"),
+    "audit_confidence": ("Independently checked", "Has a hostile reviewer been through it?"),
+    "data_quality": ("Data it ran on", "How trustworthy are the underlying prices?"),
+    "evidence_tier": ("Evidence grade", "A = clean data, B = known gaps, C = unusable."),
+    "statistical_confidence": ("Could this be luck?", "Higher means less likely to be chance."),
+    "robustness": ("Holds up under pressure", "Does it survive when conditions change?"),
+    "interpretability": ("Easy to understand", "Fewer moving parts is better."),
+    "capacity": ("Room to scale", "Would it still work with real money in it?"),
+    "tradingview_compatibility": ("Chartable", "Can you watch it on TradingView?"),
+    "documentation_quality": ("Documented", "Is it written down properly?"),
+    "reproducibility": ("Repeatable", "Can someone rerun this years from now?"),
+}
+
+
 def _scorebar(dim: str, d: dict) -> str:
-    return (f"<div class='score'><div style='width:220px'>{html.escape(dim)}</div>"
-            f"<div class='bar' style='width:{d['score'] * 28}px'></div>"
-            f"<b>{d['score']}</b><span class='note'> — {html.escape(d['reason'])}"
-            f"</span></div>")
+    label, why = SCORE_LABELS.get(dim, (dim.replace("_", " ").capitalize(), ""))
+    pct = d["score"] / 5 * 100
+    colour = ("var(--good)" if d["score"] >= 3.5
+              else "var(--warning)" if d["score"] >= 2 else "var(--critical)")
+    return (f"<div class='bar-row' style='grid-template-columns:minmax(140px,200px) 1fr 3rem'>"
+            f"<div class='lab'>{html.escape(label)}"
+            f"<span class='sub' style='text-align:right'>{html.escape(why)}</span></div>"
+            f"<div class='bar-track'><div class='bar-fill' style='width:{pct:.0f}%;"
+            f"background:{colour}' title='{html.escape(d['reason'])}'></div></div>"
+            f"<div class='val'>{d['score']}</div></div>")
 
 
 def _strategy_page(e, mode: str) -> str:
@@ -272,78 +678,118 @@ def _strategy_page(e, mode: str) -> str:
     nb = research_notebook(e)
     sc = nb["scorecard"]
     gen = nb["future_ideas"]
+    label = CLASS_LABELS.get(e.class_name, e.class_name)
+
+    # The docstring's first line is often a clause, not a sentence — take the
+    # whole first paragraph so the page never ends mid-thought.
+    blurb = " ".join((e.docstring or "").split("\n\n")[0].split())
 
     hist_rows = "".join(
-        f"<tr><td>{h['date']}</td><td>{html.escape(str(h['strategy'])[:70])}</td>"
-        f"<td>{h['data_mode']}</td><td>{h['dev_sharpe']}</td>"
-        f"<td>{h['holdout_sharpe']}</td><td>{h['max_dd']}</td><td>{h['turnover']}</td></tr>"
+        f"<tr><td>{h['date']}</td><td>{_strategy_link(str(h['strategy']), depth=1)}</td>"
+        f"<td class='num'>{h['dev_sharpe']}</td>"
+        f"<td class='num'>{h['holdout_sharpe']}</td>"
+        f"<td class='num'>{h['max_dd']:.0%}</td>"
+        f"<td class='num'>{h['turnover']}</td></tr>"
         for h in nb["experiment_history"])
 
     tree = ""
     for line in gen:
         nodes = "".join(
-            f"<div class='node'><b>{v['id']}</b> · freeze {v.get('freeze')} · "
-            f"{html.escape(str(v.get('change', '')))}<br>"
-            f"<span class='note'>why: {html.escape(str(v.get('why', '')))} → "
+            f"<div class='node'><b>{html.escape(str(v.get('change', '')))}</b><br>"
+            f"<span class='note'>Why: {html.escape(str(v.get('why', '')))} → "
             f"{html.escape(str(v.get('outcome', '')))}"
-            f"{' · required freeze bump' if v.get('requires_freeze_bump') else ''}"
+            f"{' · needed a new freeze' if v.get('requires_freeze_bump') else ''}"
             f"</span></div>"
             for v in line["versions"])
         tree += f"<h3>{html.escape(line['title'])}</h3><div class='tree'>{nodes}</div>"
 
     pine = export_pine(e.class_name)
-    tv = (f"<p>{_badge('portable') if e.tradingview else _badge('not-portable')} "
-          f"{html.escape(e.tradingview_note)}</p>")
     if pine:
-        tv += (f"<p><a href='../tradingview/{e.class_name}.pine' download>"
-               f"Download {e.class_name}.pine</a></p><details><summary>view "
-               f"script</summary><pre>{html.escape(pine)}</pre></details>")
+        tv = (f"<p class='lede'>{html.escape(e.tradingview_note)}</p>"
+              f"<p><a href='../tradingview/{e.class_name}.pine' download "
+              f"style='font-weight:600'>⬇ Download the TradingView script</a></p>"
+              f"<details><summary>Preview the script</summary>"
+              f"<pre>{html.escape(pine)}</pre></details>"
+              f"<p class='note'>The Pine version is an approximation of the tested "
+              f"Python one — no cost model, single symbol, no cash sleeve. Use it to "
+              f"watch the signal on a chart, not to judge performance.</p>")
+    else:
+        tv = (f"<p class='lede'>Not available on TradingView. "
+              f"{html.escape(e.tradingview_note)}</p>")
 
-    body = f"""
+    verdict_line = ""
+    if e.best_verdict:
+        verdict_line = f" · best result: {_badge(e.best_verdict)}"
+
+    return f"""
+<h1>{html.escape(label)}</h1>
+<p class='lede'><i>{html.escape(_plain(e.hypothesis))}</i></p>
+<p>{_badge(e.status)}{verdict_line} · research-quality score
+<b>{sc['overall']}/5</b> · {e.n_experiments} test runs</p>
 {_mode_banner(mode)}
-<p>{_badge(e.status)} {_badge(e.family)}
-{_badge(e.tier) if e.tier else ''} · best verdict:
-{_badge(e.best_verdict or 'n/a')} · scorecard <b>{sc['overall']}/5</b></p>
-<p><i>{html.escape(e.hypothesis)}</i></p>
 
-<h2>Scorecard (research quality, not performance)</h2>
-{''.join(_scorebar(k, v) for k, v in sc['dimensions'].items())}
-<p class='note'>{html.escape(sc['verdict'])} — {html.escape(sc['note'])}</p>
+<h2>What it does</h2>
+<p class='lede'>{html.escape(_plain(blurb))}</p>
+<p class='note'>Works on: {doc['compatible_markets']} · typical holding period:
+{doc['intended_timeframe']}</p>
 
-<h2>Documentation</h2>
-<p>{html.escape(doc['description'])}</p>
-<p class='note'>Markets: {doc['compatible_markets']} · timeframe:
-{doc['intended_timeframe']} · audit: {doc['audit_status']}</p>
 <div class='grid2'>
-<div><h3>Strengths</h3><ul>{''.join(f'<li>{html.escape(s)}</li>' for s in doc['strengths'])}</ul></div>
-<div><h3>Weaknesses</h3><ul>{''.join(f'<li>{html.escape(s)}</li>' for s in doc['weaknesses'])}</ul></div>
+<div class='chart'><div class='ct'>What's good about it</div><div class='cs'>&nbsp;</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+{''.join(f'<li>{html.escape(s)}</li>' for s in doc['strengths'])}</ul></div>
+<div class='chart'><div class='ct'>What's wrong with it</div><div class='cs'>&nbsp;</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+{''.join(f'<li>{html.escape(s)}</li>' for s in doc['weaknesses'])}</ul></div>
 </div>
-<h3>Assumptions</h3><ul>{''.join(f'<li>{html.escape(s)}</li>' for s in doc['assumptions'])}</ul>
-<h3>Parameters</h3><table><tr><th>name</th><th>default</th></tr>
-{''.join(f"<tr><td>{html.escape(p['name'])}</td><td>{html.escape(str(p['default']))}</td></tr>" for p in doc['parameters'])}</table>
-<h3>Frozen grids</h3><pre>{html.escape(json.dumps(doc['grids'], indent=1))}</pre>
 
-<h2>Research notebook</h2>
-<p><b>Rationale:</b> {html.escape(nb['rationale'])}</p>
-<h3>Experiment history ({len(nb['experiment_history'])})</h3>
-<table><tr><th>date</th><th>variant</th><th>mode</th><th>dev Sharpe</th>
-<th>holdout Sharpe</th><th>maxDD</th><th>turnover</th></tr>{hist_rows}</table>
-<h3>Lessons learned</h3><ul>{''.join(f'<li>{html.escape(x)}</li>' for x in nb['lessons_learned']) or '<li>—</li>'}</ul>
-<h3>Remaining questions</h3><ul>{''.join(f'<li>{html.escape(x)}</li>' for x in nb['remaining_questions'])}</ul>
+<h2>How much to trust it</h2>
+<p class='lede'>This scores the <b>quality of the research</b>, not the returns.
+A high score means the finding is well-built and well-checked — it does not mean
+the strategy makes money. Hover any bar for the detail behind the score.</p>
+<div class='chart'>{''.join(_scorebar(k, v) for k, v in sc['dimensions'].items())}
+<p class='note' style='margin-top:.8rem'><b>Verdict: {html.escape(sc['verdict'])}.</b>
+{html.escape(sc['note'])}</p></div>
 
-<h2>Genealogy</h2>{tree or "<p class='note'>no recorded version history yet</p>"}
+<h2>What it assumes</h2>
+<p class='lede'>If these stop being true, the strategy stops working.</p>
+<ul class='lede'>{''.join(f'<li>{html.escape(s)}</li>' for s in doc['assumptions'])}</ul>
 
-<h2>TradingView</h2>{tv}
+<h2>Track record</h2>
+<p class='lede'>Every recorded run of this idea. <b>Sharpe</b> is return per unit
+of bumpiness. <b>Holdout</b> is the locked-away slice of history, looked at once —
+if it is much worse than the development figure, the idea was over-tuned.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Date</th><th>Setting</th>
+<th class='num'>Sharpe (dev)</th><th class='num'>Sharpe (holdout)</th>
+<th class='num'>Worst fall</th><th class='num'>Turnover</th></tr></thead>
+<tbody>{hist_rows}</tbody></table></div>
 
-<h2>Python implementation (freeze-v2 fingerprinted)</h2>
-<details><summary>view source</summary><pre>{html.escape(doc['python_implementation'])}</pre></details>
+<h2>What we learned</h2>
+<ul class='lede'>{''.join(f'<li>{html.escape(x)}</li>' for x in nb['lessons_learned']) or '<li>Nothing recorded yet.</li>'}</ul>
+<h3>Still open</h3>
+<ul class='lede'>{''.join(f'<li>{html.escape(x)}</li>' for x in nb['remaining_questions'])}</ul>
+
+<h2>How this idea evolved</h2>
+{tree or "<p class='note'>No version history recorded yet.</p>"}
+
+<h2>Watch it on TradingView</h2>
+{tv}
+
+<h2>The fine print</h2>
+<details><summary>Settings and their defaults</summary>
+<div class='tbl-wrap' style='margin-top:.5rem'><table><thead><tr><th>Setting</th>
+<th>Default</th></tr></thead><tbody>
+{''.join(f"<tr><td>{html.escape(p['name'])}</td><td>{html.escape(str(p['default']))}</td></tr>" for p in doc['parameters'])}
+</tbody></table></div></details>
+<details><summary>Exact settings tested (frozen)</summary>
+<pre>{html.escape(json.dumps(doc['grids'], indent=1))}</pre></details>
+<details><summary>Python source (fingerprinted by freeze v2)</summary>
+<pre>{html.escape(doc['python_implementation'])}</pre></details>
 """
-    return body
 
 
 # ------------------------------------------------------------ compare page ---
-def _compare_page(registry) -> str:
-    df = registry.load()
+def _compare_page(registry, df=None) -> str:
+    df = registry.load() if df is None else df
     ok = df[(df.get("status") == "ok") & (df.get("scenario") == "base")] \
         if not df.empty else pd.DataFrame()
     if ok.empty:
@@ -425,49 +871,96 @@ def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
     registry = ExperimentRegistry.for_mode(mode)
     stats = platform_stats(mode)
     cat = build_catalog(mode)
+    reg_df = load_registry(mode)
+
+    def head(title: str, lede: str) -> str:
+        return f"<h1>{html.escape(title)}</h1><p class='lede'>{lede}</p>"
 
     # dashboard
     (out / "index.html").write_text(
-        _page("Research dashboard", _dashboard(mode, stats, cat, registry)))
+        _page("Overview — AI & Tech Strategy Research",
+              _dashboard(mode, stats, cat, registry), current="index.html"))
 
     # experiments
-    (out / "experiments.html").write_text(
-        _page("Experiment explorer", _mode_banner(mode) + _experiments_page(registry)))
+    (out / "experiments.html").write_text(_page(
+        "Experiments",
+        head("Every test ever run",
+             "One row per test run. Nothing is ever deleted — failures and "
+             "retired ideas stay here permanently, which is what stops the same "
+             "dead end being explored twice. Click any row for the full record.")
+        + _mode_banner(mode) + _experiments_page(registry, reg_df),
+        current="experiments.html"))
 
     # strategies index + pages
     rows = "".join(
-        f"<tr><td><a href='strategy/{e.class_name}.html'>{e.class_name}</a></td>"
-        f"<td>{e.family}</td><td>{_badge(e.status)}</td>"
-        f"<td>{_badge(e.tier) if e.tier else '—'}</td>"
-        f"<td>{e.n_experiments}</td>"
-        f"<td>{_badge('TV') if e.tradingview else '—'}</td>"
-        f"<td>{html.escape(e.hypothesis[:90])}</td></tr>"
-        for e in cat.values() if e.status != "unlisted")
+        f"<tr><td><a href='strategy/{e.class_name}.html'>"
+        f"{html.escape(CLASS_LABELS.get(e.class_name, e.class_name))}</a>"
+        f"<span class='sub'>{html.escape(e.class_name)}</span></td>"
+        f"<td>{_badge(e.status)}</td>"
+        f"<td class='num'>{e.n_experiments}</td>"
+        f"<td>{'✔' if e.tradingview else '—'}</td>"
+        f"<td class='lede' style='font-size:.82rem'>{html.escape(_plain(e.hypothesis)[:120])}</td></tr>"
+        for e in sorted(cat.values(), key=lambda x: (x.status != "core", x.class_name))
+        if e.status != "unlisted")
     (out / "strategies.html").write_text(_page(
-        "Strategy catalog", _mode_banner(mode) +
-        "<table><tr><th>class</th><th>family</th><th>status</th><th>tier</th>"
-        "<th>experiments</th><th>TradingView</th><th>hypothesis</th></tr>"
-        + rows + "</table>"))
+        "Strategies",
+        head("The ideas being tested",
+             "Each one is a rule for deciding what to hold and when. "
+             "<b>Core</b> ideas are the headline set; <b>exploratory</b> ones are "
+             "being probed; <b>deprecated</b> ones were retired on purpose, with "
+             "the reason recorded. Click through for a plain-English explanation, "
+             "its track record, and a TradingView script where one is possible.")
+        + _mode_banner(mode)
+        + "<div class='tbl-wrap'><table><thead><tr><th>Idea</th><th>Status</th>"
+          "<th class='num'>Runs</th><th>TradingView</th><th>The bet it makes</th>"
+          "</tr></thead><tbody>" + rows + "</tbody></table></div>",
+        current="strategies.html"))
     for e in cat.values():
         if e.status == "unlisted":
             continue
         (out / "strategy" / f"{e.class_name}.html").write_text(
-            _page(e.class_name, _strategy_page(e, mode), depth=1))
+            _page(CLASS_LABELS.get(e.class_name, e.class_name),
+                  _strategy_page(e, mode), depth=1))
 
     # compare
-    (out / "compare.html").write_text(
-        _page("Comparison engine", _mode_banner(mode) + _compare_page(registry)))
+    (out / "compare.html").write_text(_page(
+        "Compare",
+        head("Put ideas side by side",
+             "Tick any two or more to line up their numbers. Export the "
+             "selection as a spreadsheet with the button.")
+        + _mode_banner(mode) + _compare_page(registry, reg_df), current="compare.html"))
 
     # portfolio lab
-    (out / "portfolio.html").write_text(
-        _page("Portfolio laboratory", _mode_banner(mode) + _portfolio_page(mode)))
+    (out / "portfolio.html").write_text(_page(
+        "Portfolio lab",
+        head("Do these ideas work well together?",
+             "Two mediocre strategies can beat a good one if they fail at "
+             "different times. This page checks whether they actually do — how "
+             "closely they move together, whether they collapse in the same "
+             "market conditions, and whether combining them helps.")
+        + _mode_banner(mode) + _portfolio_page(mode), current="portfolio.html"))
 
     # ideas + roadmap
-    (out / "ideas.html").write_text(_page("Idea backlog", _ideas_page()))
-    (out / "roadmap.html").write_text(_page("Research roadmap", _roadmap_page(mode)))
+    (out / "ideas.html").write_text(_page(
+        "Ideas",
+        head("Ideas waiting to be tested",
+             "Written down before any code is built, so a hypothesis can't be "
+             "invented after seeing what worked.") + _ideas_page(),
+        current="ideas.html"))
+    (out / "roadmap.html").write_text(_page(
+        "Roadmap",
+        head("What to work on next",
+             "Ranked automatically by expected value against effort, and fed by "
+             "what the data is currently missing plus any unresolved audit "
+             "findings.") + _roadmap_page(mode), current="roadmap.html"))
 
     # audit summary page
-    (out / "audit.html").write_text(_page("Audit & governance", _audit_page()))
+    (out / "audit.html").write_text(_page(
+        "Trust & audit",
+        head("Why you can trust these numbers",
+             "This system was reviewed as if by a hostile auditor whose job was "
+             "to prove the results wrong. Everything found is listed below — "
+             "fixed or still open.") + _audit_page(), current="audit.html"))
 
     # tradingview exports
     export_all(out / "tradingview")
@@ -476,54 +969,129 @@ def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
     return out
 
 
+_REGIME_LABELS = {
+    "dotcom_aftermath": "Dot-com crash", "pre_gfc": "Pre-2008 boom",
+    "gfc": "2008 crisis", "qe_bull": "2009–19 bull run",
+    "covid_shock": "Covid 2020", "speculative_2021": "2021 mania",
+    "rate_bear_2022": "2022 rate shock", "ai_rally": "AI rally (2023+)",
+}
+_MAX_MATRIX = 12   # beyond this a correlation grid is unreadable on a screen
+
+
 def _portfolio_page(mode: str) -> str:
     returns = load_strategy_returns(mode, include_benchmarks=True)
     if returns.empty:
-        return "<p>No curves available.</p>"
-    corr = correlation_matrix(returns)
+        return ("<div class='chart'><div class='ct'>Nothing to compare yet</div>"
+                "<div class='cs'>This page needs the day-by-day results of each "
+                "strategy, which are not stored in the repository — they are large "
+                "(~125 MB) and can be rebuilt exactly from the experiment record."
+                "</div><p class='lede'>To fill this page in, run:</p>"
+                "<pre>python scripts/run_all.py --data-mode synthetic\n"
+                "python scripts/research.py dashboard</pre></div>")
+
     bt_cfg = load_backtest_config()
-    cofail = regime_cofailure(returns, bt_cfg.subperiods)
-    blends = blend_report(returns)
+    # One column per IDEA, best variant only, capped — a 24-wide grid of
+    # truncated names is not a chart, it is a wall.
+    by_class: dict[str, str] = {}
+    for col in returns.columns:
+        by_class.setdefault(col.split("(")[0], col)
+    keep = list(by_class.values())[:_MAX_MATRIX]
+    sub = returns[keep]
+    short = {c: humanize(c)[0] for c in keep}
 
-    def heat(v):
+    corr = correlation_matrix(sub)
+    cofail = regime_cofailure(sub, bt_cfg.subperiods)
+    blends = blend_report(sub)
+
+    def corr_cell(v: float) -> str:
+        """Sequential blue: dark = moves together (bad for diversification)."""
         if pd.isna(v):
-            return "#f1f5f9"
-        t = max(-1, min(1, float(v)))
-        return (f"rgba(37,99,235,{abs(t) * 0.75:.2f})" if t > 0
-                else f"rgba(220,38,38,{abs(t) * 0.75:.2f})")
+            return "background:var(--line)"
+        t = max(0.0, min(1.0, (float(v) + 1) / 2))
+        # stretch across the band that actually occurs so differences show
+        t = max(0.0, min(1.0, (t - 0.55) / 0.45))
+        ink = "#fff" if t > 0.55 else "var(--ink)"
+        return f"background:rgba(42,120,214,{0.10 + t * 0.85:.2f});color:{ink}"
 
-    names = [c[:26] for c in corr.columns]
-    corr_html = "<table><tr><th></th>" + "".join(f"<th style='font-size:.62rem'>{html.escape(n)}</th>" for n in names) + "</tr>"
-    for i, row in enumerate(corr.itertuples(index=False)):
-        corr_html += f"<tr><td style='font-size:.62rem'><b>{html.escape(names[i])}</b></td>"
-        corr_html += "".join(f"<td style='background:{heat(v)};text-align:center;"
-                             f"font-size:.62rem'>{v:.2f}</td>" for v in row)
-        corr_html += "</tr>"
-    corr_html += "</table>"
+    names = [short[c] for c in corr.columns]
+    head = "".join(f"<th style='font-size:.68rem;font-weight:600'>{html.escape(n)}</th>"
+                   for n in names)
+    rows = ""
+    for i, (_, row) in enumerate(corr.iterrows()):
+        cells = "".join(
+            f"<td style='{corr_cell(v)};text-align:center;font-size:.72rem;"
+            f"font-variant-numeric:tabular-nums' title='{html.escape(names[i])} vs "
+            f"{html.escape(names[j])}: {v:.2f}'>{v:.2f}</td>"
+            for j, v in enumerate(row))
+        rows += (f"<tr><td style='font-size:.75rem;font-weight:600;white-space:nowrap'>"
+                 f"{html.escape(names[i])}</td>{cells}</tr>")
+    corr_html = (f"<div class='tbl-wrap'><table><thead><tr><th></th>{head}</tr></thead>"
+                 f"<tbody>{rows}</tbody></table></div>")
 
     cofail_html = ""
     if not cofail.empty:
-        cofail_html = "<table><tr><th>strategy</th>" + "".join(
-            f"<th>{html.escape(c)}</th>" for c in cofail.columns) + "</tr>"
+        cols = [c for c in cofail.columns]
+        chead = "".join(f"<th class='num'>{html.escape(_REGIME_LABELS.get(c, c))}</th>"
+                        for c in cols)
+        crows = ""
         for name, row in cofail.iterrows():
-            cofail_html += (f"<tr><td style='font-size:.7rem'>{html.escape(name[:40])}</td>"
-                            + "".join(f"<td style='background:{heat(v/2 if pd.notna(v) else v)};"
-                                      f"text-align:center'>{'' if pd.isna(v) else f'{v:.1f}'}</td>"
-                                      for v in row) + "</tr>")
-        cofail_html += "</table><p class='note'>Sharpe per regime window — red columns shared across rows = co-failure.</p>"
+            cells = ""
+            for v in row:
+                if pd.isna(v):
+                    cells += "<td class='num' style='color:var(--mut)'>–</td>"
+                else:
+                    bg = ("rgba(12,163,12,.16)" if v > 0.5 else
+                          "rgba(208,59,59,.16)" if v < 0 else "transparent")
+                    cells += (f"<td class='num' style='background:{bg}'>{v:.1f}</td>")
+            crows += (f"<tr><td style='white-space:nowrap;font-weight:600'>"
+                      f"{html.escape(short.get(name, name))}</td>{cells}</tr>")
+        cofail_html = (f"<div class='tbl-wrap'><table><thead><tr><th>Strategy</th>"
+                       f"{chead}</tr></thead><tbody>{crows}</tbody></table></div>")
 
     blend_html = ""
     if len(blends):
-        blend_html = "<table><tr>" + "".join(f"<th>{c}</th>" for c in blends.columns) + "</tr>"
-        for r in blends.itertuples(index=False):
-            blend_html += "<tr>" + "".join(f"<td>{v}</td>" for v in r) + "</tr>"
-        blend_html += ("</table><p class='note'>50/50 monthly-rebalanced blends of "
-                       "net strategy returns. Switching costs between strategies "
-                       "are NOT modeled — treat blends as upper bounds.</p>")
+        brows = ""
+        for r in blends.head(12).itertuples(index=False):
+            win = ("<b style='color:var(--good)'>yes</b>" if r.blend_beats_both
+                   else "<span style='color:var(--mut)'>no</span>")
+            brows += (f"<tr><td>{html.escape(humanize(r.a)[0])} <span class='sub'>+ "
+                      f"{html.escape(humanize(r.b)[0])}</span></td>"
+                      f"<td class='num'>{r.corr_monthly:.2f}</td>"
+                      f"<td class='num'>{r.sharpe_a:.2f}</td>"
+                      f"<td class='num'>{r.sharpe_b:.2f}</td>"
+                      f"<td class='num'><b>{r.sharpe_blend:.2f}</b></td>"
+                      f"<td>{win}</td></tr>")
+        blend_html = (f"<div class='tbl-wrap'><table><thead><tr><th>Pair</th>"
+                      f"<th class='num'>Correlation</th><th class='num'>Sharpe A</th>"
+                      f"<th class='num'>Sharpe B</th><th class='num'>Together</th>"
+                      f"<th>Better than both?</th></tr></thead>"
+                      f"<tbody>{brows}</tbody></table></div>")
 
-    return (f"<h2>Strategy correlation (monthly returns)</h2>{corr_html}"
-            f"<h2>Regime co-failure map</h2>{cofail_html}"
-            f"<h2>Pairwise blends: can two strategies beat both parents?</h2>{blend_html}")
+    return f"""
+<h2>How closely do they move together?</h2>
+<p class='lede'>1.00 means two strategies rise and fall in lockstep — holding
+both gives you no protection. Lower numbers mean they behave differently, which
+is what makes combining them worthwhile. <b>Darker = moves together.</b>
+Showing the best version of each idea{', capped at ' + str(_MAX_MATRIX) if len(by_class) > _MAX_MATRIX else ''}.</p>
+{corr_html}
+<p class='note'>Most of these are highly correlated because nearly all of them
+hold the same handful of big technology stocks. That is the honest finding:
+they are variations on one bet, not independent bets.</p>
+
+<h2>Do they fail at the same time?</h2>
+<p class='lede'>Each cell is the risk-adjusted return during that market period —
+green is good, red is a loss. A column that is red all the way down means every
+strategy broke in that period, and holding several of them would not have saved
+you.</p>
+{cofail_html}
+
+<h2>Is a pair better than either one alone?</h2>
+<p class='lede'>Splitting money 50/50 between two strategies, rebalanced monthly.
+“Together” is the combined result. If it beats both parents, the pair genuinely
+diversifies.</p>
+{blend_html}
+<p class='note'>The cost of switching between strategies is not modelled here, so
+treat the combined figures as a best case rather than a promise.</p>"""
 
 
 def _ideas_page() -> str:

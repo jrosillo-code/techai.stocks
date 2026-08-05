@@ -64,6 +64,23 @@ class StrategyEntry:
         return len(self.experiments)
 
 
+
+def load_registry(mode: str) -> pd.DataFrame:
+    """Registry records, de-duplicated by experiment id (first write wins).
+
+    The registry is append-only by design. Re-running a study whose equity
+    curves were deleted re-appends identical records for the same ids — the
+    results are byte-identical (deterministic seeds), but counting the rows
+    twice would overstate how much research was done. The engine-side registry
+    is fingerprinted by freeze v2 and must not be edited, so the display layer
+    de-duplicates instead.
+    """
+    df = ExperimentRegistry.for_mode(mode).load()
+    if df.empty or "id" not in df.columns:
+        return df
+    return df.drop_duplicates("id", keep="first")
+
+
 def _grid_status() -> dict[str, tuple[str, str, list]]:
     """class -> (status, reason, grids) from experiments.yaml (the frozen grid)."""
     spec = load_yaml("experiments.yaml")
@@ -88,7 +105,7 @@ def _grid_status() -> dict[str, tuple[str, str, list]]:
 def build_catalog(mode: str = "synthetic",
                   ranking: pd.DataFrame | None = None) -> dict[str, StrategyEntry]:
     registry = ExperimentRegistry.for_mode(mode)
-    df = registry.load()
+    df = load_registry(mode)
     ok = df[(df.get("status") == "ok") & (df.get("scenario") == "base")] \
         if not df.empty else pd.DataFrame()
     grid_info = _grid_status()
@@ -132,7 +149,7 @@ def build_catalog(mode: str = "synthetic",
 def platform_stats(mode: str = "synthetic") -> dict:
     """Headline numbers for the dashboard."""
     registry = ExperimentRegistry.for_mode(mode)
-    df = registry.load()
+    df = load_registry(mode)
     cat = build_catalog(mode)
     rank_path = registry.root / "strategy_ranking.csv"
     ranking = pd.read_csv(rank_path) if rank_path.exists() else pd.DataFrame()
