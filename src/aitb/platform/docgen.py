@@ -83,29 +83,38 @@ def strategy_doc(e: StrategyEntry) -> dict:
 def _strengths(e: StrategyEntry) -> list[str]:
     out = []
     if e.status == "core":
-        out.append("economically motivated; survived the deprecation review")
+        out.append("Has a real reason to work, and survived the cull that "
+                   "retired weaker ideas")
     if len(e.parameters) <= 3:
-        out.append("few parameters — low overfitting surface")
+        out.append("Few settings to tune, so there is little room to "
+                   "accidentally fit it to the past")
     if e.family == "riskmanaged":
-        out.append("modifies risk, not selection — robust to ranking noise")
+        out.append("Changes how much you hold, not which stocks you pick — so "
+                   "it does not depend on picking winners correctly")
     if e.tradingview:
-        out.append("expressible as a standalone TradingView study")
-    return out or ["exploratory hypothesis under evaluation"]
+        out.append("Simple enough to watch on a TradingView chart")
+    return out or ["Still an open question — under evaluation"]
 
 
 def _weaknesses(e: StrategyEntry) -> list[str]:
     out = []
     if e.family == "meanrev":
-        out.append("cost-fragile: edge disappears under stressed costs (measured)")
+        out.append("The edge vanishes once realistic trading costs are charged — "
+                   "measured, not assumed")
     if e.family in ("xsmom", "breakout", "ml"):
-        out.append("cross-sectional selection is survivorship-limited on free data (Tier B)")
+        out.append("Picks from a list of companies that survived to today. Free "
+                   "data drops firms that went bust, which flatters the result")
     if e.family == "regime":
-        out.append("depends on revised macro series — real-time value unproven")
+        out.append("Relies on economic data as it reads today, not as it read at "
+                   "the time — so its real-time value is unproven")
     if e.family == "fundamental":
-        out.append("needs point-in-time fundamentals coverage to run on real data")
+        out.append("Needs company accounts dated to when they were actually "
+                   "published; that data is not yet in place")
     if len(e.parameters) > 5:
-        out.append(f"{len(e.parameters)} parameters — sensitivity tables mandatory")
-    return out or ["limitations not yet characterized on real data"]
+        out.append(f"{len(e.parameters)} settings to choose — enough that some "
+                   "combination will look good by chance, so the sensitivity "
+                   "checks matter")
+    return out or ["Limits not yet known — it has only run on simulated data"]
 
 
 def research_notebook(e: StrategyEntry) -> dict:

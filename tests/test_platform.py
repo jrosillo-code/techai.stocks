@@ -141,9 +141,16 @@ def test_site_build_is_read_only_over_governance(tmp_path):
         assert (out / page).exists(), page
     assert (out / "strategy" / "TrendPlusVolTarget.html").exists()
     assert (out / "tradingview" / "QQQMovingAverage.pine").exists()
-    # synthetic banner must be present on every numeric page
-    for page in ("index.html", "experiments.html", "compare.html"):
-        assert "SYNTHETIC DATA MODE" in (out / page).read_text()
+    # Every page showing numbers must warn that they are simulated. Assert the
+    # GUARANTEE, not one exact sentence, so the copy can be improved without
+    # silently dropping the warning: the styled warn box must be present and
+    # must say the data is simulated/not real.
+    for page in ("index.html", "experiments.html", "compare.html",
+                 "portfolio.html", "strategies.html"):
+        txt = (out / page).read_text()
+        assert "warnbox" in txt, f"{page} has no warning box"
+        assert "simulated" in txt.lower(), f"{page} does not say the data is simulated"
+        assert "not the real one" in txt.lower() or "real study" in txt.lower(), page
 
 
 def test_assistant_is_read_only_and_flags_meanrev(tmp_path):
