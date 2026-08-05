@@ -1,11 +1,11 @@
 step,selected,train_score
 1995-02-01,"InverseVolBasket(basket=target_holdings,rebalance=ME)",1.4242729645934502
-1996-02-01,"InverseVolBasket(basket=target_holdings,rebalance=ME)",1.4776034666758007
-1997-02-01,"InverseVolBasket(basket=target_holdings,rebalance=ME)",1.482514559226792
-1998-02-01,"InverseVolBasket(basket=target_holdings,rebalance=ME)",1.517618914244059
-1999-02-01,"InverseVolBasket(basket=target_holdings,rebalance=ME)",1.555831035060394
-2000-02-01,"InverseVolBasket(basket=target_holdings,rebalance=ME)",1.702404634130492
-2001-02-01,"TrendPlusVolTarget(basket=target_holdings,fallback=IEF,hysteresis=0.02,min_exposure=0.2,rebalance=W-FRI,target_vol=0.2,trend_window=200,vol_window=63)",1.5156858834254572
+1996-02-01,"InverseVolBasket(basket=ai_broad,rebalance=ME)",1.5674752326621992
+1997-02-01,"InverseVolBasket(basket=semiconductors,rebalance=ME)",1.7258524640111181
+1998-02-01,"InverseVolBasket(basket=semiconductors,rebalance=ME)",1.8217450302081881
+1999-02-01,"InverseVolBasket(basket=semiconductors,rebalance=ME)",1.9497240588968714
+2000-02-01,"InverseVolBasket(basket=semiconductors,rebalance=ME)",2.0711127558425306
+2001-02-01,"InverseVolBasket(basket=semiconductors,rebalance=ME)",1.553697786503714
 2002-02-01,"TrendPlusVolTarget(basket=target_holdings,fallback=IEF,hysteresis=0.02,min_exposure=0.2,rebalance=W-FRI,target_vol=0.2,trend_window=200,vol_window=63)",1.4178410067560374
 2003-02-01,"TrendPlusVolTarget(basket=target_holdings,fallback=IEF,hysteresis=0.02,min_exposure=0.2,rebalance=W-FRI,target_vol=0.2,trend_window=200,vol_window=63)",1.3222934608992258
 2004-02-01,"TrendPlusVolTarget(basket=target_holdings,fallback=IEF,hysteresis=0.02,min_exposure=0.2,rebalance=W-FRI,target_vol=0.2,trend_window=200,vol_window=63)",1.3374810262759746

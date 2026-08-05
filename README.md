@@ -113,16 +113,54 @@ via `python scripts/run_all.py --data-mode synthetic`. Until you regenerate
 them, the portfolio-lab page renders empty on a fresh clone; everything else
 works from the registry.
 
+## The universe (freeze v3)
+
+**120 securities: 81 still trading, 39 delisted.** Semiconductors, chip
+equipment, chip-design software (EDA), cloud, enterprise software, internet,
+cybersecurity, networking, robotics and the power companies feeding AI data
+centres — plus 14 benchmark funds and 15 theme baskets.
+
+The 39 delisted names are the point. A universe of survivors is a universe that
+has already been told the answer: every name in it went on to exist. The roster
+therefore keeps the dot-com bankruptcies (Nortel, WorldCom, Silicon Graphics,
+JDS Uniphase, Lucent), the acquisition wave (Altera, Broadcom Corp, Red Hat,
+VMware, Activision, Splunk, Ansys, Juniper) and the take-privates (Citrix,
+Zendesk, Proofpoint, Twitter). A momentum screen has to buy them at their peaks
+and ride them into the delisting, exactly as a real investor would have.
+
+The security master carries the ticker traps that come with them — most
+sharply, **Broadcom**: Avago bought the Broadcom *name* in 2016, so a vendor
+series labelled "Broadcom" begins in 2009 and hides the original company's
+dot-com boom and collapse entirely. `BRCM` and `AVGO` are separate securities
+here and are never joined.
+
+*Caveat that has not gone away:* the roster is defined, but free providers
+frequently serve no history for delisted tickers. A real run that cannot fetch
+them reports itself as survivorship-limited rather than pretending the list was
+honoured.
+
 ## The first frozen real-data study (one command)
 
 The first real run is governed by a **research freeze**
-(`configs/research_freeze_v2.json`, hash `49767ea3efc44cead711d72946c3fe31`):
+(`configs/research_freeze_v3.json`, hash `f173a689adb51ed3be8ccb0b96e615af`):
 every strategy grid, benchmark, cost scenario, split, ranking rule, rejection
-rule, and the fingerprints of the 29 code modules that compute, tier, gate or
+rule, and the fingerprints of the 31 code modules that compute, tier, gate or
 record results — hashed before any real result exists. Every real-mode entry
 point (experiments, robustness, capacity, company analysis, report) verifies
 the hash and aborts on any drift — no tuning is possible during the first
 study.
+
+**Freeze v2 is superseded** (preserved unmodified at
+`configs/research_freeze_v2.json`, hash `49767ea3efc44cead711d72946c3fe31`) —
+by a deliberate redefinition of the study, not by a defect in its controls: the
+universe grew from 38 securities to 120, and two strategy families (`factor`,
+`allocation`) were added to test v2's central negative finding, that its 24
+families were one bet in disguise. One real defect was fixed alongside it
+(AUD-016): `experiment_id` did not bind the universe, so re-running a strategy
+against a wider roster would have reused the narrower roster's cached results.
+Every leaderboard, scorecard and comparison is now restricted to a single
+universe cohort; the v2 cohort stays in the registry and is excluded by hash
+rather than deleted.
 
 **Freeze v1 is superseded** (preserved unmodified at
 `configs/research_freeze_v1.json`, tag `pre-real-data-freeze-v1`): the
@@ -210,7 +248,8 @@ the exact strategy object.
 ```
 ai-tech-backtest/
   configs/
-    universe.yaml          PIT universe + theme baskets + target_holdings
+    universe.yaml          PIT universe (81 live + 39 delisted) + theme
+                           baskets + target_holdings
     security_master.yaml   permanent sids, ticker histories (FB→META,
                            SUNW→JAVA), successors (XLNX→AMD, EMC→DELL)
     costs.yaml             zero/low/base/stressed scenarios
@@ -252,7 +291,11 @@ ai-tech-backtest/
     reporting.py           charts + self-contained HTML reports
     strategies/            benchmark, tsmom, xsmom, meanrev, breakout,
                            fundamental, regime, riskmanaged (incl. combined
-                           TrendPlusVolTarget with hysteresis), ml
+                           TrendPlusVolTarget with hysteresis), ml,
+                           factor (residual momentum, multi-horizon consensus,
+                           low-vol, breadth gating, theme rotation, fundamental
+                           acceleration), allocation (equal-risk contribution,
+                           minimum-correlation sleeve)
   scripts/                 download_real_data, import_data_bundle,
                            validate_real_data, run_experiments, run_robustness,
                            run_capacity, run_company_analysis, make_report,

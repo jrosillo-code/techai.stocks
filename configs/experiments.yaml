@@ -14,12 +14,37 @@
 # unfiltered breakouts were dominated by their regime-filtered twins; the
 # momentum-weighted XS variant concentrates in a single winner. Those are
 # deprecated below with reasons rather than silently dropped.
+#
+# FREEZE v3 (2026-08-05). Two changes, both driven by v2's findings rather than
+# by a search for better numbers:
+#
+#   1. The universe went from 38 securities to 120 (81 live, 39 delisted). Every
+#      pre-existing variant is re-run against it. Their v2 numbers are NOT
+#      comparable and are not shown beside the new ones — the ranking filters to
+#      one universe cohort, which is why the run count restarts rather than
+#      accumulating.
+#   2. Two new families were added, `factor` and `allocation`. They exist to
+#      test v2's central negative result: that ~every strategy in the study was
+#      a variation on one bet, holding the same megacaps and falling together.
+#      Each new entry names the specific failure it attacks.
+#
+# The trial count rises with these additions and the deflated Sharpe ratio
+# corrects for it. Grids remain coarse deliberately — a fine grid buys a higher
+# peak backtest and a worse correction, which is a bad trade.
 
 benchmarks:
   - {class: BuyAndHold, status: core, grid: {ticker: [SPY, QQQ, XLK, SOXX, SMH, IGV]}}
+  # Broader passive alternatives added with the v3 benchmark expansion: a
+  # total-tech fund, small caps, a speculative-innovation fund, and the
+  # cloud/cyber/robotics theme funds an investor would realistically compare
+  # against instead of building any of this.
+  - {class: BuyAndHold, status: core, grid: {ticker: [VGT, IWM, ARKK, SKYY, CIBR, BOTZ]}}
   - {class: EqualWeightUniverse, status: core, grid: {rebalance: [ME]}}
   - {class: EqualWeightUniverse, status: core, grid: {rebalance: [ME], basket: [megacap_ai, ai_compute]}}
-  - {class: CapWeightUniverse, status: core, grid: {rebalance: [QE], basket: [null, megacap_ai]}}
+  - {class: EqualWeightUniverse, status: core,
+     hypothesis: "Equal-weighting the whole live cross-section is the honest passive baseline for any stock-picking claim",
+     grid: {rebalance: [ME, QE], basket: [ai_broad]}}
+  - {class: CapWeightUniverse, status: core, grid: {rebalance: [QE], basket: [null, megacap_ai, ai_broad]}}
   - {class: QQQMovingAverage, status: core, grid: {window: [200], fallback: [IEF, null]}}
   - {class: SimpleMomentum12_1, status: core, grid: {top_n: [5]}}
 
@@ -28,6 +53,19 @@ buy_and_hold_companies:
      grid: {ticker: [NVDA, MSFT, GOOGL, AMZN, META, AAPL, AVGO, AMD, TSM, ASML,
                      ARM, PLTR, ORCL, CRM, ADBE, NOW, SNOW, CRWD, PANW, ANET,
                      SMCI, MU, MRVL, DELL, VRT, CEG, VST, TSLA]}}
+  # Reference points, not strategies: single-name buy & hold is excluded from
+  # the benchmark hurdle because picking the one winner in hindsight is not an
+  # alternative anyone could have chosen in advance. Added in v3 so the
+  # company-level comparison covers the wider roster — including names that
+  # went to zero and names that were acquired.
+  - {class: BuyAndHold, status: core,
+     grid: {ticker: [TXN, ADI, KLAC, SNPS, CDNS, IBM, NFLX, INTU, CSCO, ISRG,
+                     UBER, SHOP, APP, TTD, DDOG, NET, ZS, OKTA, WDAY, NXPI,
+                     MPWR, GEV, NRG, PWR, HPE, WDC, INTC, QCOM]}}
+  - {class: BuyAndHold, status: core,
+     hypothesis: "Holding the losers is the point: these are the outcomes a survivorship-biased sample never shows",
+     grid: {ticker: [NT, WCOM, SGI, JDSU, SUNW, LU, PALM, YHOO, VMW, RHT,
+                     ATVI, SPLK, TWTR, JNPR, CTXS, XLNX, ALTR, BRCM]}}
 
 tsmom:
   - {class: TrendFollowCash, status: core,
@@ -44,6 +82,12 @@ xsmom:
   - {class: XSMomentumTopN, status: core,
      hypothesis: "Relative strength persists among tech leaders",
      grid: {lookback_days: [63, 126, 252], top_n: [3, 5, 8], weighting: [equal]}}
+  # v3: the same idea given a real cross-section to choose from. With 33 names
+  # a "top 5" screen was picking from a shortlist that was already the answer;
+  # with 81 live names it has to actually select.
+  - {class: XSMomentumTopN, status: core,
+     hypothesis: "Given a wide cross-section, relative-strength selection adds value over equal-weighting the same universe",
+     grid: {basket: [ai_broad], lookback_days: [126, 252], top_n: [10, 20], weighting: [equal]}}
   - {class: XSMomentumTopN, status: exploratory,
      grid: {lookback_days: [126], top_n: [5], weighting: [inverse_vol]}}
   - {class: XSMomentumTopN, status: deprecated,
@@ -111,12 +155,55 @@ riskmanaged:
      grid: {basket: [megacap_ai], target_vol: [0.15, 0.20],
             trend_window: [150, 200], hysteresis: [0.0, 0.02]}}
   - {class: InverseVolBasket, status: core,
-     grid: {basket: [megacap_ai, semiconductors]}}
+     grid: {basket: [megacap_ai, semiconductors, ai_broad]}}
+  - {class: TrendFollowCash, status: core,
+     hypothesis: "Per-name trend filtering matters more over a wide roster, where many names are in their own bear markets while the index rises",
+     grid: {sma_window: [200], fallback: [IEF], basket: [ai_broad]}}
 
 ml:
   - {class: MLRankStrategy, status: exploratory,
      hypothesis: "A shrunk linear feature blend ranks forward returns better than any single momentum feature",
      grid: {horizon: [21], top_n: [6], alpha: [10.0]}}
+
+# ============================ NEW IN FREEZE v3 ==============================
+# The v2 study's clearest result was uncomfortable: across 24 families, monthly
+# return correlations were mostly above 0.85 and every strategy fell together
+# in 2022. They were not 24 ideas, they were one idea wearing 24 hats. These
+# two families exist to test whether ANYTHING in US technology behaves
+# differently — not to raise the leaderboard.
+
+factor:
+  - {class: ResidualMomentum, status: core,
+     hypothesis: "Ranking on benchmark-neutral residual return selects genuinely idiosyncratic winners and yields a portfolio less correlated with owning the sector outright",
+     grid: {lookback_days: [126, 252], top_n: [8, 12], beta_window: [252]}}
+  - {class: MultiHorizonMomentum, status: core,
+     hypothesis: "Requiring agreement across 3/6/12-month horizons removes the lookback-selection degree of freedom and cuts whipsaw, at the cost of late entries",
+     grid: {top_n: [5, 8, 12], min_agree: [3], weighting: [equal]}}
+  - {class: MultiHorizonMomentum, status: exploratory,
+     hypothesis: "Relaxing consensus to 2 of 3 trades earlier; expected to raise turnover more than return",
+     grid: {top_n: [8], min_agree: [2], weighting: [equal, inverse_vol]}}
+  - {class: LowVolatilityTech, status: core,
+     hypothesis: "The low-volatility anomaly survives inside a high-beta sector: lower CAGR, higher Sharpe, shallower drawdown. A clean falsification target either way",
+     grid: {top_n: [10, 20], vol_window: [126], trend_filter: [false, true]}}
+  - {class: BreadthGatedBasket, status: core,
+     hypothesis: "Deteriorating participation precedes index-level drawdowns, so a breadth gate exits earlier and whipsaws less than a price-trend gate on the index",
+     grid: {basket: [megacap_ai, ai_broad], threshold: [0.40, 0.50]}}
+  - {class: ThemeRotation, status: core,
+     hypothesis: "Capital-spending cycles rotate between layers of the technology stack with enough persistence to trade, without the single-name concentration that penalises stock-level momentum",
+     grid: {lookback_days: [126, 252], top_themes: [2, 3, 4]}}
+  - {class: FundamentalAcceleration, status: exploratory,
+     hypothesis: "Acceleration in published revenue growth precedes revaluation more reliably than the level of growth, which is already discounted",
+     grid: {top_n: [8, 12], rebalance: [QE]}}
+
+allocation:
+  # Weighting schemes require no forecasting skill at all, which makes them the
+  # cheapest possible source of improvement — and the easiest to over-credit.
+  - {class: EqualRiskContribution, status: core,
+     hypothesis: "Accounting for correlation as well as volatility beats inverse-vol weighting, which double-counts the risk of clustered names",
+     grid: {basket: [megacap_ai, ai_broad, target_holdings], cov_window: [126, 252]}}
+  - {class: MinCorrelationSleeve, status: core,
+     hypothesis: "A sleeve chosen purely for low average correlation to the rest of the sector diversifies a core technology holding better than any return-driven selection; if it STILL tracks QQQ, the sector has no independent corner",
+     grid: {top_n: [10, 15], corr_window: [252]}}
 
 # §"Portfolio comparison for likely investments": every construction the user
 # asked to compare, over the target_holdings shortlist, plus concentrated

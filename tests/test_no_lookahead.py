@@ -8,6 +8,7 @@
    names are not investable before IPO + seasoning.
 """
 import numpy as np
+import pytest
 import pandas as pd
 
 from aitb.backtest.engine import run_backtest
@@ -91,6 +92,60 @@ def test_universe_is_point_in_time(synth_md):
     assert mask.loc["2015-01-01":"2021-06-01", "XLNX"].any()
     # ARM IPO'd 2023-09-14: not investable before IPO + seasoning.
     assert not mask.loc[:"2023-12-31", "ARM"].any()
+
+
+def _truncate(md, upto: str):
+    """A MarketData view ending at `upto` — as if today were that date."""
+    import dataclasses
+    cut = pd.Timestamp(upto)
+    frames = {f: getattr(md, f).loc[:cut] for f in
+              ("open", "high", "low", "close", "adj_close", "dollar_volume",
+               "macro")}
+    fund = md.fundamentals
+    if not fund.empty:
+        fund = fund[fund["published"] <= cut]
+    return dataclasses.replace(md, fundamentals=fund, **frames)
+
+
+# Every strategy added under freeze v3, with settings cheap enough to build
+# twice. These are new signal paths — rolling betas, cross-name correlation
+# matrices, breadth over the whole universe, publication-gated growth
+# acceleration — and each is a fresh opportunity to read the future by
+# accident.
+V3_STRATEGIES = [
+    ("ResidualMomentum", dict(lookback_days=126, top_n=8)),
+    ("MultiHorizonMomentum", dict(top_n=8)),
+    ("LowVolatilityTech", dict(top_n=12)),
+    ("BreadthGatedBasket", dict(basket="megacap_ai")),
+    ("ThemeRotation", dict(top_themes=3)),
+    ("FundamentalAcceleration", dict(top_n=8)),
+    ("EqualRiskContribution", dict(basket="megacap_ai")),
+    ("MinCorrelationSleeve", dict(top_n=10)),
+]
+
+
+@pytest.mark.parametrize("cls_name,params", V3_STRATEGIES,
+                         ids=[c for c, _ in V3_STRATEGIES])
+def test_v3_strategies_are_causal(synth_md, cls_name, params):
+    """Weights built with history ending at date D must equal the weights the
+    same strategy produced for those dates when it could see everything after.
+
+    The last rebalance period is excluded from the comparison: with data cut
+    mid-month the "last trading day of the month" is genuinely a different day,
+    so the two runs legitimately rebalance on different dates there. Everything
+    before that must match exactly.
+    """
+    from aitb.strategies import STRATEGY_CLASSES
+    cut, compare_to = "2021-06-30", "2021-04-30"
+    strat = STRATEGY_CLASSES[cls_name](**params)
+
+    full = strat.build(synth_md).loc[:compare_to]
+    trunc = strat.build(_truncate(synth_md, cut)).loc[:compare_to]
+
+    cols = [c for c in full.columns if c in trunc.columns]
+    assert cols, f"{cls_name} produced no overlapping columns"
+    assert full[cols].abs().to_numpy().sum() > 0, f"{cls_name} never held anything"
+    pd.testing.assert_frame_equal(full[cols], trunc[cols], atol=1e-12)
 
 
 def test_ml_purge_gap():

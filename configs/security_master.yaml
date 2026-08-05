@@ -115,3 +115,213 @@ securities:
   - {sid: SEC_VRT,  name: Vertiv,             tickers: [{symbol: VRT,  from: 2020-02-10, to: null}], exchange: XNYS, sector: dc_infrastructure, theme: power_cooling}
   - {sid: SEC_CEG,  name: Constellation Energy, tickers: [{symbol: CEG, from: 2022-02-02, to: null}], exchange: XNAS, sector: power,            theme: power_cooling}
   - {sid: SEC_VST,  name: Vistra,             tickers: [{symbol: VST,  from: 2016-10-04, to: null}], exchange: XNYS, sector: power,             theme: power_cooling}
+
+  # ================== ADDED WITH THE FREEZE-v3 EXPANSION ====================
+  # Ticker traps that the expanded roster introduces. Each of these is a case
+  # where naive symbol-keyed data assembly splices two unrelated companies or
+  # loses one entirely.
+
+  - sid: SEC_BRCM
+    name: Broadcom Corporation (legacy)
+    tickers: [{symbol: BRCM, from: 1998-04-17, to: 2016-02-01}]
+    exchange: XNAS
+    sector: semiconductors
+    successor: {sid: SEC_AVGO, kind: acquisition, date: 2016-02-01}
+    notes: >-
+      THE trap in this universe. Avago acquired Broadcom Corp and took the
+      Broadcom NAME, but AVGO's price history is Avago's, starting 2009. A
+      vendor series labelled "Broadcom" therefore skips 1998-2009 entirely and
+      shows none of the dot-com boom and bust this company actually lived
+      through. BRCM and AVGO are separate securities here and are never joined.
+  - sid: SEC_JDSU
+    name: JDS Uniphase
+    tickers: [{symbol: JDSU, from: 1993-11-16, to: 2015-08-03}]
+    exchange: XNAS
+    sector: networking
+    successor: {sid: null, kind: split, date: 2015-08-03,
+                notes: "split into Viavi (VIAV) and Lumentum (LITE); neither inherits the pre-split history cleanly"}
+  - sid: SEC_NT
+    name: Nortel Networks
+    tickers: [{symbol: NT, from: 1990-01-02, to: 2009-02-10}]
+    exchange: XNYS
+    sector: networking
+    successor: {sid: null, kind: bankruptcy, date: 2009-02-10}
+    notes: "Once ~a third of the TSX by market cap. Equity went to zero."
+  - sid: SEC_WCOM
+    name: WorldCom
+    tickers: [{symbol: WCOM, from: 1990-01-02, to: 2002-07-22}]
+    exchange: XNAS
+    sector: networking
+    successor: {sid: null, kind: bankruptcy, date: 2002-07-22}
+  - sid: SEC_SGI
+    name: Silicon Graphics
+    tickers: [{symbol: SGI, from: 1990-01-02, to: 2009-04-01}]
+    exchange: XNYS
+    sector: hardware
+    successor: {sid: null, kind: bankruptcy, date: 2009-04-01,
+                notes: "assets to Rackable, which then renamed itself SGI — a recycled symbol, not a continuation"}
+  - sid: SEC_LU
+    name: Lucent Technologies
+    tickers: [{symbol: LU, from: 1996-04-04, to: 2006-11-30}]
+    exchange: XNYS
+    sector: networking
+    successor: {sid: null, kind: merger, date: 2006-11-30, notes: "Alcatel-Lucent"}
+  - sid: SEC_CPQ
+    name: Compaq Computer
+    tickers: [{symbol: CPQ, from: 1990-01-02, to: 2002-05-03}]
+    exchange: XNYS
+    sector: hardware
+    successor: {sid: null, kind: acquisition, date: 2002-05-03, notes: "Hewlett-Packard"}
+  - sid: SEC_GTW
+    name: Gateway
+    tickers: [{symbol: GTW, from: 1993-12-09, to: 2007-10-16}]
+    exchange: XNYS
+    sector: hardware
+    successor: {sid: null, kind: acquisition, date: 2007-10-16, notes: "Acer"}
+  - sid: SEC_PALM
+    name: Palm Inc
+    tickers: [{symbol: PALM, from: 2000-03-02, to: 2010-07-01}]
+    exchange: XNAS
+    sector: hardware
+    successor: {sid: null, kind: acquisition, date: 2010-07-01, notes: "Hewlett-Packard"}
+  - sid: SEC_ALTR
+    name: Altera
+    tickers: [{symbol: ALTR, from: 1990-01-02, to: 2015-12-28}]
+    exchange: XNAS
+    sector: semiconductors
+    successor: {sid: SEC_INTC, kind: acquisition, date: 2015-12-28}
+    notes: "ALTR was later reused by Altair Engineering — a recycled symbol; resolve() is date-scoped for exactly this reason."
+  - sid: SEC_ATML
+    name: Atmel
+    tickers: [{symbol: ATML, from: 1991-03-15, to: 2016-04-04}]
+    exchange: XNAS
+    sector: semiconductors
+    successor: {sid: null, kind: acquisition, date: 2016-04-04, notes: "Microchip (MCHP)"}
+  - sid: SEC_LSI
+    name: LSI Corporation
+    tickers: [{symbol: LSI, from: 1990-01-02, to: 2014-05-06}]
+    exchange: XNYS
+    sector: semiconductors
+    successor: {sid: null, kind: acquisition, date: 2014-05-06, notes: "Avago"}
+  - sid: SEC_RHT
+    name: Red Hat
+    tickers: [{symbol: RHT, from: 1999-08-11, to: 2019-07-09}]
+    exchange: XNYS
+    sector: software
+    successor: {sid: SEC_IBM, kind: acquisition, date: 2019-07-09}
+  - sid: SEC_VMW
+    name: VMware
+    tickers: [{symbol: VMW, from: 2007-08-14, to: 2023-11-22}]
+    exchange: XNYS
+    sector: software
+    successor: {sid: SEC_AVGO, kind: acquisition, date: 2023-11-22}
+  - sid: SEC_ATVI
+    name: Activision Blizzard
+    tickers: [{symbol: ATVI, from: 1993-10-25, to: 2023-10-13}]
+    exchange: XNAS
+    sector: software
+    successor: {sid: SEC_MSFT, kind: acquisition, date: 2023-10-13}
+  - sid: SEC_SPLK
+    name: Splunk
+    tickers: [{symbol: SPLK, from: 2012-04-19, to: 2024-03-18}]
+    exchange: XNAS
+    sector: software
+    successor: {sid: SEC_CSCO, kind: acquisition, date: 2024-03-18}
+  - sid: SEC_ANSS
+    name: Ansys
+    tickers: [{symbol: ANSS, from: 1996-06-20, to: 2025-07-17}]
+    exchange: XNAS
+    sector: eda
+    successor: {sid: SEC_SNPS, kind: acquisition, date: 2025-07-17}
+  - sid: SEC_JNPR
+    name: Juniper Networks
+    tickers: [{symbol: JNPR, from: 1999-06-25, to: 2025-07-02}]
+    exchange: XNYS
+    sector: networking
+    successor: {sid: SEC_HPE, kind: acquisition, date: 2025-07-02}
+  - sid: SEC_TWTR
+    name: Twitter
+    tickers: [{symbol: TWTR, from: 2013-11-07, to: 2022-10-27}]
+    exchange: XNYS
+    sector: internet
+    successor: {sid: null, kind: take_private, date: 2022-10-27}
+  - sid: SEC_LNKD
+    name: LinkedIn
+    tickers: [{symbol: LNKD, from: 2011-05-19, to: 2016-12-08}]
+    exchange: XNYS
+    sector: internet
+    successor: {sid: SEC_MSFT, kind: acquisition, date: 2016-12-08}
+  - sid: SEC_CTXS
+    name: Citrix Systems
+    tickers: [{symbol: CTXS, from: 1995-12-08, to: 2022-09-30}]
+    exchange: XNAS
+    sector: software
+    successor: {sid: null, kind: take_private, date: 2022-09-30}
+  - sid: SEC_FEYE
+    name: FireEye / Mandiant
+    tickers: [{symbol: FEYE, from: 2013-09-20, to: 2022-09-12}]
+    exchange: XNAS
+    sector: cybersecurity
+    successor: {sid: SEC_GOOGL, kind: acquisition, date: 2022-09-12}
+    notes: "Renamed Mandiant in 2021 after selling the FireEye product line; the listed entity kept trading under FEYE until the Google deal."
+  # ---- remaining v3 additions (single unchanged listing) ----
+  - {sid: SEC_TXN,  name: Texas Instruments,       tickers: [{symbol: TXN,  from: 1990-01-02, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_compute}
+  - {sid: SEC_ADI,  name: Analog Devices,          tickers: [{symbol: ADI,  from: 1990-01-02, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_compute}
+  - {sid: SEC_NXPI, name: NXP Semiconductors,      tickers: [{symbol: NXPI, from: 2010-08-06, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_consumer}
+  - {sid: SEC_ON,   name: ON Semiconductor,        tickers: [{symbol: "ON", from: 2000-04-28, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_consumer}
+  - {sid: SEC_MCHP, name: Microchip Technology,    tickers: [{symbol: MCHP, from: 1993-03-19, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_consumer}
+  - {sid: SEC_SWKS, name: Skyworks Solutions,      tickers: [{symbol: SWKS, from: 2002-06-25, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_consumer}
+  - {sid: SEC_QRVO, name: Qorvo,                   tickers: [{symbol: QRVO, from: 2015-01-02, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_consumer}
+  - {sid: SEC_MPWR, name: Monolithic Power Systems, tickers: [{symbol: MPWR, from: 2004-11-19, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_compute}
+  - {sid: SEC_GFS,  name: GlobalFoundries,         tickers: [{symbol: GFS,  from: 2021-10-28, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_compute}
+  - {sid: SEC_WOLF, name: Wolfspeed,               tickers: [{symbol: WOLF, from: 1993-08-27, to: null}], exchange: XNYS, sector: semiconductors, theme: ai_consumer, notes: "Traded as CREE until 2021; symbol change not modelled — treated as one continuous listing."}
+  - {sid: SEC_ALAB, name: Astera Labs,             tickers: [{symbol: ALAB, from: 2024-03-20, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_compute}
+  - {sid: SEC_CRDO, name: Credo Technology,        tickers: [{symbol: CRDO, from: 2022-01-27, to: null}], exchange: XNAS, sector: semiconductors, theme: ai_compute}
+  - {sid: SEC_KLAC, name: KLA Corporation,         tickers: [{symbol: KLAC, from: 1990-01-02, to: null}], exchange: XNAS, sector: semi_equipment, theme: ai_compute}
+  - {sid: SEC_TER,  name: Teradyne,                tickers: [{symbol: TER,  from: 1990-01-02, to: null}], exchange: XNAS, sector: semi_equipment, theme: robotics}
+  - {sid: SEC_ENTG, name: Entegris,                tickers: [{symbol: ENTG, from: 2000-07-11, to: null}], exchange: XNAS, sector: semi_equipment, theme: ai_compute}
+  - {sid: SEC_SNPS, name: Synopsys,                tickers: [{symbol: SNPS, from: 1992-02-26, to: null}], exchange: XNAS, sector: eda,            theme: ai_compute}
+  - {sid: SEC_CDNS, name: Cadence Design Systems,  tickers: [{symbol: CDNS, from: 1990-01-02, to: null}], exchange: XNAS, sector: eda,            theme: ai_compute}
+  - {sid: SEC_MENT, name: Mentor Graphics,         tickers: [{symbol: MENT, from: 1990-01-02, to: 2017-03-30}], exchange: XNAS, sector: eda,      successor: {sid: null, kind: acquisition, date: 2017-03-30, notes: "Siemens"}}
+  - {sid: SEC_IBM,  name: IBM,                     tickers: [{symbol: IBM,  from: 1990-01-02, to: null}], exchange: XNYS, sector: software,       theme: enterprise_ai}
+  - {sid: SEC_NFLX, name: Netflix,                 tickers: [{symbol: NFLX, from: 2002-05-23, to: null}], exchange: XNAS, sector: internet,       theme: ai_applications}
+  - {sid: SEC_INTU, name: Intuit,                  tickers: [{symbol: INTU, from: 1993-03-12, to: null}], exchange: XNAS, sector: software,       theme: enterprise_ai}
+  - {sid: SEC_WDAY, name: Workday,                 tickers: [{symbol: WDAY, from: 2012-10-12, to: null}], exchange: XNAS, sector: software,       theme: enterprise_ai}
+  - {sid: SEC_DDOG, name: Datadog,                 tickers: [{symbol: DDOG, from: 2019-09-19, to: null}], exchange: XNAS, sector: software,       theme: cloud_platforms}
+  - {sid: SEC_MDB,  name: MongoDB,                 tickers: [{symbol: MDB,  from: 2017-10-19, to: null}], exchange: XNAS, sector: software,       theme: cloud_platforms}
+  - {sid: SEC_NET,  name: Cloudflare,              tickers: [{symbol: NET,  from: 2019-09-13, to: null}], exchange: XNYS, sector: software,       theme: cloud_platforms}
+  - {sid: SEC_TEAM, name: Atlassian,               tickers: [{symbol: TEAM, from: 2015-12-10, to: null}], exchange: XNAS, sector: software,       theme: enterprise_ai}
+  - {sid: SEC_PATH, name: UiPath,                  tickers: [{symbol: PATH, from: 2021-04-21, to: null}], exchange: XNYS, sector: software,       theme: robotics}
+  - {sid: SEC_IOT,  name: Samsara,                 tickers: [{symbol: IOT,  from: 2021-12-15, to: null}], exchange: XNYS, sector: software,       theme: enterprise_ai}
+  - {sid: SEC_SHOP, name: Shopify,                 tickers: [{symbol: SHOP, from: 2015-05-21, to: null}], exchange: XNYS, sector: internet,       theme: ai_applications}
+  - {sid: SEC_UBER, name: Uber Technologies,       tickers: [{symbol: UBER, from: 2019-05-10, to: null}], exchange: XNYS, sector: internet,       theme: robotics}
+  - {sid: SEC_ABNB, name: Airbnb,                  tickers: [{symbol: ABNB, from: 2020-12-10, to: null}], exchange: XNAS, sector: internet,       theme: ai_applications}
+  - {sid: SEC_APP,  name: AppLovin,                tickers: [{symbol: APP,  from: 2021-04-15, to: null}], exchange: XNAS, sector: internet,       theme: ai_applications}
+  - {sid: SEC_TTD,  name: The Trade Desk,          tickers: [{symbol: TTD,  from: 2016-09-21, to: null}], exchange: XNAS, sector: internet,       theme: ai_applications}
+  - {sid: SEC_ZS,   name: Zscaler,                 tickers: [{symbol: ZS,   from: 2018-03-16, to: null}], exchange: XNAS, sector: cybersecurity,  theme: cybersecurity}
+  - {sid: SEC_OKTA, name: Okta,                    tickers: [{symbol: OKTA, from: 2017-04-07, to: null}], exchange: XNAS, sector: cybersecurity,  theme: cybersecurity}
+  - {sid: SEC_CYBR, name: CyberArk,                tickers: [{symbol: CYBR, from: 2014-09-24, to: null}], exchange: XNAS, sector: cybersecurity,  theme: cybersecurity}
+  - {sid: SEC_S,    name: SentinelOne,             tickers: [{symbol: S,    from: 2021-06-30, to: null}], exchange: XNYS, sector: cybersecurity,  theme: cybersecurity, notes: "Single-letter symbol S previously belonged to Sprint (delisted 2020); date-scoped resolution keeps them distinct."}
+  - {sid: SEC_MFE,  name: McAfee (legacy),         tickers: [{symbol: MFE,  from: 1992-10-02, to: 2011-02-28}], exchange: XNYS, sector: cybersecurity, successor: {sid: SEC_INTC, kind: acquisition, date: 2011-02-28}}
+  - {sid: SEC_PFPT, name: Proofpoint,              tickers: [{symbol: PFPT, from: 2012-04-20, to: 2021-08-31}], exchange: XNAS, sector: cybersecurity, successor: {sid: null, kind: take_private, date: 2021-08-31}}
+  - {sid: SEC_ZEN,  name: Zendesk,                 tickers: [{symbol: ZEN,  from: 2014-05-15, to: 2022-11-22}], exchange: XNYS, sector: software,  successor: {sid: null, kind: take_private, date: 2022-11-22}}
+  - {sid: SEC_NUAN, name: Nuance Communications,   tickers: [{symbol: NUAN, from: 2000-01-03, to: 2022-03-04}], exchange: XNAS, sector: software,  successor: {sid: SEC_MSFT, kind: acquisition, date: 2022-03-04}}
+  - {sid: SEC_CA,   name: CA Technologies,         tickers: [{symbol: CA,   from: 1990-01-02, to: 2018-11-05}], exchange: XNAS, sector: software,  successor: {sid: SEC_AVGO, kind: acquisition, date: 2018-11-05}}
+  - {sid: SEC_NOVL, name: Novell,                  tickers: [{symbol: NOVL, from: 1990-01-02, to: 2011-04-27}], exchange: XNAS, sector: software,  successor: {sid: null, kind: acquisition, date: 2011-04-27, notes: "Attachmate"}}
+  - {sid: SEC_CSCO, name: Cisco Systems,           tickers: [{symbol: CSCO, from: 1990-02-16, to: null}], exchange: XNAS, sector: networking,      theme: networking}
+  - {sid: SEC_KEYS, name: Keysight Technologies,   tickers: [{symbol: KEYS, from: 2014-11-03, to: null}], exchange: XNYS, sector: networking,      theme: networking}
+  - {sid: SEC_BRCD, name: Brocade Communications,  tickers: [{symbol: BRCD, from: 1999-05-25, to: 2017-11-17}], exchange: XNAS, sector: networking, successor: {sid: SEC_AVGO, kind: acquisition, date: 2017-11-17}}
+  - {sid: SEC_TLAB, name: Tellabs,                 tickers: [{symbol: TLAB, from: 1990-01-02, to: 2013-12-02}], exchange: XNAS, sector: networking, successor: {sid: null, kind: take_private, date: 2013-12-02}}
+  - {sid: SEC_HPE,  name: Hewlett Packard Enterprise, tickers: [{symbol: HPE, from: 2015-11-02, to: null}], exchange: XNYS, sector: hardware,      theme: dc_infrastructure}
+  - {sid: SEC_NTAP, name: NetApp,                  tickers: [{symbol: NTAP, from: 1995-11-21, to: null}], exchange: XNAS, sector: hardware,        theme: dc_infrastructure}
+  - {sid: SEC_PSTG, name: Pure Storage,            tickers: [{symbol: PSTG, from: 2015-10-07, to: null}], exchange: XNYS, sector: hardware,        theme: dc_infrastructure}
+  - {sid: SEC_WDC,  name: Western Digital,         tickers: [{symbol: WDC,  from: 1990-01-02, to: null}], exchange: XNAS, sector: hardware,        theme: dc_infrastructure}
+  - {sid: SEC_ISRG, name: Intuitive Surgical,      tickers: [{symbol: ISRG, from: 2000-06-13, to: null}], exchange: XNAS, sector: robotics,        theme: robotics}
+  - {sid: SEC_ROK,  name: Rockwell Automation,     tickers: [{symbol: ROK,  from: 1990-01-02, to: null}], exchange: XNYS, sector: robotics,        theme: robotics}
+  - {sid: SEC_SYM,  name: Symbotic,                tickers: [{symbol: SYM,  from: 2022-06-08, to: null}], exchange: XNAS, sector: robotics,        theme: robotics}
+  - {sid: SEC_NRG,  name: NRG Energy,              tickers: [{symbol: NRG,  from: 2003-12-05, to: null}], exchange: XNYS, sector: power,           theme: power_cooling}
+  - {sid: SEC_GEV,  name: GE Vernova,              tickers: [{symbol: GEV,  from: 2024-04-02, to: null}], exchange: XNYS, sector: power,           theme: power_cooling}
+  - {sid: SEC_PWR,  name: Quanta Services,         tickers: [{symbol: PWR,  from: 1998-02-12, to: null}], exchange: XNYS, sector: power,           theme: power_cooling}
+  - {sid: SEC_FCS,  name: Fairchild Semiconductor, tickers: [{symbol: FCS,  from: 1999-08-04, to: 2016-09-19}], exchange: XNAS, sector: semiconductors, successor: {sid: SEC_ON, kind: acquisition, date: 2016-09-19}}
+  - {sid: SEC_IDTI, name: Integrated Device Technology, tickers: [{symbol: IDTI, from: 1990-01-02, to: 2019-04-04}], exchange: XNAS, sector: semiconductors, successor: {sid: null, kind: acquisition, date: 2019-04-04, notes: "Renesas"}}
+  - {sid: SEC_CY,   name: Cypress Semiconductor,   tickers: [{symbol: CY,   from: 1990-01-02, to: 2020-04-16}], exchange: XNAS, sector: semiconductors, successor: {sid: null, kind: acquisition, date: 2020-04-16, notes: "Infineon"}}

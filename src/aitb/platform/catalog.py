@@ -72,13 +72,27 @@ def load_registry(mode: str) -> pd.DataFrame:
     curves were deleted re-appends identical records for the same ids — the
     results are byte-identical (deterministic seeds), but counting the rows
     twice would overstate how much research was done. The engine-side registry
-    is fingerprinted by freeze v2 and must not be edited, so the display layer
-    de-duplicates instead.
+    is fingerprinted by the research freeze and must not be edited, so the
+    display layer de-duplicates instead.
     """
     df = ExperimentRegistry.for_mode(mode).load()
     if df.empty or "id" not in df.columns:
         return df
     return df.drop_duplicates("id", keep="first")
+
+
+def current_registry(mode: str) -> pd.DataFrame:
+    """Registry records for the CURRENT universe cohort only.
+
+    Freeze v3 widened the universe from 38 securities to 120, so the registry
+    now holds results from two incompatible rosters. A strategy's track record,
+    its run count and every headline number must come from one of them — a
+    Sharpe earned picking among 33 megacaps is not comparable to one earned
+    picking among 81 live names plus 39 dead ones. The older cohort stays in
+    the file (nothing is ever deleted) and is reported separately as superseded.
+    """
+    from ..ranking import current_cohort
+    return current_cohort(load_registry(mode))
 
 
 def _grid_status() -> dict[str, tuple[str, str, list]]:
@@ -105,7 +119,9 @@ def _grid_status() -> dict[str, tuple[str, str, list]]:
 def build_catalog(mode: str = "synthetic",
                   ranking: pd.DataFrame | None = None) -> dict[str, StrategyEntry]:
     registry = ExperimentRegistry.for_mode(mode)
-    df = load_registry(mode)
+    # Current cohort only: a strategy page showing a track record must not
+    # interleave runs from two different universes.
+    df = current_registry(mode)
     ok = df[(df.get("status") == "ok") & (df.get("scenario") == "base")] \
         if not df.empty else pd.DataFrame()
     grid_info = _grid_status()
@@ -149,7 +165,8 @@ def build_catalog(mode: str = "synthetic",
 def platform_stats(mode: str = "synthetic") -> dict:
     """Headline numbers for the dashboard."""
     registry = ExperimentRegistry.for_mode(mode)
-    df = load_registry(mode)
+    all_df = load_registry(mode)
+    df = current_registry(mode)
     cat = build_catalog(mode)
     rank_path = registry.root / "strategy_ranking.csv"
     ranking = pd.read_csv(rank_path) if rank_path.exists() else pd.DataFrame()
@@ -165,6 +182,9 @@ def platform_stats(mode: str = "synthetic") -> dict:
         "experiments_ok": int((df.get("status") == "ok").sum()) if not df.empty else 0,
         "experiments_failed": int((df.get("status") == "failed").sum()) if not df.empty else 0,
         "holdout_events": int((df.get("status") == "holdout_event").sum()) if not df.empty else 0,
+        # Runs from earlier universe definitions: still on the permanent record,
+        # deliberately excluded from every comparison on the site.
+        "experiments_superseded": int(max(len(all_df) - len(df), 0)),
     }
     if not ranking.empty:
         vc = ranking["verdict"].value_counts().to_dict()

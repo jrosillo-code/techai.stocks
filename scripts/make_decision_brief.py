@@ -54,6 +54,12 @@ def main() -> int:
     hs = holdout_status("real")
     registry = ExperimentRegistry.for_mode("real")
     df = registry.load()
+    # One universe cohort only (AUD-016). The registry is append-only across
+    # freezes, so it holds results from rosters of different sizes; mixing them
+    # would corrupt the trial battery, the walk-forward selection and every
+    # comparison downstream. Older cohorts stay on the permanent record.
+    from aitb.ranking import current_cohort
+    df = current_cohort(df)
 
     fam_path = RES / "robustness" / "family_summary.csv"
     fam = pd.read_csv(fam_path) if fam_path.exists() else pd.DataFrame()

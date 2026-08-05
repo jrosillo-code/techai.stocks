@@ -1,4 +1,4 @@
 variant,stat,n_days,neighbor_stability
-"ShortTermReversal(lookback_days=5,rebalance=W-FRI,top_n=5,trend_window=200)",0.6463120159380646,9021,0.156811143420469
-"RSIReversion(entry=5,exit=60,max_positions=5,rsi_window=2,trend_window=200)",0.4245475701816048,9021,0.14758897048810898
-"RSIReversion(entry=10,exit=60,max_positions=5,rsi_window=2,trend_window=200)",0.3667202480483939,9021,0.04089009161825237
+"ShortTermReversal(lookback_days=5,rebalance=W-FRI,top_n=5,trend_window=200)",0.7119582301469308,9021,0.30114778243480983
+"RSIReversion(entry=5,exit=60,max_positions=5,rsi_window=2,trend_window=200)",0.28607095194904064,9021,0.24651919449577162
+"RSIReversion(entry=10,exit=60,max_positions=5,rsi_window=2,trend_window=200)",0.28388635146418106,9021,0.001544745817030143

@@ -1,0 +1,245 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>The data — AI &amp; Tech Strategy Research</title><style>
+:root{
+  color-scheme: light;
+  --bg:#f4f4f2; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --mut:#78776f;
+  --line:#e3e2dd; --acc:#2a78d6; --acc-soft:#eaf2fd;
+  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b; --serious:#ec835a;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+    --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#121211; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --mut:#9a998f;
+  --line:#333330; --acc:#3987e5; --acc-soft:#17263a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+}
+*{box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,sans-serif;
+  margin:0;background:var(--bg);color:var(--ink);line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+nav{background:var(--surface);border-bottom:1px solid var(--line);
+  padding:0 1.2rem;display:flex;gap:.2rem;align-items:center;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20}
+nav .brand{font-weight:700;margin-right:1rem;padding:.85rem 0;font-size:.95rem}
+nav a{color:var(--ink-2);text-decoration:none;font-size:.88rem;padding:.85rem .7rem;
+  border-bottom:2px solid transparent}
+nav a:hover{color:var(--ink);border-bottom-color:var(--line)}
+nav a.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+main{max-width:1120px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+h1{font-size:1.75rem;margin:.2rem 0 .4rem;letter-spacing:-.02em}
+h2{font-size:1.1rem;margin:2.2rem 0 .2rem;letter-spacing:-.01em}
+h2+.lede{margin:.1rem 0 .9rem}
+h3{font-size:.95rem;margin:1.4rem 0 .4rem}
+.lede{color:var(--ink-2);font-size:.95rem;max-width:70ch}
+.note{color:var(--mut);font-size:.83rem;max-width:78ch}
+
+/* hero */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.3rem 1.4rem;margin:.6rem 0 1.2rem}
+.hero h1{margin-top:0}
+.pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;
+  font-weight:600;padding:.2rem .6rem;border-radius:99px;border:1px solid transparent}
+.pill-warn{background:#fdf5e3;color:#7a5600;border-color:#f2dfae}
+.pill-good{background:#e7f6e7;color:#075c07;border-color:#bde5bd}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .pill-warn{background:#3a2f14;color:#f6cf72;border-color:#5b4a1d}
+:root:where(:not([data-theme="light"])) .pill-good{background:#123212;color:#7fd77f;border-color:#1e4d1e}}
+
+/* pipeline */
+.pipe{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 .3rem}
+.step{flex:1 1 170px;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:.7rem .85rem;position:relative}
+.step .n{font-size:.72rem;color:var(--mut);font-weight:600;letter-spacing:.04em}
+.step .t{font-weight:650;font-size:.92rem;margin:.15rem 0}
+.step .d{font-size:.79rem;color:var(--ink-2)}
+.step.done{border-color:#bde5bd;background:linear-gradient(0deg,#f4fbf4,var(--surface))}
+.step.now{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}
+.step .tick{position:absolute;top:.6rem;right:.7rem;font-size:.9rem}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .step.done{background:var(--surface);border-color:#1e4d1e}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.7rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:.85rem 1rem}
+.stat .v{font-size:1.9rem;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.stat .k{font-size:.83rem;font-weight:600;margin-top:.1rem}
+.stat .d{font-size:.78rem;color:var(--mut);margin-top:.25rem;line-height:1.4}
+
+/* charts */
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.1rem;margin:.5rem 0}
+.chart .ct{font-weight:650;font-size:.92rem}
+.chart .cs{font-size:.8rem;color:var(--mut);margin-bottom:.7rem}
+.bar-row{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;
+  gap:.7rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.bar-row .lab{color:var(--ink-2);text-align:right}
+.bar-track{background:var(--line);border-radius:5px;height:16px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .3s}
+.bar-row .val{font-variant-numeric:tabular-nums;font-weight:650;min-width:2.4rem}
+.spark{display:flex;align-items:flex-end;gap:2px;height:64px;margin-top:.4rem}
+.spark i{background:var(--s1);border-radius:3px 3px 0 0;flex:1;min-width:3px;display:block}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);
+  border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:.55rem .75rem;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--mut);font-weight:650;white-space:nowrap;background:var(--surface);
+  cursor:pointer;user-select:none}
+th:hover{color:var(--ink)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--acc-soft)}
+td a{color:var(--acc);text-decoration:none;font-weight:600}
+td a:hover{text-decoration:underline}
+.sub{display:block;color:var(--mut);font-size:.76rem;font-weight:400}
+.num{font-variant-numeric:tabular-nums;text-align:right}
+
+/* badges */
+.badge{display:inline-block;padding:.12rem .5rem;border-radius:99px;
+  font-size:.72rem;font-weight:600;white-space:nowrap}
+.b-robust_candidate,.b-core,.b-A{background:#e7f6e7;color:#075c07}
+.b-inconclusive,.b-exploratory,.b-B{background:#fdf5e3;color:#7a5600}
+.b-rejected,.b-deprecated,.b-C{background:#fbeaea;color:#8f1f1f}
+.b-benchmark{background:#eaf2fd;color:#12467e}
+.b-unlisted{background:var(--line);color:var(--ink-2)}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .badge{filter:brightness(1.7) saturate(.8)}}
+
+.warnbox{background:#fdf5e3;border:1px solid #f2dfae;border-left:4px solid var(--warning);
+  padding:.8rem 1rem;margin:1rem 0;border-radius:10px;font-size:.88rem;color:#5c4310}
+@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])) .warnbox{background:#2c2410;border-color:#5b4a1d;color:#f0d79a}}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:minmax(90px,130px) 1fr auto}}
+input,select{padding:.42rem .6rem;border:1px solid var(--line);border-radius:8px;
+  margin:.15rem;background:var(--surface);color:var(--ink);font-size:.86rem}
+pre{background:#15150f;color:#e8e7de;padding:.9rem;border-radius:10px;
+  overflow-x:auto;font-size:.78rem;line-height:1.5}
+details{margin:.4rem 0}summary{cursor:pointer;color:var(--acc);font-size:.88rem;font-weight:600}
+dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
+.score{display:flex;gap:.5rem;align-items:center;margin:.3rem 0;font-size:.85rem}
+.score .sn{width:190px;color:var(--ink-2)}
+.bar{height:9px;border-radius:5px;background:var(--s1);min-width:3px}
+.tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
+.tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
+  border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
+.legend span{display:inline-flex;align-items:center;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='index.html'>Overview</a><a href='data.html' class=on>The data</a><a href='experiments.html'>Experiments</a><a href='strategies.html'>Strategies</a><a href='compare.html'>Compare</a><a href='portfolio.html'>Portfolio lab</a><a href='ideas.html'>Ideas</a><a href='roadmap.html'>Roadmap</a><a href='audit.html'>Trust & audit</a></nav><main>
+<h1>What the study is allowed to look at</h1>
+<p class='lede'>A backtest can only be as honest as the list of companies it is
+shown. This is that list — 120 companies and
+14 funds, covering 1990 to 2026.</p>
+<div class='warnbox'><b>This page describes the roster, not real prices.</b> Everything listed here is what the study is <i>defined</i> to look at. The price history it has actually run on is simulated — the real download has not happened, because this machine cannot reach any market-data provider. The list below is exactly what that download would fetch.</div>
+
+<div class='stats'>
+<div class='stat'><div class='v'>81</div><div class='k'>companies still trading</div>
+<div class='d'>Chips, chip equipment, chip-design software, cloud, software,
+internet, security, networking, robotics and the power companies feeding AI
+data centres.</div></div>
+<div class='stat'><div class='v'>39</div><div class='k'>companies that no longer exist</div>
+<div class='d'>Bankrupt, bought or taken private. Kept in permanently — this is
+the part most backtests quietly leave out.</div></div>
+<div class='stat'><div class='v'>14</div><div class='k'>funds to beat</div>
+<div class='d'>The boring alternatives: index funds, sector funds, and cash.</div></div>
+<div class='stat'><div class='v'>15</div><div class='k'>theme groups</div>
+<div class='d'>Named subsets a strategy can be told to trade, so a result can be
+attributed to a theme rather than to one lucky stock.</div></div>
+</div>
+
+<h2>Why the dead companies matter more than the live ones</h2>
+<p class='lede'>If you test a strategy only on companies that still exist today,
+you have already told it the answer. Every stock in that list survived. The
+strategy looks brilliant because it was never given the chance to buy Nortel in
+2000, WorldCom in 2001, or Silicon Graphics on the way down — and a real
+investor, choosing in real time, absolutely would have.</p>
+<p class='lede'>That flattery has a name: <b>survivorship bias</b>. It is the
+single most common reason a backtest that looks wonderful makes no money.
+The 39 companies below are here so it cannot happen. A strategy that
+buys strength has to buy them too, at their peaks, and ride them down.</p>
+
+<div class='grid2' style='margin-top:1rem'><div class='chart'><div class='ct'>What the universe is made of</div><div class='cs'>Companies per part of the technology stack, live and delisted together.</div><div class='bar-row'><div class='lab'>Semiconductors</div><div class='bar-track'><div class='bar-fill' style='width:100.0%;background:var(--s1)' title='Semiconductors: 30'></div></div><div class='val'>30</div></div><div class='bar-row'><div class='lab'>Software</div><div class='bar-track'><div class='bar-fill' style='width:83.3%;background:var(--s1)' title='Software: 25'></div></div><div class='val'>25</div></div><div class='bar-row'><div class='lab'>Internet</div><div class='bar-track'><div class='bar-fill' style='width:40.0%;background:var(--s1)' title='Internet: 12'></div></div><div class='val'>12</div></div><div class='bar-row'><div class='lab'>Hardware &amp; storage</div><div class='bar-track'><div class='bar-fill' style='width:40.0%;background:var(--s1)' title='Hardware &amp; storage: 12'></div></div><div class='val'>12</div></div><div class='bar-row'><div class='lab'>Cybersecurity</div><div class='bar-track'><div class='bar-fill' style='width:33.3%;background:var(--s1)' title='Cybersecurity: 10'></div></div><div class='val'>10</div></div><div class='bar-row'><div class='lab'>Networking</div><div class='bar-track'><div class='bar-fill' style='width:33.3%;background:var(--s1)' title='Networking: 10'></div></div><div class='val'>10</div></div><div class='bar-row'><div class='lab'>Chip equipment</div><div class='bar-track'><div class='bar-fill' style='width:20.0%;background:var(--s1)' title='Chip equipment: 6'></div></div><div class='val'>6</div></div><div class='bar-row'><div class='lab'>Power for AI</div><div class='bar-track'><div class='bar-fill' style='width:16.7%;background:var(--s1)' title='Power for AI: 5'></div></div><div class='val'>5</div></div><div class='bar-row'><div class='lab'>Chip-design software</div><div class='bar-track'><div class='bar-fill' style='width:13.3%;background:var(--s1)' title='Chip-design software: 4'></div></div><div class='val'>4</div></div><div class='bar-row'><div class='lab'>Robotics &amp; automation</div><div class='bar-track'><div class='bar-fill' style='width:10.0%;background:var(--s1)' title='Robotics &amp; automation: 3'></div></div><div class='val'>3</div></div><div class='bar-row'><div class='lab'>Data-centre infrastructure</div><div class='bar-track'><div class='bar-fill' style='width:6.7%;background:var(--s1)' title='Data-centre infrastructure: 2'></div></div><div class='val'>2</div></div><div class='bar-row'><div class='lab'>Consumer AI</div><div class='bar-track'><div class='bar-fill' style='width:3.3%;background:var(--s1)' title='Consumer AI: 1'></div></div><div class='val'>1</div></div></div><div class='chart'><div class='ct'>How the dead companies died</div><div class='cs'>Every one was, at some point, a name a momentum screen would have bought.</div><div class='bar-row'><div class='lab'>Bought</div><div class='bar-track'><div class='bar-fill' style='width:100.0%;background:var(--s1)' title='Bought: 28'></div></div><div class='val'>28</div></div><div class='bar-row'><div class='lab'>Taken private</div><div class='bar-track'><div class='bar-fill' style='width:17.9%;background:var(--s4)' title='Taken private: 5'></div></div><div class='val'>5</div></div><div class='bar-row'><div class='lab'>Went bust</div><div class='bar-track'><div class='bar-fill' style='width:10.7%;background:var(--critical)' title='Went bust: 3'></div></div><div class='val'>3</div></div><div class='bar-row'><div class='lab'>Merged</div><div class='bar-track'><div class='bar-fill' style='width:3.6%;background:var(--s1)' title='Merged: 1'></div></div><div class='val'>1</div></div><div class='bar-row'><div class='lab'>Split up</div><div class='bar-track'><div class='bar-fill' style='width:3.6%;background:var(--s2)' title='Split up: 1'></div></div><div class='val'>1</div></div><div class='bar-row'><div class='lab'>Broken up</div><div class='bar-track'><div class='bar-fill' style='width:3.6%;background:var(--s2)' title='Broken up: 1'></div></div><div class='val'>1</div></div></div></div>
+
+
+<h2>What holding them actually did</h2>
+<p class='lede'>Straight from the experiment record: buying one of these and
+holding it, through to the day it stopped trading. <b>Worst fall</b> of −100%
+means the shares became worthless. These are the outcomes that vanish from a
+backtest run only on companies that still exist.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Company</th>
+<th class='num'>Return per year</th><th class='num'>Worst fall</th></tr></thead>
+<tbody><tr><td><b>JNPR</b><span class='sub'>Juniper Networks</span></td><td class='num' style='color:var(--critical)'>-20.2%</td><td class='num' style='color:var(--critical)'>-100.0%</td></tr><tr><td><b>JDSU</b><span class='sub'>JDS Uniphase</span></td><td class='num' style='color:var(--ink)'>+1.2%</td><td class='num' style='color:var(--critical)'>-100.0%</td></tr><tr><td><b>NT</b><span class='sub'>Nortel Networks</span></td><td class='num' style='color:var(--critical)'>-4.3%</td><td class='num' style='color:var(--critical)'>-100.0%</td></tr><tr><td><b>SGI</b><span class='sub'>Silicon Graphics</span></td><td class='num' style='color:var(--critical)'>-12.1%</td><td class='num' style='color:var(--critical)'>-100.0%</td></tr><tr><td><b>BRCM</b><span class='sub'>Broadcom Corp (legacy)</span></td><td class='num' style='color:var(--critical)'>-8.2%</td><td class='num' style='color:var(--critical)'>-100.0%</td></tr><tr><td><b>ALTR</b><span class='sub'>Altera</span></td><td class='num' style='color:var(--critical)'>-2.3%</td><td class='num' style='color:var(--critical)'>-99.9%</td></tr><tr><td><b>PALM</b><span class='sub'>Palm Inc</span></td><td class='num' style='color:var(--critical)'>-15.9%</td><td class='num' style='color:var(--critical)'>-99.9%</td></tr><tr><td><b>LU</b><span class='sub'>Lucent Technologies</span></td><td class='num' style='color:var(--ink)'>+1.2%</td><td class='num' style='color:var(--critical)'>-99.8%</td></tr><tr><td><b>SUNW</b><span class='sub'>Sun Microsystems</span></td><td class='num' style='color:var(--critical)'>-0.5%</td><td class='num' style='color:var(--critical)'>-99.8%</td></tr><tr><td><b>RHT</b><span class='sub'>Red Hat</span></td><td class='num' style='color:var(--critical)'>-3.3%</td><td class='num' style='color:var(--critical)'>-99.8%</td></tr></tbody></table></div>
+<p class='note'>Simulated prices — the pattern is what matters, not the exact
+figures. The ten worst of 18 delisted names tested.</p>
+<h2>The companies that didn't make it</h2>
+<p class='lede'>Ordered by the year they stopped trading. <b>Went bust</b> means
+the equity went to zero — anyone holding it lost everything.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Ticker</th>
+<th class='num'>Listed</th><th class='num'>Gone</th><th>What happened</th>
+<th>Detail</th></tr></thead><tbody><tr><td><b>CPQ</b><span class='sub'>Compaq Computer</span></td><td class='num'>1990</td><td class='num'>2002</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Hewlett-Packard</td></tr><tr><td><b>WCOM</b><span class='sub'>WorldCom</span></td><td class='num'>1990</td><td class='num'>2002</td><td><span style='color:var(--critical);font-weight:600'>Went bust</span></td><td class='lede' style='font-size:.8rem'></td></tr><tr><td><b>LU</b><span class='sub'>Lucent Technologies</span></td><td class='num'>1996</td><td class='num'>2006</td><td><span style='color:var(--s1);font-weight:600'>Merged</span></td><td class='lede' style='font-size:.8rem'>Alcatel-Lucent</td></tr><tr><td><b>GTW</b><span class='sub'>Gateway</span></td><td class='num'>1993</td><td class='num'>2007</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Acer</td></tr><tr><td><b>NT</b><span class='sub'>Nortel Networks</span></td><td class='num'>1990</td><td class='num'>2009</td><td><span style='color:var(--critical);font-weight:600'>Went bust</span></td><td class='lede' style='font-size:.8rem'>Once ~a third of the TSX by market cap. Equity went to zero.</td></tr><tr><td><b>SGI</b><span class='sub'>Silicon Graphics</span></td><td class='num'>1990</td><td class='num'>2009</td><td><span style='color:var(--critical);font-weight:600'>Went bust</span></td><td class='lede' style='font-size:.8rem'>assets to Rackable, which then renamed itself SGI — a recycled symbol, not a continuation</td></tr><tr><td><b>SUNW</b><span class='sub'>Sun Microsystems</span></td><td class='num'>1990</td><td class='num'>2010</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Oracle</td></tr><tr><td><b>PALM</b><span class='sub'>Palm Inc</span></td><td class='num'>2000</td><td class='num'>2010</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Hewlett-Packard</td></tr><tr><td><b>MFE</b><span class='sub'>McAfee (legacy)</span></td><td class='num'>1992</td><td class='num'>2011</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Intel</td></tr><tr><td><b>NOVL</b><span class='sub'>Novell</span></td><td class='num'>1990</td><td class='num'>2011</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Attachmate</td></tr><tr><td><b>TLAB</b><span class='sub'>Tellabs</span></td><td class='num'>1990</td><td class='num'>2013</td><td><span style='color:var(--s4);font-weight:600'>Taken private</span></td><td class='lede' style='font-size:.8rem'></td></tr><tr><td><b>LSI</b><span class='sub'>LSI Corporation</span></td><td class='num'>1990</td><td class='num'>2014</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Avago</td></tr><tr><td><b>JDSU</b><span class='sub'>JDS Uniphase</span></td><td class='num'>1993</td><td class='num'>2015</td><td><span style='color:var(--s2);font-weight:600'>Split up</span></td><td class='lede' style='font-size:.8rem'>split into Viavi (VIAV) and Lumentum (LITE); neither inherits the pre-split history cleanly</td></tr><tr><td><b>ALTR</b><span class='sub'>Altera</span></td><td class='num'>1990</td><td class='num'>2015</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>ALTR was later reused by Altair Engineering — a recycled symbol; resolve() is date-scoped for exactly this reason.</td></tr><tr><td><b>BRCM</b><span class='sub'>Broadcom Corp (legacy)</span></td><td class='num'>1998</td><td class='num'>2016</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>THE trap in this universe. Avago acquired Broadcom Corp and took the Broadcom NAME, but AVGO&#x27;s price history is Avago&#x27;s, starting 2009. A vendor series labelled &quot;Broadcom&quot; therefore skips 1998-2009 entirely and shows none of the dot-com boom and bust this company actually lived through. BRCM and AVGO are separate securities here and are never joined.</td></tr><tr><td><b>ATML</b><span class='sub'>Atmel</span></td><td class='num'>1991</td><td class='num'>2016</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Microchip (MCHP)</td></tr><tr><td><b>EMC</b><span class='sub'>EMC Corp</span></td><td class='num'>1990</td><td class='num'>2016</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Dell Technologies</td></tr><tr><td><b>FCS</b><span class='sub'>Fairchild Semiconductor</span></td><td class='num'>1999</td><td class='num'>2016</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by ON Semiconductor</td></tr><tr><td><b>LNKD</b><span class='sub'>LinkedIn</span></td><td class='num'>2011</td><td class='num'>2016</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Microsoft</td></tr><tr><td><b>MENT</b><span class='sub'>Mentor Graphics</span></td><td class='num'>1990</td><td class='num'>2017</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Siemens</td></tr><tr><td><b>YHOO</b><span class='sub'>Yahoo</span></td><td class='num'>1996</td><td class='num'>2017</td><td><span style='color:var(--s2);font-weight:600'>Broken up</span></td><td class='lede' style='font-size:.8rem'>operating business to Verizon; remainder became Altaba (AABA)</td></tr><tr><td><b>BRCD</b><span class='sub'>Brocade Communications</span></td><td class='num'>1999</td><td class='num'>2017</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Broadcom</td></tr><tr><td><b>CA</b><span class='sub'>CA Technologies</span></td><td class='num'>1990</td><td class='num'>2018</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Broadcom</td></tr><tr><td><b>IDTI</b><span class='sub'>Integrated Device Technology</span></td><td class='num'>1990</td><td class='num'>2019</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Renesas</td></tr><tr><td><b>RHT</b><span class='sub'>Red Hat</span></td><td class='num'>1999</td><td class='num'>2019</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by IBM</td></tr><tr><td><b>CY</b><span class='sub'>Cypress Semiconductor</span></td><td class='num'>1990</td><td class='num'>2020</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Infineon</td></tr><tr><td><b>MXIM</b><span class='sub'>Maxim Integrated</span></td><td class='num'>1990</td><td class='num'>2021</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>acquired by Analog Devices (ADI, outside universe)</td></tr><tr><td><b>PFPT</b><span class='sub'>Proofpoint</span></td><td class='num'>2012</td><td class='num'>2021</td><td><span style='color:var(--s4);font-weight:600'>Taken private</span></td><td class='lede' style='font-size:.8rem'></td></tr><tr><td><b>XLNX</b><span class='sub'>Xilinx</span></td><td class='num'>1990</td><td class='num'>2022</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Advanced Micro Devices</td></tr><tr><td><b>NUAN</b><span class='sub'>Nuance Communications</span></td><td class='num'>2000</td><td class='num'>2022</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Microsoft</td></tr><tr><td><b>FEYE</b><span class='sub'>FireEye / Mandiant</span></td><td class='num'>2013</td><td class='num'>2022</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>Renamed Mandiant in 2021 after selling the FireEye product line; the listed entity kept trading under FEYE until the Google deal.</td></tr><tr><td><b>CTXS</b><span class='sub'>Citrix Systems</span></td><td class='num'>1995</td><td class='num'>2022</td><td><span style='color:var(--s4);font-weight:600'>Taken private</span></td><td class='lede' style='font-size:.8rem'></td></tr><tr><td><b>TWTR</b><span class='sub'>Twitter</span></td><td class='num'>2013</td><td class='num'>2022</td><td><span style='color:var(--s4);font-weight:600'>Taken private</span></td><td class='lede' style='font-size:.8rem'></td></tr><tr><td><b>ZEN</b><span class='sub'>Zendesk</span></td><td class='num'>2014</td><td class='num'>2022</td><td><span style='color:var(--s4);font-weight:600'>Taken private</span></td><td class='lede' style='font-size:.8rem'></td></tr><tr><td><b>ATVI</b><span class='sub'>Activision Blizzard</span></td><td class='num'>1993</td><td class='num'>2023</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Microsoft</td></tr><tr><td><b>VMW</b><span class='sub'>VMware</span></td><td class='num'>2007</td><td class='num'>2023</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Broadcom</td></tr><tr><td><b>SPLK</b><span class='sub'>Splunk</span></td><td class='num'>2012</td><td class='num'>2024</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Cisco Systems</td></tr><tr><td><b>JNPR</b><span class='sub'>Juniper Networks</span></td><td class='num'>1999</td><td class='num'>2025</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Hewlett Packard Enterprise</td></tr><tr><td><b>ANSS</b><span class='sub'>Ansys</span></td><td class='num'>1996</td><td class='num'>2025</td><td><span style='color:var(--s1);font-weight:600'>Bought</span></td><td class='lede' style='font-size:.8rem'>absorbed by Synopsys</td></tr></tbody></table></div>
+
+<h2>The companies still trading</h2>
+<p class='lede'>Sorted by part of the technology stack. “Listed” is the year the
+study is first allowed to trade the name — never before its IPO, and never
+within six months of it.</p>
+<details><summary>Show all 81 companies</summary>
+<div class='tbl-wrap' style='margin-top:.6rem'><table><thead><tr><th>Ticker</th>
+<th>Company</th><th>Part of the stack</th><th class='num'>Listed</th></tr></thead>
+<tbody><tr><td><b>TSLA</b></td><td>Tesla</td><td>Consumer AI</td><td class='num'>2010</td></tr><tr><td><b>CRWD</b></td><td>CrowdStrike</td><td>Cybersecurity</td><td class='num'>2019</td></tr><tr><td><b>CYBR</b></td><td>CyberArk</td><td>Cybersecurity</td><td class='num'>2014</td></tr><tr><td><b>FTNT</b></td><td>Fortinet</td><td>Cybersecurity</td><td class='num'>2009</td></tr><tr><td><b>OKTA</b></td><td>Okta</td><td>Cybersecurity</td><td class='num'>2017</td></tr><tr><td><b>PANW</b></td><td>Palo Alto Networks</td><td>Cybersecurity</td><td class='num'>2012</td></tr><tr><td><b>S</b></td><td>SentinelOne</td><td>Cybersecurity</td><td class='num'>2021</td></tr><tr><td><b>ZS</b></td><td>Zscaler</td><td>Cybersecurity</td><td class='num'>2018</td></tr><tr><td><b>SMCI</b></td><td>Super Micro Computer</td><td>Data-centre infrastructure</td><td class='num'>2007</td></tr><tr><td><b>VRT</b></td><td>Vertiv</td><td>Data-centre infrastructure</td><td class='num'>2020</td></tr><tr><td><b>CDNS</b></td><td>Cadence Design Systems</td><td>Chip-design software</td><td class='num'>1990</td></tr><tr><td><b>SNPS</b></td><td>Synopsys</td><td>Chip-design software</td><td class='num'>1992</td></tr><tr><td><b>AAPL</b></td><td>Apple</td><td>Hardware &amp; storage</td><td class='num'>1990</td></tr><tr><td><b>DELL</b></td><td>Dell Technologies</td><td>Hardware &amp; storage</td><td class='num'>2018</td></tr><tr><td><b>HPE</b></td><td>Hewlett Packard Enterprise</td><td>Hardware &amp; storage</td><td class='num'>2015</td></tr><tr><td><b>NTAP</b></td><td>NetApp</td><td>Hardware &amp; storage</td><td class='num'>1995</td></tr><tr><td><b>PSTG</b></td><td>Pure Storage</td><td>Hardware &amp; storage</td><td class='num'>2015</td></tr><tr><td><b>WDC</b></td><td>Western Digital</td><td>Hardware &amp; storage</td><td class='num'>1990</td></tr><tr><td><b>ABNB</b></td><td>Airbnb</td><td>Internet</td><td class='num'>2020</td></tr><tr><td><b>AMZN</b></td><td>Amazon</td><td>Internet</td><td class='num'>1997</td></tr><tr><td><b>APP</b></td><td>AppLovin</td><td>Internet</td><td class='num'>2021</td></tr><tr><td><b>GOOGL</b></td><td>Alphabet</td><td>Internet</td><td class='num'>2004</td></tr><tr><td><b>META</b></td><td>Meta Platforms</td><td>Internet</td><td class='num'>2012</td></tr><tr><td><b>NFLX</b></td><td>Netflix</td><td>Internet</td><td class='num'>2002</td></tr><tr><td><b>SHOP</b></td><td>Shopify</td><td>Internet</td><td class='num'>2015</td></tr><tr><td><b>TTD</b></td><td>The Trade Desk</td><td>Internet</td><td class='num'>2016</td></tr><tr><td><b>UBER</b></td><td>Uber Technologies</td><td>Internet</td><td class='num'>2019</td></tr><tr><td><b>ANET</b></td><td>Arista Networks</td><td>Networking</td><td class='num'>2014</td></tr><tr><td><b>CSCO</b></td><td>Cisco Systems</td><td>Networking</td><td class='num'>1990</td></tr><tr><td><b>KEYS</b></td><td>Keysight Technologies</td><td>Networking</td><td class='num'>2014</td></tr><tr><td><b>CEG</b></td><td>Constellation Energy</td><td>Power for AI</td><td class='num'>2022</td></tr><tr><td><b>GEV</b></td><td>GE Vernova</td><td>Power for AI</td><td class='num'>2024</td></tr><tr><td><b>NRG</b></td><td>NRG Energy</td><td>Power for AI</td><td class='num'>2003</td></tr><tr><td><b>PWR</b></td><td>Quanta Services</td><td>Power for AI</td><td class='num'>1998</td></tr><tr><td><b>VST</b></td><td>Vistra</td><td>Power for AI</td><td class='num'>2016</td></tr><tr><td><b>ISRG</b></td><td>Intuitive Surgical</td><td>Robotics &amp; automation</td><td class='num'>2000</td></tr><tr><td><b>ROK</b></td><td>Rockwell Automation</td><td>Robotics &amp; automation</td><td class='num'>1990</td></tr><tr><td><b>SYM</b></td><td>Symbotic</td><td>Robotics &amp; automation</td><td class='num'>2022</td></tr><tr><td><b>AMAT</b></td><td>Applied Materials</td><td>Chip equipment</td><td class='num'>1990</td></tr><tr><td><b>ASML</b></td><td>ASML ADR</td><td>Chip equipment</td><td class='num'>1995</td></tr><tr><td><b>ENTG</b></td><td>Entegris</td><td>Chip equipment</td><td class='num'>2000</td></tr><tr><td><b>KLAC</b></td><td>KLA Corporation</td><td>Chip equipment</td><td class='num'>1990</td></tr><tr><td><b>LRCX</b></td><td>Lam Research</td><td>Chip equipment</td><td class='num'>1990</td></tr><tr><td><b>TER</b></td><td>Teradyne</td><td>Chip equipment</td><td class='num'>1990</td></tr><tr><td><b>ADI</b></td><td>Analog Devices</td><td>Semiconductors</td><td class='num'>1990</td></tr><tr><td><b>ALAB</b></td><td>Astera Labs</td><td>Semiconductors</td><td class='num'>2024</td></tr><tr><td><b>AMD</b></td><td>Advanced Micro Devices</td><td>Semiconductors</td><td class='num'>1990</td></tr><tr><td><b>ARM</b></td><td>Arm Holdings ADR</td><td>Semiconductors</td><td class='num'>2023</td></tr><tr><td><b>AVGO</b></td><td>Broadcom</td><td>Semiconductors</td><td class='num'>2009</td></tr><tr><td><b>CRDO</b></td><td>Credo Technology</td><td>Semiconductors</td><td class='num'>2022</td></tr><tr><td><b>GFS</b></td><td>GlobalFoundries</td><td>Semiconductors</td><td class='num'>2021</td></tr><tr><td><b>INTC</b></td><td>Intel</td><td>Semiconductors</td><td class='num'>1990</td></tr><tr><td><b>MCHP</b></td><td>Microchip Technology</td><td>Semiconductors</td><td class='num'>1993</td></tr><tr><td><b>MPWR</b></td><td>Monolithic Power Systems</td><td>Semiconductors</td><td class='num'>2004</td></tr><tr><td><b>MRVL</b></td><td>Marvell</td><td>Semiconductors</td><td class='num'>2000</td></tr><tr><td><b>MU</b></td><td>Micron</td><td>Semiconductors</td><td class='num'>1990</td></tr><tr><td><b>NVDA</b></td><td>NVIDIA</td><td>Semiconductors</td><td class='num'>1999</td></tr><tr><td><b>NXPI</b></td><td>NXP Semiconductors</td><td>Semiconductors</td><td class='num'>2010</td></tr><tr><td><b>ON</b></td><td>ON Semiconductor</td><td>Semiconductors</td><td class='num'>2000</td></tr><tr><td><b>QCOM</b></td><td>Qualcomm</td><td>Semiconductors</td><td class='num'>1991</td></tr><tr><td><b>QRVO</b></td><td>Qorvo</td><td>Semiconductors</td><td class='num'>2015</td></tr><tr><td><b>SWKS</b></td><td>Skyworks Solutions</td><td>Semiconductors</td><td class='num'>2002</td></tr><tr><td><b>TSM</b></td><td>Taiwan Semiconductor ADR</td><td>Semiconductors</td><td class='num'>1997</td></tr><tr><td><b>TXN</b></td><td>Texas Instruments</td><td>Semiconductors</td><td class='num'>1990</td></tr><tr><td><b>WOLF</b></td><td>Wolfspeed</td><td>Semiconductors</td><td class='num'>1993</td></tr><tr><td><b>ADBE</b></td><td>Adobe</td><td>Software</td><td class='num'>1990</td></tr><tr><td><b>CRM</b></td><td>Salesforce</td><td>Software</td><td class='num'>2004</td></tr><tr><td><b>DDOG</b></td><td>Datadog</td><td>Software</td><td class='num'>2019</td></tr><tr><td><b>IBM</b></td><td>IBM</td><td>Software</td><td class='num'>1990</td></tr><tr><td><b>INTU</b></td><td>Intuit</td><td>Software</td><td class='num'>1993</td></tr><tr><td><b>IOT</b></td><td>Samsara</td><td>Software</td><td class='num'>2021</td></tr><tr><td><b>MDB</b></td><td>MongoDB</td><td>Software</td><td class='num'>2017</td></tr><tr><td><b>MSFT</b></td><td>Microsoft</td><td>Software</td><td class='num'>1990</td></tr><tr><td><b>NET</b></td><td>Cloudflare</td><td>Software</td><td class='num'>2019</td></tr><tr><td><b>NOW</b></td><td>ServiceNow</td><td>Software</td><td class='num'>2012</td></tr><tr><td><b>ORCL</b></td><td>Oracle</td><td>Software</td><td class='num'>1990</td></tr><tr><td><b>PATH</b></td><td>UiPath</td><td>Software</td><td class='num'>2021</td></tr><tr><td><b>PLTR</b></td><td>Palantir</td><td>Software</td><td class='num'>2020</td></tr><tr><td><b>SNOW</b></td><td>Snowflake</td><td>Software</td><td class='num'>2020</td></tr><tr><td><b>TEAM</b></td><td>Atlassian</td><td>Software</td><td class='num'>2015</td></tr><tr><td><b>WDAY</b></td><td>Workday</td><td>Software</td><td class='num'>2012</td></tr></tbody></table></div></details>
+
+<h2>The funds a strategy has to beat</h2>
+<p class='lede'>If an idea cannot beat simply buying one of these and waiting,
+it is not worth running. The fee column is what the fund charges every year —
+a strategy has to beat that too.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Ticker</th><th>Fund</th>
+<th class='num'>Listed</th><th class='num'>Annual fee</th></tr></thead>
+<tbody><tr><td><b>SPY</b></td><td>S&amp;P 500 ETF</td><td class='num'>1993</td><td class='num'>0.09%</td></tr><tr><td><b>QQQ</b></td><td>Nasdaq-100 ETF</td><td class='num'>1999</td><td class='num'>0.20%</td></tr><tr><td><b>XLK</b></td><td>Technology Select SPDR</td><td class='num'>1998</td><td class='num'>0.09%</td></tr><tr><td><b>SOXX</b></td><td>iShares Semiconductor</td><td class='num'>2001</td><td class='num'>0.35%</td></tr><tr><td><b>SMH</b></td><td>VanEck Semiconductor</td><td class='num'>2000</td><td class='num'>0.35%</td></tr><tr><td><b>IGV</b></td><td>iShares Software</td><td class='num'>2001</td><td class='num'>0.40%</td></tr><tr><td><b>VGT</b></td><td>Vanguard Information Technology</td><td class='num'>2004</td><td class='num'>0.09%</td></tr><tr><td><b>IWM</b></td><td>Russell 2000 ETF</td><td class='num'>2000</td><td class='num'>0.19%</td></tr><tr><td><b>ARKK</b></td><td>ARK Innovation ETF</td><td class='num'>2014</td><td class='num'>0.75%</td></tr><tr><td><b>SKYY</b></td><td>First Trust Cloud Computing</td><td class='num'>2011</td><td class='num'>0.60%</td></tr><tr><td><b>CIBR</b></td><td>First Trust Cybersecurity</td><td class='num'>2015</td><td class='num'>0.60%</td></tr><tr><td><b>BOTZ</b></td><td>Global X Robotics &amp; AI</td><td class='num'>2016</td><td class='num'>0.68%</td></tr><tr><td><b>IEF</b></td><td>7-10y Treasury ETF</td><td class='num'>2002</td><td class='num'>0.15%</td></tr><tr><td><b>BIL</b></td><td>1-3m T-Bill ETF</td><td class='num'>2007</td><td class='num'>0.14%</td></tr></tbody></table></div>
+
+<h2>Theme groups</h2>
+<p class='lede'>A strategy can be pointed at any of these instead of the whole
+list. Delisted members stay in their group for the years they actually traded.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Group</th><th class='num'>Members</th>
+<th>Who's in it</th></tr></thead><tbody><tr><td><b>AI compute</b><span class='sub'>ai_compute</span></td><td class='num'>9</td><td class='lede' style='font-size:.78rem'>NVDA, AMD, AVGO, TSM, ARM, MRVL, ALAB, CRDO, GFS</td></tr><tr><td><b>semiconductors</b><span class='sub'>semiconductors</span></td><td class='num'>30</td><td class='lede' style='font-size:.78rem'>NVDA, AMD, AVGO, TSM, MU, MRVL, INTC, QCOM, TXN, ADI, NXPI, ON, MCHP, SWKS…</td></tr><tr><td><b>chip equipment</b><span class='sub'>semi_equipment</span></td><td class='num'>6</td><td class='lede' style='font-size:.78rem'>ASML, AMAT, LRCX, KLAC, TER, ENTG</td></tr><tr><td><b>chip-design software</b><span class='sub'>eda_tools</span></td><td class='num'>4</td><td class='lede' style='font-size:.78rem'>SNPS, CDNS, ANSS, MENT</td></tr><tr><td><b>cloud</b><span class='sub'>cloud_platforms</span></td><td class='num'>9</td><td class='lede' style='font-size:.78rem'>MSFT, GOOGL, AMZN, ORCL, SNOW, IBM, NET, DDOG, MDB</td></tr><tr><td><b>enterprise AI</b><span class='sub'>enterprise_ai</span></td><td class='num'>21</td><td class='lede' style='font-size:.78rem'>MSFT, CRM, NOW, PLTR, SNOW, ADBE, ORCL, INTU, WDAY, TEAM, DDOG, MDB, PATH, IOT…</td></tr><tr><td><b>cybersecurity</b><span class='sub'>cybersecurity</span></td><td class='num'>10</td><td class='lede' style='font-size:.78rem'>CRWD, PANW, FTNT, ZS, OKTA, CYBR, S, FEYE, PFPT, MFE</td></tr><tr><td><b>networking</b><span class='sub'>networking</span></td><td class='num'>10</td><td class='lede' style='font-size:.78rem'>CSCO, ANET, KEYS, JNPR, BRCD, TLAB, NT, WCOM, LU, JDSU</td></tr><tr><td><b>data centres</b><span class='sub'>dc_infrastructure</span></td><td class='num'>9</td><td class='lede' style='font-size:.78rem'>ANET, SMCI, DELL, VRT, HPE, NTAP, PSTG, WDC, CSCO</td></tr><tr><td><b>robotics</b><span class='sub'>robotics</span></td><td class='num'>5</td><td class='lede' style='font-size:.78rem'>ISRG, ROK, SYM, TER, PATH</td></tr><tr><td><b>AI power</b><span class='sub'>ai_power</span></td><td class='num'>5</td><td class='lede' style='font-size:.78rem'>CEG, VST, NRG, GEV, PWR</td></tr><tr><td><b>internet platforms</b><span class='sub'>internet_platforms</span></td><td class='num'>12</td><td class='lede' style='font-size:.78rem'>GOOGL, AMZN, META, NFLX, SHOP, UBER, ABNB, APP, TTD, YHOO, TWTR, LNKD</td></tr><tr><td><b>megacap AI</b><span class='sub'>megacap_ai</span></td><td class='num'>8</td><td class='lede' style='font-size:.78rem'>NVDA, MSFT, GOOGL, AMZN, META, AAPL, AVGO, TSLA</td></tr><tr><td><b>all 81 tech names</b><span class='sub'>ai_broad</span></td><td class='num'>81</td><td class='lede' style='font-size:.78rem'>NVDA, AMD, AVGO, TSM, ARM, MU, MRVL, INTC, QCOM, TXN, ADI, NXPI, ON, MCHP…</td></tr><tr><td><b>your shortlist</b><span class='sub'>target_holdings</span></td><td class='num'>18</td><td class='lede' style='font-size:.78rem'>NVDA, MSFT, GOOGL, AMZN, META, AVGO, AMD, TSM, ASML, ARM, PLTR, ORCL, CRWD, PANW…</td></tr></tbody></table></div>
+
+<h2>Rules the roster obeys</h2>
+<div class='grid2'>
+<div class='chart'><div class='ct'>What keeps it honest</div>
+<div class='cs'>Applied on every single day of the test</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li><b>Nothing before it existed.</b> A company enters only after its IPO plus
+six months of trading history. No buying Arm in 2019.</li>
+<li><b>Nothing after it died.</b> A delisted name is sold at its last price and
+never traded again — but its earlier years stay fully in play.</li>
+<li><b>Nothing untradeable.</b> Names under $3, or without enough daily volume
+to get in and out of, are skipped on the days that is true of them.</li>
+<li><b>Names are not identities.</b> Every company has a permanent internal ID.
+Broadcom is the clearest trap: Avago bought the Broadcom name in 2016, so a
+price series labelled “Broadcom” starts in 2009 and hides the original
+company's dot-com boom and collapse entirely. Here they are two separate
+companies and are never joined.</li>
+</ul></div>
+<div class='chart'><div class='ct'>What is still missing</div>
+<div class='cs'>Honest limitations of this list</div>
+<ul class='lede' style='margin:0;padding-left:1.1rem'>
+<li><b>Real prices.</b> Still the big one. The roster is defined; the download
+has not run.</li>
+<li><b>Free data may not have the dead names.</b> Free providers often serve no
+history at all for delisted tickers. If that happens, the study reports itself
+as survivorship-limited rather than pretending the list above was honoured.</li>
+<li><b>It is not the whole market.</b> 81 live names is a considered
+selection, not every listed technology company. Anything excluded is excluded
+by the list above, which is at least visible and arguable.</li>
+<li><b>Delisting prices are optimistic.</b> A bankruptcy is modelled as a sale
+at the last quoted price. In reality the exit is usually worse.</li>
+</ul></div></div>
+<p class='note'>The full machine-readable definition lives in
+<code>configs/universe.yaml</code> and <code>configs/security_master.yaml</code>,
+both fingerprinted by the research freeze — they cannot be edited after results
+exist without the change being detected.</p><p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 11:36 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>

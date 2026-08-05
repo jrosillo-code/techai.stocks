@@ -35,12 +35,19 @@ FAMILY_ASSUMPTIONS = {
     "ml": ["a shrunk linear blend generalizes across regimes",
            "purged walk-forward controls leakage"],
     "benchmark": ["passive exposure is the null hypothesis"],
+    "factor": ["the shared sector factor is separable from what is left over",
+               "the residual, not the total return, is what carries information",
+               "participation and consensus are measurable before prices confirm them"],
+    "allocation": ["trailing covariance is a usable estimate of future covariance",
+                   "risk balance is worth its rebalancing cost",
+                   "no forecasting skill is required — only measurement"],
 }
 
 FAMILY_TIMEFRAME = {
     "meanrev": "days", "breakout": "weeks-months", "xsmom": "months",
     "tsmom": "months", "riskmanaged": "months-years", "fundamental": "quarters",
     "regime": "weeks-months", "ml": "weeks-months", "benchmark": "years",
+    "factor": "months", "allocation": "months-years",
 }
 
 
@@ -91,6 +98,13 @@ def _strengths(e: StrategyEntry) -> list[str]:
     if e.family == "riskmanaged":
         out.append("Changes how much you hold, not which stocks you pick — so "
                    "it does not depend on picking winners correctly")
+    if e.family == "allocation":
+        out.append("Requires no forecasting at all — it only measures how "
+                   "risky things have been, which is far easier than "
+                   "predicting what comes next")
+    if e.family == "factor":
+        out.append("Built specifically to behave differently from the rest of "
+                   "the sector, rather than to score highest on its own")
     if e.tradingview:
         out.append("Simple enough to watch on a TradingView chart")
     return out or ["Still an open question — under evaluation"]
@@ -101,9 +115,15 @@ def _weaknesses(e: StrategyEntry) -> list[str]:
     if e.family == "meanrev":
         out.append("The edge vanishes once realistic trading costs are charged — "
                    "measured, not assumed")
-    if e.family in ("xsmom", "breakout", "ml"):
-        out.append("Picks from a list of companies that survived to today. Free "
-                   "data drops firms that went bust, which flatters the result")
+    if e.family in ("xsmom", "breakout", "ml", "factor"):
+        out.append("Ranks companies against each other, so it is only as honest "
+                   "as the list it ranks. That list now includes 39 firms that "
+                   "went bust or were bought — but free price data often has no "
+                   "history for them, which would flatter the result again")
+    if e.family == "allocation":
+        out.append("Estimates how assets move together from the recent past. "
+                   "Those relationships break down in exactly the crises where "
+                   "the diversification was supposed to help")
     if e.family == "regime":
         out.append("Relies on economic data as it reads today, not as it read at "
                    "the time — so its real-time value is unproven")

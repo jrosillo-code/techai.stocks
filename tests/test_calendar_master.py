@@ -85,3 +85,30 @@ def test_stitch_refuses_fabricated_returns():
                             index=pd.bdate_range("2007-01-02", "2007-12-31"))
     out2 = stitch_history("SEC_SUNW", {"SUNW": f1_bleed, "JAVA": f2})
     assert not out2.index.has_duplicates
+
+
+def test_master_covers_every_universe_name():
+    """Every security in the universe must have a canonical record.
+
+    Without this, expanding the universe silently produces names with no
+    permanent ID, no delisting successor and no rename history — exactly the
+    conditions the master exists to prevent.
+    """
+    from aitb.config import load_universe_config
+    covered = {s for rec in load_master().values() for s in rec.all_symbols}
+    missing = [t for t in load_universe_config().tickers if t not in covered]
+    assert missing == [], f"universe names absent from the security master: {missing}"
+
+
+def test_broadcom_name_reuse_is_not_one_history():
+    """Avago took the Broadcom NAME in 2016; it did not take its history.
+
+    A vendor series labelled "Broadcom" starts in 2009 (Avago's IPO) and shows
+    none of Broadcom Corp's dot-com boom and bust. The two must resolve to
+    different securities, and BRCM must resolve to nothing after the deal.
+    """
+    import datetime as dt
+    assert resolve("BRCM", dt.date(2005, 1, 1)).sid == "SEC_BRCM"
+    assert resolve("AVGO", dt.date(2012, 1, 1)).sid == "SEC_AVGO"
+    assert resolve("BRCM", dt.date(2020, 1, 1)) is None
+    assert load_master()["SEC_BRCM"].successor["sid"] == "SEC_AVGO"
