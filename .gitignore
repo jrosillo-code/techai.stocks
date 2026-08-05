@@ -1,14 +1,21 @@
 # Data and generated outputs (reproducible via scripts/run_all.py)
+#
+# Raw vendor data stays out: it is large, often licensed, and redistributing
+# it would breach most providers' terms. The DERIVED research record does not
+# — see below.
 data/*
 !data/real_data_manifest.md
 !data/import/
 data/import/*
 !data/import/README.md
+
 # Results: the experiment REGISTRY and the derived summary tables are the
 # research record — version-controlled, because they are what makes a study
-# auditable years later. Equity curves are large (~125 MB) and fully
+# auditable years later. Equity curves are large (~340 MB) and fully
 # regenerable from the registry plus the frozen code, so they stay out.
 results/*
+
+# --- synthetic (demonstration) ---
 !results/synthetic/
 results/synthetic/*
 !results/synthetic/experiments.jsonl
@@ -19,6 +26,28 @@ results/synthetic/*
 results/synthetic/robustness/*
 !results/synthetic/robustness/*.csv
 !results/synthetic/robustness/*.json
+
+# --- real (the study that actually matters) ---
+# These are governance artifacts, not build output. data_quality.json records
+# what the gate saw and decided; holdout_lock.json is the hash-chained record
+# proving the holdout was opened exactly once; run_fingerprint.json binds the
+# results to a machine, a git commit and a data-store hash. A real study whose
+# record is not committed is not reproducible and not auditable — which is the
+# entire point of the freeze. None of these files contains vendor price data.
+!results/real/
+results/real/*
+!results/real/experiments.jsonl
+!results/real/strategy_ranking.csv
+!results/real/company_analysis.csv
+!results/real/capacity.csv
+!results/real/data_quality.json
+!results/real/import_report.json
+!results/real/run_fingerprint.json
+!results/real/holdout_lock.json
+!results/real/robustness/
+results/real/robustness/*
+!results/real/robustness/*.csv
+!results/real/robustness/*.json
 
 reports/
 *.egg-info/

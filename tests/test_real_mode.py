@@ -190,3 +190,42 @@ def test_real_mode_site_omits_names_with_no_price_history(monkeypatch):
     assert ">WCOM<" not in html_out and ">NT<" not in html_out
     assert "had no usable price history" in html_out
     assert "survivorship bias" in html_out
+
+
+def test_real_research_record_is_version_controlled():
+    """The real study's governance artifacts must be committable.
+
+    results/* is gitignored so the 340 MB of equity curves stay out. That
+    default silently swallowed the real registry, ranking, quality gate and
+    holdout lock too — so a finished real study would have published rendered
+    HTML while dropping the evidence behind it. A study whose record is not
+    committed is not reproducible, which defeats the freeze entirely.
+
+    Equity curves must STILL be ignored: they are large and regenerable.
+    """
+    import subprocess
+    from pathlib import Path
+    root = Path(__file__).parents[1]
+
+    must_commit = [
+        "results/real/experiments.jsonl",
+        "results/real/strategy_ranking.csv",
+        "results/real/company_analysis.csv",
+        "results/real/data_quality.json",
+        "results/real/holdout_lock.json",
+        "results/real/run_fingerprint.json",
+        "results/real/robustness/family_summary.csv",
+    ]
+    must_ignore = ["results/real/curves/abc123.parquet"]
+
+    def ignored(rel: str) -> bool:
+        return subprocess.run(["git", "check-ignore", "-q", rel],
+                              cwd=root).returncode == 0
+
+    wrongly_ignored = [p for p in must_commit if ignored(p)]
+    assert not wrongly_ignored, (
+        "these would be silently dropped from a real study's commit: "
+        f"{wrongly_ignored}")
+
+    not_ignored = [p for p in must_ignore if not ignored(p)]
+    assert not not_ignored, f"equity curves must stay out of git: {not_ignored}"

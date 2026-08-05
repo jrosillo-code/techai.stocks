@@ -136,5 +136,12 @@ tar czf "first_real_study_${STAMP}.tar.gz" \
 printf '\nDONE. Deliverables:\n'
 printf '  reports/real/research_report_full.html\n'
 printf '  reports/real/decision_brief.html\n'
+printf '  site/                       (the published site, now on real data)\n'
 printf '  first_real_study_%s.tar.gz (shareable bundle)\n' "$STAMP"
 printf 'The bundle contains no API keys and no licensed raw price files.\n'
+printf '\nTo publish:\n'
+printf '  git add -A && git commit -m "First real-data study" && git push\n'
+printf '\nThat commits the site AND the research record (registry, ranking,\n'
+printf 'quality gate, holdout lock). Raw vendor prices and equity curves stay\n'
+printf 'out of git deliberately — licensed data is not redistributable, and\n'
+printf 'curves regenerate from the registry.\n'
