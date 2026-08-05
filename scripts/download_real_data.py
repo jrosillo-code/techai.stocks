@@ -174,21 +174,62 @@ def main() -> int:
         edgar = make_provider("sec")
         n_ok = 0
         univ_only = [t for t in tickers if t in ucfg.tickers]
+        fdir = out / "fundamentals"
+        fdir.mkdir(parents=True, exist_ok=True)
+
+        # AUD-022. Resume used to ask only "does the file exist", which is the
+        # wrong question for fundamentals: the file's CONTENT depends on which
+        # XBRL concepts were requested, and that set grows. When freeze v4 took
+        # it from 5 fields to 13, every file from the v3 download looked
+        # complete, was skipped, and was counted as `ok` — so R&D, net income
+        # and total assets were never fetched, ResearchIntensity and
+        # AccrualQuality refused to run for two consecutive studies, and the
+        # manifest reported full SEC coverage throughout.
+        #
+        # The marker records which concept set produced these files, so an
+        # expansion invalidates them exactly once and ordinary resume still
+        # works. Private import: _CONCEPTS lives in a frozen module and cannot
+        # be given a public accessor without invalidating the freeze.
+        from aitb.data.providers_ext import _CONCEPTS
+        marker = fdir / "_concept_set.json"
+        want = sorted(_CONCEPTS)
+        try:
+            have = sorted(json.loads(marker.read_text())["concepts"])
+        except Exception:
+            have = []
+        stale = have != want
+        if stale and any(fdir.glob("*.parquet")):
+            log.warning(
+                "fundamentals were downloaded under a DIFFERENT concept set "
+                "(%d fields then, %d now; missing: %s) — re-fetching all %d "
+                "names. This is one slow run, not every run.",
+                len(have), len(want), ", ".join(sorted(set(want) - set(have)))
+                or "none", len(univ_only))
+
         for t in univ_only:
-            path = out / "fundamentals" / f"{t}.parquet"
-            if path.exists():
+            path = fdir / f"{t}.parquet"
+            if path.exists() and not stale:
                 n_ok += 1
                 continue
             try:
                 df = edgar.fetch_fundamentals(t)
                 df.to_parquet(path)
                 n_ok += 1
-                log.info("sec/%s: %d quarters", t, len(df))
+                log.info("sec/%s: %d quarters, %d fields", t, len(df),
+                         len([c for c in df.columns if c in want]))
             except Exception as exc:
                 manifest["failures"].append({"provider": "sec", "symbol": t,
                                              "error": str(exc)})
             time.sleep(RATE_LIMIT_S["sec"])
-        manifest["coverage"]["sec"] = {"requested": len(univ_only), "ok": n_ok}
+
+        # Written only after the whole roster has been attempted. A name that
+        # failed leaves no file and is retried next run regardless of this.
+        marker.write_text(json.dumps(
+            {"concepts": want,
+             "note": "which XBRL concept set produced the .parquet files here; "
+                     "a change re-fetches them once (AUD-022)"}, indent=2))
+        manifest["coverage"]["sec"] = {"requested": len(univ_only), "ok": n_ok,
+                                       "concept_fields": len(want)}
 
     for p in sorted(out.rglob("*.parquet")):
         manifest["files"][str(p.relative_to(out))] = sha256(p)

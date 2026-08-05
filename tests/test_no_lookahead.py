@@ -151,6 +151,171 @@ def test_v4_strategies_are_causal(synth_md, cls_name, params):
     pd.testing.assert_frame_equal(full[cols], trunc[cols], atol=1e-12)
 
 
+# Freeze v5: designed single-symbol so the Python rule and the chart rule are
+# the same rule. ATRTrailingStop carries a hand-rolled state loop, which is
+# exactly where a peek at today's price hides.
+V5_STRATEGIES = [
+    ("ATRTrailingStop", dict(entry_window=100)),
+    ("FiftyTwoWeekHighProximity", dict(top_n=10)),
+    ("QuietTrend", dict()),
+    # Freeze v6. VolumeConfirmedBreakout is the study's only volume signal, so
+    # it is the only strategy whose causality depends on a panel other than
+    # price; TurnOfMonth reads no market data at all, which makes truncation a
+    # weak test of it — see the dedicated test below.
+    ("VolumeConfirmedBreakout", dict()),
+    ("TurnOfMonth", dict()),
+]
+
+
+@pytest.mark.parametrize("cls_name,params", V5_STRATEGIES,
+                         ids=[c for c, _ in V5_STRATEGIES])
+def test_v5_strategies_are_causal(synth_md, cls_name, params):
+    from aitb.strategies import STRATEGY_CLASSES
+    cut, compare_to = "2021-06-30", "2021-04-30"
+    strat = STRATEGY_CLASSES[cls_name](**params)
+    full = strat.build(synth_md).loc[:compare_to]
+    trunc = strat.build(_truncate(synth_md, cut)).loc[:compare_to]
+    cols = [c for c in full.columns if c in trunc.columns]
+    assert cols and full[cols].abs().to_numpy().sum() > 0
+    pd.testing.assert_frame_equal(full[cols], trunc[cols], atol=1e-12)
+
+
+def test_atr_stop_exits_on_yesterdays_stop_not_todays_low():
+    """The trailing stop must use the peak known BEFORE today's bar.
+
+    A stop that updates its peak with today's close and then tests today's
+    close against it can never trigger — the position rides every decline to
+    the exact bottom and exits nowhere. That is a silent, extremely flattering
+    bug, and it shows up as a suspiciously good drawdown rather than an error.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.config import load_universe_config
+    from aitb.data.loader import MarketData
+    from aitb.strategies import STRATEGY_CLASSES
+
+    # Real tickers: the investable mask only admits names in the universe.
+    cal = pd.bdate_range("2015-01-01", periods=400, name="date")
+    path = np.concatenate([np.linspace(100, 300, 300), np.linspace(300, 90, 100)])
+    px = pd.DataFrame({"NVDA": path, "MSFT": path}, index=cal)
+    md = MarketData(open=px, high=px * 1.01, low=px * 0.99, close=px,
+                    adj_close=px,
+                    dollar_volume=pd.DataFrame(1e12, index=cal, columns=["NVDA", "MSFT"]),
+                    macro=pd.DataFrame(index=cal), fundamentals=pd.DataFrame(),
+                    universe=load_universe_config(), provider_name="toy")
+
+    w = STRATEGY_CLASSES["ATRTrailingStop"](entry_window=50, atr_window=22,
+                                            atr_mult=3.0).build(md)
+    held = w["NVDA"] > 0
+    assert held.any(), "never entered a 200-bar uptrend"
+    # It must be OUT well before the bottom — a stop that never fires is the bug.
+    assert not held.iloc[-1], "still holding at the very bottom: the stop never fired"
+    exited = held[held].index.max()
+    assert exited < cal[380], f"exited only at {exited.date()} — far too late for a 3-ATR stop"
+
+
+def _toy_md(px, dollar_volume=None):
+    """A two-name MarketData over real tickers, for hand-checkable rules."""
+    import pandas as pd
+    from aitb.config import load_universe_config
+    from aitb.data.loader import MarketData
+    cal = px.index
+    dv = (dollar_volume if dollar_volume is not None
+          else pd.DataFrame(1e12, index=cal, columns=px.columns))
+    return MarketData(open=px, high=px * 1.01, low=px * 0.99, close=px,
+                      adj_close=px, dollar_volume=dv,
+                      macro=pd.DataFrame(index=cal), fundamentals=pd.DataFrame(),
+                      universe=load_universe_config(), provider_name="toy")
+
+
+def test_latch_matches_the_loop_it_replaces():
+    """The vectorised hold-until-exit must equal the breakout family's loop.
+
+    The loop is the reference implementation and has been running since v1.
+    Replacing it with three chained pandas calls is only safe if the two are
+    identical on every session, including the ties the fast version resolves by
+    ordering rather than by an explicit branch.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.strategies.chartable import _latch
+
+    rng = np.random.default_rng(7)
+    idx = pd.bdate_range("2020-01-01", periods=400)
+    cols = ["NVDA", "MSFT", "AAPL"]
+    entry = pd.DataFrame(rng.random((400, 3)) < 0.04, index=idx, columns=cols)
+    exit_ = pd.DataFrame(rng.random((400, 3)) < 0.06, index=idx, columns=cols)
+    assert (entry & exit_).to_numpy().any(), "no ties — the test proves nothing"
+
+    pos = pd.DataFrame(0.0, index=idx, columns=cols)
+    state = entry.iloc[0].astype(float)
+    for i in range(len(idx)):
+        state = ((state.astype(bool) & ~exit_.iloc[i]) | entry.iloc[i]).astype(float)
+        pos.iloc[i] = state
+
+    pd.testing.assert_frame_equal(pos, _latch(entry, exit_))
+
+
+def test_volume_filter_actually_refuses_thin_breakouts():
+    """The turnover filter must change the answer, not decorate it.
+
+    An inert filter is the failure mode that matters here: the strategy would
+    silently become a plain breakout, keep its name, and be reported as
+    evidence about volume when it tested nothing of the kind. So: the same
+    price path twice, differing only in turnover on the breakout day.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.strategies import STRATEGY_CLASSES
+
+    cal = pd.bdate_range("2015-01-01", periods=200, name="date")
+    path = np.concatenate([np.full(150, 100.0), np.linspace(101, 160, 50)])
+    px = pd.DataFrame({"NVDA": path, "MSFT": path}, index=cal)
+
+    quiet = pd.DataFrame(1e9, index=cal, columns=px.columns)
+    loud = quiet.copy()
+    loud.iloc[150:] = 1e11          # 100x its own baseline once the move starts
+
+    strat = STRATEGY_CLASSES["VolumeConfirmedBreakout"]
+    thin = strat(entry_window=55, vol_window=50, vol_mult=1.5).build(_toy_md(px, quiet))
+    heavy = strat(entry_window=55, vol_window=50, vol_mult=1.5).build(_toy_md(px, loud))
+
+    assert heavy["NVDA"].sum() > 0, "refused a breakout on 100x turnover"
+    assert thin["NVDA"].sum() == 0, (
+        "took a breakout on flat turnover — the volume filter is inert and the "
+        "strategy is a plain breakout wearing a volume label")
+
+
+def test_turn_of_month_holds_only_inside_its_calendar_window():
+    """Exposure must be decided by the calendar and by nothing else.
+
+    This is the one rule in the study that reads no market data, which is its
+    entire justification — it cannot be the same bet as everything else. A bug
+    that let price leak into the window would destroy that property while
+    leaving the results looking perfectly reasonable.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.strategies import STRATEGY_CLASSES
+
+    cal = pd.bdate_range("2015-01-01", periods=500, name="date")
+    rng = np.random.default_rng(3)
+    path = 100 * np.exp(np.cumsum(rng.normal(0.0004, 0.02, 500)))
+    px = pd.DataFrame({"NVDA": path, "MSFT": path * 1.3}, index=cal)
+
+    w = STRATEGY_CLASSES["TurnOfMonth"](start_day=26, end_day=5).build(_toy_md(px))
+    held = w["NVDA"] > 0
+    in_window = pd.Series((cal.day >= 26) | (cal.day <= 5), index=cal)
+    # Held on every in-window session the mask admits, and on no other.
+    assert not (held & ~in_window).any(), "held outside the calendar window"
+    assert held.sum() > 100, "held on almost nothing — the window never opened"
+
+    # And the answer must not move when the prices do.
+    shuffled = px.sample(frac=1.0, random_state=1).set_axis(cal)
+    w2 = STRATEGY_CLASSES["TurnOfMonth"](start_day=26, end_day=5).build(_toy_md(shuffled))
+    pd.testing.assert_frame_equal(w, w2)
+
+
 def test_market_neutral_is_actually_neutral(synth_md):
     """A dollar-neutral book must net to ~zero and carry real short exposure.
 

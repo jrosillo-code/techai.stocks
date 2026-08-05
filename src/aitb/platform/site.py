@@ -100,6 +100,14 @@ CLASS_LABELS = {
     "DispersionTimedSelection": "Pick stocks only when it pays",
     "ResearchIntensity": "The heaviest R&D spenders",
     "AccrualQuality": "Profits backed by real cash",
+    # added with freeze v5 — designed single-symbol, so the tested rule and the
+    # chart rule are the same rule
+    "ATRTrailingStop": "Stop that widens with volatility",
+    "FiftyTwoWeekHighProximity": "Near its 52-week high",
+    "QuietTrend": "Trending, and calm about it",
+    # added with freeze v6
+    "VolumeConfirmedBreakout": "Breakout, but only on heavy volume",
+    "TurnOfMonth": "Only around the turn of the month",
 }
 
 _BASKETS = {"megacap_ai": "megacap AI", "target_holdings": "your shortlist",
@@ -326,6 +334,9 @@ dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
 .tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
 .tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
   border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.copybtn{font:inherit;font-size:.82rem;padding:.25rem .7rem;cursor:pointer;
+  border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink-2)}
+.copybtn:hover{border-color:var(--s1);color:var(--s1)}
 .subnav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 1.4rem}
 .subnav a{font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--line);
   border-radius:999px;background:var(--surface);color:var(--ink-2);text-decoration:none}
@@ -342,6 +353,7 @@ _PAGES = [("index.html", "Overview"),
           ("data.html", "The data"),
           ("strategies.html", "Strategies"),
           ("results.html", "Results"),
+          ("charts.html", "Chart it"),
           ("method.html", "Method &amp; trust")]
 
 
@@ -1179,6 +1191,11 @@ def build_site(mode: str = "synthetic", out: Path | None = None,
         + _experiments_page(registry, reg_df),
         current="results.html"))
 
+    # --- Chart it: TradingView exports --------------------------------------
+    (out / "charts.html").write_text(
+        _page("Chart it — TradingView exports", _charts_page(mode),
+              current="charts.html"))
+
     # --- Method & trust: governance, audit, and what to do next -------------
     (out / "method.html").write_text(_page(
         "Method & trust",
@@ -1878,6 +1895,168 @@ companies and are never joined.</li>
 <code>configs/universe.yaml</code> and <code>configs/security_master.yaml</code>,
 both fingerprinted by the research freeze — they cannot be edited after results
 exist without the change being detected.</p>"""
+
+
+_VERDICT_WORDS = {
+    "robust_candidate": ("survived every check", "var(--good)"),
+    "rejected": ("rejected", "var(--critical)"),
+    "inconclusive": ("unclear", "var(--warning)"),
+    "benchmark": ("used as a yardstick", "var(--s1)"),
+}
+
+
+def _chart_evidence(cls: str, ranking: pd.DataFrame) -> str:
+    """What the study actually found about this rule, beside the code for it.
+
+    A downloadable script with no result attached invites the reader to assume
+    it worked. Most of these did not. The summary is deliberately the MEDIAN
+    across the class's variants and the worst-case cost scenario, not the best
+    variant — picking the best of a grid is the exact error the rest of the
+    site exists to avoid.
+    """
+    if ranking.empty or "strategy" not in ranking.columns:
+        return ("<p class='note' style='margin:.2rem 0 .6rem'>No recorded "
+                "results for this rule yet — the script is here, the evidence "
+                "is not.</p>")
+    mine = ranking[ranking["strategy"].str.startswith(cls + "(")]
+    if mine.empty:
+        return ("<p class='note' style='margin:.2rem 0 .6rem'>Not in the "
+                "frozen grid, so it has no recorded results. Treat it as an "
+                "illustration of the idea, not as a tested rule.</p>")
+
+    counts = mine["verdict"].value_counts().to_dict()
+    best = str(mine.sort_values("score", ascending=False).iloc[0]["verdict"])
+    word, colour = _VERDICT_WORDS.get(best, (best.replace("_", " "), "var(--s1)"))
+    breakdown = " · ".join(
+        f"{n} {_VERDICT_WORDS.get(v, (v.replace('_', ' '), ''))[0]}"
+        for v, n in sorted(counts.items(), key=lambda kv: -kv[1]))
+
+    def med(col: str) -> float:
+        return float(mine[col].median()) if col in mine.columns else float("nan")
+
+    hs, ds, dd = med("holdout_sharpe"), med("dev_sharpe"), med("max_drawdown")
+    fragile = (int(mine["cost_fragile"].sum())
+               if "cost_fragile" in mine.columns else 0)
+    stat = (f"median Sharpe {ds:.2f} in development, {hs:.2f} on the holdout · "
+            f"median worst drawdown {dd:.0%}")
+    frag = (f" · <b style='color:var(--critical)'>{fragile} of {len(mine)} "
+            f"collapse under stressed costs</b>" if fragile else
+            " · none collapsed under stressed costs")
+    headline = (f"Tested once: {word}" if len(mine) == 1 else
+                f"Best of {len(mine)} tested variants: {word}")
+    detail = "" if len(mine) == 1 else f" — {html.escape(breakdown)}"
+    return (f"<div class='note' style='border-left:3px solid {colour};"
+            f"padding:.35rem .6rem;margin:.2rem 0 .6rem;background:var(--surface)'>"
+            f"<b style='color:{colour}'>{html.escape(headline)}</b>{detail}<br>"
+            f"{stat}{frag}</div>")
+
+
+def _charts_page(mode: str) -> str:
+    """Ready-to-paste TradingView scripts for the strategies that port.
+
+    Only rules a single chart can express are exported. Anything that ranks the
+    whole universe against itself, or needs company filings, is listed as NOT
+    portable with the reason — a Pine script that quietly drops the ranking
+    step is a different strategy wearing the same name.
+    """
+    from .catalog import build_catalog
+    from .tradingview import BACKTESTABLE, _GENERATORS, export_pine
+
+    cat = build_catalog(mode)
+    rank_path = ExperimentRegistry.for_mode(mode).root / "strategy_ranking.csv"
+    ranking = pd.read_csv(rank_path) if rank_path.exists() else pd.DataFrame()
+
+    cards: dict[str, str] = {}
+    for cls in _GENERATORS:
+        code = export_pine(cls)
+        if not code:
+            continue
+        e = cat.get(cls)
+        label = CLASS_LABELS.get(cls, cls)
+        blurb = " ".join((e.docstring or "").split("\n\n")[0].split()) if e else ""
+        runs = e.n_experiments if e else 0
+        backtest = cls in BACKTESTABLE
+        kind = ("<span class='pill pill-good'>● Strategy — TradingView will "
+                "backtest it and mark every trade</span>" if backtest else
+                "<span class='pill pill-warn'>● Indicator — draws a signal, "
+                "does not place orders</span>")
+        cards[cls] = f"""
+<div class='chart' id='{cls}'>
+  <div class='ct'>{html.escape(label)}</div>
+  <div class='cs'>{html.escape(cls)} · {runs} recorded runs</div>
+  <p style='margin:.2rem 0 .6rem'>{kind}</p>
+  <p class='lede' style='font-size:.9rem'>{html.escape(blurb)}</p>
+  {_chart_evidence(cls, ranking)}
+  <p><a href='tradingview/{cls}.pine' download style='font-weight:600'>
+     ⬇ Download {cls}.pine</a>
+     &nbsp;·&nbsp;
+     <button class='copybtn' data-target='code-{cls}'>Copy to clipboard</button></p>
+  <details><summary>Show the code</summary>
+  <pre id='code-{cls}'>{html.escape(code)}</pre></details>
+</div>"""
+
+    # Everything that deliberately does not export.
+    refused = []
+    for name, e in sorted(cat.items()):
+        if name in _GENERATORS or e.status == "unlisted":
+            continue
+        refused.append(
+            f"<tr><td><b>{html.escape(CLASS_LABELS.get(name, name))}</b>"
+            f"<span class='sub'>{html.escape(name)}</span></td>"
+            f"<td class='lede' style='font-size:.82rem'>"
+            f"{html.escape(e.tradingview_note)}</td></tr>")
+
+    script = """
+<script>
+document.querySelectorAll('.copybtn').forEach(b => b.onclick = () => {
+  const el = document.getElementById(b.dataset.target);
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const t = b.textContent; b.textContent = 'Copied ✓';
+    setTimeout(() => b.textContent = t, 1500);
+  });
+});
+</script>"""
+
+    return f"""
+<h1>Put these on a chart</h1>
+<p class='lede'>Every strategy here that a single chart can express, as a
+ready-to-paste TradingView script. Open TradingView → <b>Pine Editor</b> →
+paste → <b>Add to chart</b>. Entries and exits are marked with arrows;
+the settings appear in a box on the chart so a screenshot carries its own
+provenance.</p>
+
+<div class='warnbox'><b>These will look better on TradingView than they did in
+the study, and that is not a good sign.</b> The Pine versions charge no
+commission, no spread, no slippage and no market impact — the study charges all
+four across four scenarios. They also trade one symbol, where the study holds a
+portfolio and parks idle cash in Treasuries. Use them to watch a signal behave
+on a chart you already know. Do not use the Strategy Tester numbers as
+evidence; that is what the rest of this site is for.</p>
+<p style='margin:.5rem 0 0'>One thing that <i>does</i> transfer: orders are
+placed on the close and filled at the next bar's open, the same convention the
+Python engine enforces. No script here can peek at the bar it trades on.</div>
+
+<h2>Backtestable strategies</h2>
+<p class='lede'>These place orders, so TradingView's Strategy Tester will run
+them and mark every trade.</p>
+{''.join(c for n, c in cards.items() if n in BACKTESTABLE)}
+
+<h2>Gauges</h2>
+<p class='lede'>These answer <i>how much to hold</i> or <i>is the regime
+favourable</i> — not <i>what to buy</i>. They are indicators rather than
+strategies because dressing a position-sizing rule up as an entry signal would
+misrepresent it.</p>
+{''.join(c for n, c in cards.items() if n not in BACKTESTABLE)}
+
+<h2>What will not port, and why</h2>
+<p class='lede'>These are left out on purpose. Each one either ranks the whole
+universe against itself — which a single chart cannot see — or needs company
+filings dated to their publication. An approximation that silently drops that
+step is a different strategy with the same name, and would be the easiest way
+to mislead yourself on this entire site.</p>
+<div class='tbl-wrap'><table><thead><tr><th>Idea</th><th>Why not</th></tr>
+</thead><tbody>{''.join(refused)}</tbody></table></div>
+{script}"""
 
 
 def _ideas_page() -> str:

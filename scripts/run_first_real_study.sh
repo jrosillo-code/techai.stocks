@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
 # One-command frozen first real-data study (macOS/Linux).
 #
-#   ./scripts/run_first_real_study.sh [--start 1998-01-01] [--providers "yahoo stooq fred sec"]
+#   ./scripts/run_first_real_study.sh [--start 1998-01-01] \
+#       [--providers "yahoo stooq fred sec"] [--skip-download]
 #
 # Phases: environment validation -> freeze verification -> download (resumable)
 # -> checksum-verified import -> quality gate (hard stop on FAIL) -> frozen
 # real-mode backtests -> robustness -> capacity -> company analysis -> reports
 # (full + decision brief) -> shareable results bundle.
+#
+# --skip-download reuses the store already in data/import and runs everything
+# from the quality gate onward. It is for re-running the study under a NEW
+# FREEZE that needs no new data — the common case, since a freeze bump usually
+# adds strategies rather than inputs. It refuses if the store is empty rather
+# than backtesting nothing, and it does NOT skip the quality gate: the gate
+# validates the store, and a store that was fine for the last freeze is not
+# automatically fine for this one. Free providers serve 404s for many delisted
+# tickers and the retries are slow, so re-downloading unchanged data is the
+# single most expensive way to change nothing.
 #
 # Guarantees: never substitutes synthetic data; never tunes parameters (the
 # freeze hash is verified before any backtest); API keys are redacted from the
@@ -21,6 +32,7 @@ START="1998-01-01"
 # present, Yahoo+Stooq for reconciliation/fallback. Alpha Vantage is omitted
 # by default (free-tier limits); add it via --providers if licensed.
 PROVIDERS="yahoo stooq fred sec"
+SKIP_DOWNLOAD=0
 if [[ -n "${TIINGO_API_KEY:-}" ]]; then
   PROVIDERS="tiingo $PROVIDERS"
   echo "TIINGO_API_KEY detected: tiingo added as preferred price source"
@@ -29,6 +41,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --start) START="$2"; shift 2 ;;
     --providers) PROVIDERS="$2"; shift 2 ;;
+    --skip-download) SKIP_DOWNLOAD=1; shift ;;
     *) echo "unknown arg: $1"; exit 2 ;;
   esac
 done
@@ -78,14 +91,37 @@ json.dump(fp, open("results/real/run_fingerprint.json", "w"), indent=2)
 print("fingerprint recorded (git_dirty=%s)" % fp["git_dirty"])
 EOF
 
-step "4/10 Real-data download (resumable; failures logged per symbol)"
-$PY scripts/download_real_data.py --providers $PROVIDERS --start "$START" \
-    --output data/export_bundle \
-  || die "download failed" "re-run this script: completed symbols are skipped, partial downloads resume"
+if [[ "$SKIP_DOWNLOAD" == "1" ]]; then
+  step "4-5/10 Download and import SKIPPED (--skip-download)"
+  # Refuse rather than silently backtest an empty store. The quality gate below
+  # would catch this too, but failing here says why in one line instead of
+  # sending the reader into data_quality.json.
+  # data/real is the store the backtests actually read (config.REAL_DATA_DIR);
+  # data/export_bundle is only the download staging area, so its presence
+  # proves nothing about whether anything was imported.
+  $PY - <<'EOF' || die "--skip-download was passed but there is no usable store in data/real" \
+                       "nothing has been imported yet — re-run without --skip-download"
+import sys
+sys.path.insert(0, "src")
+from aitb.data import realstore
+from aitb.data.quality import store_fingerprint
+prices = realstore.available("prices")
+if not prices:
+    print("no price datasets in the store", file=sys.stderr)
+    raise SystemExit(1)
+print(f"reusing existing store: {len(prices)} price series, "
+      f"fingerprint {store_fingerprint()}")
+EOF
+else
+  step "4/10 Real-data download (resumable; failures logged per symbol)"
+  $PY scripts/download_real_data.py --providers $PROVIDERS --start "$START" \
+      --output data/export_bundle \
+    || die "download failed" "re-run this script: completed symbols are skipped, partial downloads resume"
 
-step "5/10 Checksum-verified import + provider reconciliation"
-$PY scripts/import_data_bundle.py --input data/export_bundle \
-  || die "import failed" "inspect results/real/import_report.json; a checksum failure means the bundle was corrupted in transit — re-download"
+  step "5/10 Checksum-verified import + provider reconciliation"
+  $PY scripts/import_data_bundle.py --input data/export_bundle \
+    || die "import failed" "inspect results/real/import_report.json; a checksum failure means the bundle was corrupted in transit — re-download"
+fi
 
 step "6/10 Data-quality gate (hard stop on FAIL)"
 $PY scripts/validate_real_data.py \

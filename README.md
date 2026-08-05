@@ -142,9 +142,9 @@ honoured.
 ## The first frozen real-data study (one command)
 
 The first real run is governed by a **research freeze**
-(`configs/research_freeze_v4.json`, hash `384dc48714fc530de3f3a4a9168df12f`):
+(`configs/research_freeze_v7.json`, hash `e5a13c8887f98ae693d2eaaa51044e41`):
 every strategy grid, benchmark, cost scenario, split, ranking rule, rejection
-rule, and the fingerprints of the 32 code modules that compute, tier, gate or
+rule, and the fingerprints of the 33 code modules that compute, tier, gate or
 record results — hashed before any real result exists. Every real-mode entry
 point (experiments, robustness, capacity, company analysis, report) verifies
 the hash and aborts on any drift — no tuning is possible during the first
@@ -168,6 +168,42 @@ correlated 0.7–0.9 with simply holding QQQ, and that was **not** a fact about
 technology stocks. All 208 variants were long-only, so the co-movement was a
 property of the study's own constraint. Freeze v4 lifts it.
 
+## The second real study — the first thing that survived
+
+Run 2026-08-05 under freeze v4. 666 experiments. **Two robust candidates**, the
+first this project has produced on real prices, and both the same strategy at
+two parameter settings:
+
+| | |
+|---|---|
+| Strategy | `BetaHedgedBasket(basket=target_holdings, hedge=QQQ, beta_window=252, max_hedge=1.5, rebalance=W-FRI)` |
+| Score / hurdle | 4.93 against 4.24 + 0.25 margin |
+| Sharpe | 0.85 development, 1.62 holdout |
+| CAGR | 17.0% development, 28.5% holdout |
+| Worst drawdown | −33.8% |
+| Survives stressed costs | yes (stressed Sharpe 0.75) |
+| Turnover | 7.8× a year |
+| Evidence tier | **B** |
+
+It owns the shortlist and shorts QQQ against it at the basket's trailing beta,
+capped at 1.5×. That it is the *only* construction to clear the bar, and also
+the only one whose correlation to the index is near zero rather than 0.6–0.9,
+is the same finding twice: what the study kept rediscovering was the market
+factor, and the one thing that removed it is the one thing that scored.
+
+**Five reasons to hold this loosely**, none of them optional reading:
+
+* **Tier B, not A.** Its inputs include revised macro series and a
+  survivorship-limited universe. It is not clean-data evidence.
+* **The holdout is not out-of-sample any more.** It was opened under v3 and
+  again under v4. Whatever the label says, this is development evidence.
+* **The short side is priced with a flat borrow assumption.** QQQ is cheap and
+  deep to borrow so the error is probably small here, but it is an assumption,
+  not a measurement — and it is the top item on the roadmap for that reason.
+* **7.8× annual turnover** means the result lives or dies on the cost model,
+  which is a model.
+* **Two settings of one strategy is one finding**, not two.
+
 **Freeze v3 is superseded** (preserved at `configs/research_freeze_v3.json`,
 hash `7edd4b56d181956d1d68645b08e03e04`) by freeze v4, which adds:
 
@@ -184,6 +220,87 @@ Both changes *raise* the bar — every added variant enters the deflated-Sharpe
 correction for the whole study — and the v3 holdout has been opened, so any v4
 result on it is development evidence, not out-of-sample evidence. Genuinely
 out-of-sample now means forward paper trading.
+
+## Freeze v6 — strategies you can actually watch on a chart
+
+**Freeze v5 never ran against real prices.** It added a `chartable` family —
+strategies designed single-symbol from the start, so the rule tested in Python
+and the rule running on a TradingView chart are the *same rule* rather than an
+approximation of one. Everything exported to a chart before that was portable
+by accident: a leftover of a family built for portfolios, and half of them
+gauges rather than entry rules. v5 was validated on simulated data and then
+superseded the same day by v6, before any real study was commissioned under it,
+so nothing is retroactively invalidated — nothing was ever concluded from it.
+
+**Freeze v6** (`configs/research_freeze_v6.json`, hash
+`2f5d0c554f0fed8ba47a95adc5659bdc`) extended that family to close the two most
+conspicuous gaps in anything this study has ever tested — and **v6 never ran
+against real prices either**. Its synthetic validation run exposed a defect in
+its own specification, which is what that run exists for: the control arm below
+was marked `status: deprecated`, and `deprecated` in this project means
+*withdrawn* — the runner records such an entry with its reason and never
+executes it. Six filtered variants ran and the unfiltered comparison was
+silently empty. **Freeze v7** (`configs/research_freeze_v7.json`, hash
+`e5a13c8887f98ae693d2eaaa51044e41`) is v6 with that one status corrected to
+`exploratory`; nothing else differs. The freeze was not edited — a freeze is
+never edited — a new one was cut, which is what the immutability rule is for.
+
+The two gaps both freezes address:
+
+* **Volume.** From v1 through v5, volume appeared in exactly one place — the
+  participation cap that stops a simulated fill from consuming an implausible
+  share of a day's turnover — and never once as a signal. Every breakout rule
+  in the study treats a new high on half-normal turnover and a new high on
+  triple turnover as the same event. `VolumeConfirmedBreakout` is the first
+  strategy here to read it, and it ships with a **control arm**
+  (`vol_mult=1.0`, the identical rule with the filter switched off) so the
+  filter's contribution can be measured rather than inferred. Turnover is
+  measured in dollars — `volume * close` — which a Pine script computes
+  exactly rather than approximating.
+* **A bet that is not the same bet.** The study's central negative finding,
+  unchanged since v2, is that its families are one bet in disguise: all long
+  the same names at broadly the same times, all correlating 0.6–0.9 with the
+  index. Every attempt to break that so far has been another way of reading
+  prices. `TurnOfMonth` reads no market data at all — its exposure for any
+  future year is already determined — so whatever else is wrong with it, it
+  cannot be that bet. Windows are in **calendar** days, not trading days,
+  because "the third trading day before month end" is not knowable on the day
+  itself without looking forward, and this family exists precisely so the
+  tested rule and the chart rule are the same rule. (`IDEA-011` records what a
+  forward session calendar would buy back.)
+
+The five `chartable` strategies export as real Pine `strategy()` scripts, so
+TradingView's Strategy Tester runs them and marks every trade, and they carry a
+different header from the rest: the *rule* is exact, only the accounting is an
+approximation — and that approximation is large, because Pine charges no
+commission, no spread, no slippage, no impact and no borrow.
+
+Same accounting as always, and it does not improve: both additions enter the
+deflated-Sharpe trial count for the whole study, so they raise the bar rather
+than lower it, the control arm is a real trial and counts as one, and the
+holdout has now been opened twice. Any v6/v7 result on it is a third look and
+is development evidence however it is labelled.
+
+### One hypothesis already refuted, before any real run
+
+`TurnOfMonth` was added to supply a return stream uncorrelated with the
+price-driven families. **On the synthetic cohort it correlates +0.53 with QQQ**,
+against −0.002 for the market-neutral `longshort` family. The arithmetic is
+structural rather than an artifact of simulated data: the rule is in the market
+about 34% of sessions and *fully long the basket* when it is, so it inherits
+roughly √0.34 of the market's correlation. Its **timing** is uncorrelated with
+every price signal here; its **exposure** is still long-the-market.
+
+That is the freeze-v3 lesson recurring — co-movement with the index was a
+property of the long-only *constraint*, not of the signal — and the v6/v7
+design walked back into it.
+
+The stated hypothesis is left **unedited** in the frozen docstring and in
+`configs/experiments.yaml`. It was registered before the result, and rewriting
+it to match the outcome is precisely what the freeze exists to prevent. The
+correction lives here and in `IDEA-013` (hedge the in-window exposure with a
+short index leg), which needs a freeze bump because it is a new strategy rather
+than a parameter change.
 
 **Freeze v2 is superseded** (preserved unmodified at
 `configs/research_freeze_v2.json`, hash `49767ea3efc44cead711d72946c3fe31`) —
@@ -211,6 +328,12 @@ On a network-enabled macOS/Linux machine:
 
 ```bash
 ./scripts/run_first_real_study.sh          # optionally: --start 1998-01-01
+
+# Re-running under a NEW FREEZE that needs no new data — the common case, since
+# a freeze bump usually adds strategies rather than inputs. Reuses the store in
+# data/real and starts at the quality gate. Refuses if that store is empty
+# rather than backtesting nothing; does NOT skip the gate.
+./scripts/run_first_real_study.sh --skip-download
 ```
 
 This validates the environment, verifies the freeze, downloads (resumable),

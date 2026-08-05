@@ -140,7 +140,13 @@ def build_catalog(mode: str = "synthetic",
             class_name=cls_name,
             family=getattr(cls, "family", "unspecified"),
             hypothesis=getattr(cls, "hypothesis", ""),
-            docstring=inspect.getdoc(cls) or "",
+            # The class's OWN docstring, never an inherited one. inspect.getdoc
+            # walks the MRO, so any strategy without a docstring silently
+            # inherited abc.ABC's — "Helper class that provides a standard way
+            # to create an ABC using inheritance" was published as the
+            # description of ten strategies. The stated hypothesis is the
+            # honest fallback; it is what the strategy claims to do.
+            docstring=(cls.__doc__ or "").strip() or getattr(cls, "hypothesis", ""),
             parameters=params,
             source=inspect.getsource(cls),
             status=status, status_reason=reason, grids=grids,

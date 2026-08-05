@@ -86,7 +86,81 @@ log = get_logger("freeze")
 # And the holdout has already been opened once, under v3 — any v4 result on it
 # is a second look, which is development evidence however it is labelled.
 # Genuinely out-of-sample evidence now requires forward paper trading.
-FREEZE_VERSION = 4
+# v4 (hash 384dc48714fc530de3f3a4a9168df12f) ran a real study: 666 experiments,
+# 2 robust candidates, the first the project has produced on real prices —
+# BetaHedgedBasket, which was also the only construction whose correlation to
+# the index was near zero rather than 0.6-0.9. That study stands on the record.
+#
+# v5 (2026-08-05) adds a `chartable` family: strategies designed single-symbol
+# from the start, so the rule tested in Python and the rule running on a
+# TradingView chart are the same rule. Everything exported to a chart before
+# this was portable by accident, and half of those exports were gauges rather
+# than entry rules. Same accounting as always: the additions raise the trial
+# count and therefore the bar, and the holdout has been opened, so any v5
+# result on it is development evidence.
+#
+# v5 NEVER RAN AGAINST REAL PRICES. It was superseded the same day by v6, after
+# a synthetic validation run confirmed the three new strategies executed
+# end-to-end but before any real-data study was commissioned under it. The
+# synthetic v5 cohort stays in the registry and is filtered out of the
+# leaderboard by (universe_hash, freeze_version) rather than deleted. Nothing
+# is invalidated retroactively because nothing was ever concluded from it.
+#
+# v6 (2026-08-05) extends the same family to close the two most conspicuous
+# gaps in what this study has ever tested:
+#
+#   * VOLUME. Across every freeze from v1 to v5, volume appeared in exactly one
+#     place — the participation cap that stops a simulated fill from consuming
+#     an implausible share of a day's turnover — and never once as a signal.
+#     Every breakout rule in the study treats a new high on half-normal
+#     turnover and a new high on triple turnover as the same event.
+#     VolumeConfirmedBreakout is the first strategy here to read it, and it
+#     ships with a CONTROL ARM (vol_mult=1.0, the identical rule with the
+#     filter off) so the filter's contribution can be read off rather than
+#     inferred. Measured in dollars, which is `volume * close` — a quantity
+#     Pine computes exactly rather than approximating.
+#   * A BET THAT IS NOT THE SAME BET. The study's central negative finding,
+#     unchanged since v2, is that its families are one bet in disguise: all
+#     long the same names at broadly the same times, all correlating 0.6-0.9
+#     with the index. Every attempt to break that so far has been another way
+#     of reading prices. TurnOfMonth reads no market data at all — its exposure
+#     for any future year is already determined — so whatever else is wrong
+#     with it, it cannot be that bet. Windows are in CALENDAR days, not trading
+#     days, because "the third trading day before month end" is not knowable on
+#     the day itself without looking forward, and this family exists precisely
+#     so the tested rule and the chart rule are the same rule.
+#
+# HONEST ACCOUNTING, unchanged and unimproved by any of this: both additions
+# enter the deflated-Sharpe trial count for the whole study, so they raise the
+# bar rather than lower it. The control arm is a real trial and counts as one.
+# The holdout has been opened once already, under v3 and again under v4, so any
+# v6 result on it is a third look and is development evidence however it is
+# labelled. Genuinely out-of-sample evidence still requires forward paper
+# trading, and nothing here changes that.
+#
+# v6 (hash 2f5d0c554f0fed8ba47a95adc5659bdc) NEVER RAN AGAINST REAL PRICES
+# either. Its synthetic validation run exposed a defect in its own
+# specification, which is exactly what that run is for:
+#
+#   The VolumeConfirmedBreakout CONTROL ARM did not run. It was marked
+#   `status: deprecated` on the reasoning that a control is not a candidate,
+#   but `deprecated` in this project means WITHDRAWN — run_experiments.py
+#   records such an entry in the registry with its stated reason and never
+#   executes it. Six filtered variants ran and the unfiltered comparison was
+#   silently empty, so the one thing the control existed to establish — whether
+#   the volume filter does anything — could not be established. The frozen v6
+#   config additionally asserted in a comment that the entry "still runs",
+#   which was false.
+#
+# v7 (2026-08-05) is v6 with `status: exploratory` on that control arm, so it
+# runs and is ranked alongside everything else. Nothing else changed. This is a
+# correction to a specification defect caught BEFORE any real-data result
+# existed under v6 — the freeze was not edited, because a freeze is never
+# edited; a new one was cut, which is what the immutability rule is for.
+# configs/research_freeze_v5.json and _v6.json are preserved unmodified, and
+# their synthetic cohorts stay in the registry, filtered out of the leaderboard
+# by (universe_hash, freeze_version) rather than deleted.
+FREEZE_VERSION = 7
 FREEZE_PATH = CONFIG_DIR / f"research_freeze_v{FREEZE_VERSION}.json"
 
 # Code whose behavior defines the study. Any edit to these invalidates the
@@ -110,6 +184,8 @@ _FROZEN_MODULES = [
     "src/aitb/strategies/allocation.py",
     # bound since v4 (long-short / hedged family):
     "src/aitb/strategies/longshort.py",
+    # bound since v5 (single-symbol family):
+    "src/aitb/strategies/chartable.py",
     "src/aitb/portfolio.py",
     "src/aitb/features.py",
     "src/aitb/backtest/engine.py",

@@ -147,3 +147,45 @@ ideas:
     required_providers: []
     references: []
     status: implementing
+
+  - id: IDEA-011
+    title: Trading-day-precision turn-of-month windows
+    hypothesis: "The turn-of-month effect is documented in TRADING days, not calendar days; a calendar-day window smears the effect across sessions that are not the ones flows actually land on, so a null result under freeze v6 may be a measurement failure rather than an absent effect."
+    category: analytics
+    expected_edge: 2
+    required_data: "a forward exchange session calendar (which sessions a future month will contain), so the Nth-from-last trading day is knowable in advance rather than in hindsight"
+    difficulty: 2
+    est_time: "2-3 days"
+    expected_capacity: 4
+    required_providers: ["pandas_market_calendars", "NYSE published holiday schedule"]
+    references: ["Ariel (1987)", "Lakonishok & Smidt (1988)"]
+    status: idea
+    notes: "Freeze v6 deliberately uses calendar days so the tested rule and the exported Pine rule are identical. With a forward session calendar both sides can count trading days honestly, and the two versions become comparable — which is the actual test of whether the calendar-day approximation cost anything."
+
+  - id: IDEA-012
+    title: Participation-quality volume data
+    hypothesis: "Daily share volume is a coarse proxy for who repositioned: a breakout on heavy retail flow and one on heavy institutional accumulation look identical in it. Block/odd-lot or auction-volume splits would say which, and the volume filter in freeze v6 is only as good as this distinction is blurred."
+    category: data
+    expected_edge: 3
+    required_data: "off-exchange / block volume share, closing-auction volume, odd-lot ratio"
+    difficulty: 4
+    est_time: "provider-dependent"
+    expected_capacity: 3
+    required_providers: ["paid: FINRA ATS + CTA/UTP tape splits; partial: FINRA short-sale volume files (free, daily)"]
+    references: ["Kyle (1985) on order flow and price impact"]
+    status: idea
+    notes: "Follows directly from VolumeConfirmedBreakout (freeze v6), the study's first and only volume signal. FINRA's daily short-sale volume file is free and would be the cheapest first cut at the same question."
+
+  - id: IDEA-013
+    title: Market-neutral turn-of-month (the long-only version cannot deliver what it was added for)
+    hypothesis: "TurnOfMonth was added under freeze v6/v7 to supply a return stream uncorrelated with the study's price-driven families. It does not: it correlates +0.53 with QQQ on the synthetic cohort, because it is in the market ~34% of sessions and FULLY LONG the basket when it is, inheriting about sqrt(0.34) of the market's correlation. Its timing is uncorrelated; its exposure is not. Hedging the in-window exposure with a short index leg — the BetaHedgedBasket construction, which is the only thing in this study to correlate near zero — should isolate the calendar effect from the market factor."
+    category: strategy
+    expected_edge: 2
+    required_data: "none new — prices and the index are already in the store"
+    difficulty: 2
+    est_time: "1-2 days"
+    expected_capacity: 4
+    required_providers: []
+    references: ["Ariel (1987)", "Lakonishok & Smidt (1988)"]
+    status: idea
+    notes: "This is the freeze-v3 lesson recurring: correlation to the index was a property of the long-only CONSTRAINT, not of the signal. The stated v6/v7 hypothesis (nearly uncorrelated) is left unedited in the frozen docstring and in configs/experiments.yaml — it was registered before the result and rewriting it now is what the freeze exists to prevent. Requires a freeze bump; it is a new strategy, not a parameter change."

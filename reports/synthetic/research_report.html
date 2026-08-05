@@ -15,18 +15,18 @@
  .robust{color:#166534;font-weight:600}.inconclusive{color:#92400e}.rejected{color:#991b1b}
 </style></head><body>
 <h1>AI & Technology Strategy Research Report [SYNTHETIC DATA]</h1>
-<p class="note">Generated 2026-08-05 16:13 UTC · data provider: <b>synthetic</b> ·
-data span 1990-01-02 – 2026-07-31 · git d77d66f</p>
+<p class="note">Generated 2026-08-05 18:55 UTC · data provider: <b>synthetic</b> ·
+data span 1990-01-02 – 2026-07-31 · git 1165e16</p>
 <div class="warn">SYNTHETIC DATA: this environment blocks all market-data hosts, so every result below is computed on a deterministic, regime-realistic SYNTHETIC dataset. Numbers demonstrate the research machinery — they are NOT historical market results and must not inform investment decisions. Re-run with --provider stooq/yahoo in a networked environment for real data.</div><div class="warn">Historical results — real or synthetic — are not predictive of future performance. This is a research tool, not investment advice.</div>
 
 <h2>1. Executive summary</h2>
 
-<p>233 strategy variants were evaluated across 13 families
+<p>261 strategy variants were evaluated across 14 families
 under 3 cost scenarios, with a chronological development /
 holdout split at <b>2024-07-31</b> (holdout never used for
 selection). Composite ranking yields <b>18 robust candidates</b>,
-39 inconclusive strategies, and
-78 rejected strategies.</p><table class="dataframe">
+53 inconclusive strategies, and
+92 rejected strategies.</p><table class="dataframe">
   <thead>
     <tr style="text-align: right;">
       <th>strategy</th>
@@ -1942,6 +1942,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
+      <td>ATRTrailingStop(atr_mult=3.0,atr_window=22,basket=None,entry_window=100)</td>
+      <td>chartable</td>
+      <td>5.71</td>
+      <td>0.87</td>
+      <td>2.37</td>
+      <td>28.1%</td>
+      <td>93.2%</td>
+      <td>-86.2%</td>
+      <td>0.33</td>
+      <td>1.00</td>
+      <td>25.93</td>
+      <td>0.06</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.72</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>XSRiskAdjMomentum(lookback_days=252,rebalance=ME,top_n=5)</td>
       <td>xsmom</td>
       <td>5.71</td>
@@ -1977,6 +1996,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.80</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=55,exit_window=20,vol_mult=2.5,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.63</td>
+      <td>0.81</td>
+      <td>2.47</td>
+      <td>27.1%</td>
+      <td>102.2%</td>
+      <td>-82.1%</td>
+      <td>0.33</td>
+      <td>1.00</td>
+      <td>25.59</td>
+      <td>0.08</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.68</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>ATRTrailingStop(atr_mult=2.5,atr_window=22,basket=None,entry_window=100)</td>
+      <td>chartable</td>
+      <td>5.58</td>
+      <td>0.82</td>
+      <td>2.41</td>
+      <td>26.1%</td>
+      <td>96.2%</td>
+      <td>-86.5%</td>
+      <td>0.30</td>
+      <td>1.00</td>
+      <td>33.21</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2075,6 +2132,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>ATRTrailingStop(atr_mult=2.5,atr_window=22,basket=None,entry_window=55)</td>
+      <td>chartable</td>
+      <td>5.45</td>
+      <td>0.70</td>
+      <td>2.45</td>
+      <td>22.0%</td>
+      <td>96.7%</td>
+      <td>-95.1%</td>
+      <td>0.23</td>
+      <td>1.00</td>
+      <td>36.16</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.56</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>VolTargetedBasket(basket=target_holdings,fallback=IEF,rebalance=W-FRI,target_vol=0.2,vol_window=63)</td>
       <td>riskmanaged</td>
       <td>5.44</td>
@@ -2091,6 +2167,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.91</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>ATRTrailingStop(atr_mult=4.0,atr_window=22,basket=None,entry_window=100)</td>
+      <td>chartable</td>
+      <td>5.43</td>
+      <td>0.88</td>
+      <td>2.29</td>
+      <td>28.6%</td>
+      <td>89.0%</td>
+      <td>-85.0%</td>
+      <td>0.34</td>
+      <td>1.00</td>
+      <td>17.70</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.81</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2132,6 +2227,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=1.75,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.38</td>
+      <td>0.82</td>
+      <td>2.30</td>
+      <td>27.1%</td>
+      <td>91.1%</td>
+      <td>-73.2%</td>
+      <td>0.37</td>
+      <td>1.00</td>
+      <td>25.66</td>
+      <td>0.08</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.70</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=55,exit_window=20,vol_mult=1.3,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.36</td>
+      <td>0.79</td>
+      <td>2.38</td>
+      <td>25.8%</td>
+      <td>93.2%</td>
+      <td>-89.4%</td>
+      <td>0.29</td>
+      <td>1.00</td>
+      <td>28.68</td>
+      <td>0.06</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.69</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>EqualRiskContribution(basket=megacap_ai,cov_window=252,max_weight=0.25,rebalance=ME)</td>
       <td>allocation</td>
       <td>5.34</td>
@@ -2151,6 +2284,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=1.3,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.34</td>
+      <td>0.83</td>
+      <td>2.31</td>
+      <td>26.9%</td>
+      <td>90.1%</td>
+      <td>-80.7%</td>
+      <td>0.33</td>
+      <td>1.00</td>
+      <td>26.59</td>
+      <td>0.07</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.68</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>ATRTrailingStop(atr_mult=3.0,atr_window=22,basket=None,entry_window=55)</td>
+      <td>chartable</td>
+      <td>5.33</td>
+      <td>0.77</td>
+      <td>2.35</td>
+      <td>24.4%</td>
+      <td>90.3%</td>
+      <td>-94.1%</td>
+      <td>0.26</td>
+      <td>1.00</td>
+      <td>28.17</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.63</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>AbsoluteMomentum(basket=None,fallback=BIL,lookback_days=252,rebalance=ME)</td>
       <td>tsmom</td>
       <td>5.33</td>
@@ -2167,6 +2338,44 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.91</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=55,exit_window=20,vol_mult=1.0,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.31</td>
+      <td>0.77</td>
+      <td>2.36</td>
+      <td>25.1%</td>
+      <td>92.8%</td>
+      <td>-88.9%</td>
+      <td>0.28</td>
+      <td>1.00</td>
+      <td>29.23</td>
+      <td>0.06</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=1.0,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.30</td>
+      <td>0.76</td>
+      <td>2.37</td>
+      <td>24.3%</td>
+      <td>93.7%</td>
+      <td>-86.2%</td>
+      <td>0.28</td>
+      <td>1.00</td>
+      <td>27.41</td>
+      <td>0.07</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.65</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2246,6 +2455,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=55,exit_window=20,vol_mult=1.75,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.22</td>
+      <td>0.80</td>
+      <td>2.29</td>
+      <td>26.6%</td>
+      <td>89.6%</td>
+      <td>-86.0%</td>
+      <td>0.31</td>
+      <td>1.00</td>
+      <td>27.85</td>
+      <td>0.07</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.69</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>BetaHedgedBasket(basket=target_holdings,beta_window=126,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)</td>
       <td>longshort</td>
       <td>5.22</td>
@@ -2284,6 +2512,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>inconclusive</td>
     </tr>
     <tr>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)</td>
+      <td>chartable</td>
+      <td>5.19</td>
+      <td>1.00</td>
+      <td>2.06</td>
+      <td>32.9%</td>
+      <td>69.9%</td>
+      <td>-67.3%</td>
+      <td>0.49</td>
+      <td>1.00</td>
+      <td>19.82</td>
+      <td>0.08</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.87</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
       <td>TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=200)</td>
       <td>tsmom</td>
       <td>5.18</td>
@@ -2319,6 +2566,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.89</td>
+      <td>inconclusive</td>
+    </tr>
+    <tr>
+      <td>ATRTrailingStop(atr_mult=4.0,atr_window=22,basket=None,entry_window=55)</td>
+      <td>chartable</td>
+      <td>5.12</td>
+      <td>0.78</td>
+      <td>2.23</td>
+      <td>24.8%</td>
+      <td>84.4%</td>
+      <td>-92.8%</td>
+      <td>0.27</td>
+      <td>1.00</td>
+      <td>19.11</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.67</td>
       <td>inconclusive</td>
     </tr>
     <tr>
@@ -2452,6 +2718,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.95</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=150,vol_quantile=0.6,vol_window=21)</td>
+      <td>chartable</td>
+      <td>5.04</td>
+      <td>0.93</td>
+      <td>2.14</td>
+      <td>28.5%</td>
+      <td>79.5%</td>
+      <td>-87.3%</td>
+      <td>0.33</td>
+      <td>1.00</td>
+      <td>52.38</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.65</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -2664,6 +2949,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.75,vol_window=21)</td>
+      <td>chartable</td>
+      <td>4.87</td>
+      <td>0.86</td>
+      <td>2.07</td>
+      <td>26.5%</td>
+      <td>77.0%</td>
+      <td>-94.4%</td>
+      <td>0.28</td>
+      <td>1.00</td>
+      <td>41.93</td>
+      <td>0.06</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.69</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>BuyAndHold(ticker=QCOM)</td>
       <td>benchmark</td>
       <td>4.86</td>
@@ -2852,6 +3156,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.34</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=150,vol_quantile=0.75,vol_window=21)</td>
+      <td>chartable</td>
+      <td>4.74</td>
+      <td>0.87</td>
+      <td>2.04</td>
+      <td>27.0%</td>
+      <td>75.3%</td>
+      <td>-91.2%</td>
+      <td>0.30</td>
+      <td>1.00</td>
+      <td>46.08</td>
+      <td>0.06</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.68</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>BuyAndHold(ticker=MSFT)</td>
@@ -3082,6 +3405,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)</td>
+      <td>chartable</td>
+      <td>4.56</td>
+      <td>0.84</td>
+      <td>1.99</td>
+      <td>25.2%</td>
+      <td>74.1%</td>
+      <td>-92.8%</td>
+      <td>0.27</td>
+      <td>1.00</td>
+      <td>51.24</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.56</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=2,rebalance=ME,top_n=8,weighting=equal)</td>
       <td>factor</td>
       <td>4.54</td>
@@ -3193,6 +3535,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.69</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.92,rebalance=ME,top_n=15,window=252)</td>
+      <td>chartable</td>
+      <td>4.49</td>
+      <td>0.86</td>
+      <td>1.88</td>
+      <td>26.5%</td>
+      <td>71.7%</td>
+      <td>-85.1%</td>
+      <td>0.31</td>
+      <td>1.00</td>
+      <td>15.07</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.79</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -3327,6 +3688,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.71</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.85,rebalance=ME,top_n=15,window=252)</td>
+      <td>chartable</td>
+      <td>4.42</td>
+      <td>0.88</td>
+      <td>1.83</td>
+      <td>27.7%</td>
+      <td>68.5%</td>
+      <td>-80.6%</td>
+      <td>0.34</td>
+      <td>1.00</td>
+      <td>13.92</td>
+      <td>0.04</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.81</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=5,weighting=inverse_vol)</td>
@@ -3500,25 +3880,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
-      <td>BuyAndHold(ticker=BOTZ)</td>
-      <td>benchmark</td>
-      <td>4.26</td>
-      <td>0.41</td>
-      <td>1.73</td>
-      <td>7.4%</td>
-      <td>47.1%</td>
-      <td>-49.8%</td>
-      <td>0.15</td>
-      <td>1.00</td>
-      <td>0.03</td>
-      <td>1.00</td>
-      <td>0.88</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.41</td>
-      <td>benchmark</td>
-    </tr>
-    <tr>
       <td>DualMomentum(fallback=IEF,lookback_days=252)</td>
       <td>tsmom</td>
       <td>4.26</td>
@@ -3536,6 +3897,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.41</td>
       <td>rejected</td>
+    </tr>
+    <tr>
+      <td>BuyAndHold(ticker=BOTZ)</td>
+      <td>benchmark</td>
+      <td>4.26</td>
+      <td>0.41</td>
+      <td>1.73</td>
+      <td>7.4%</td>
+      <td>47.1%</td>
+      <td>-49.8%</td>
+      <td>0.15</td>
+      <td>1.00</td>
+      <td>0.03</td>
+      <td>1.00</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.41</td>
+      <td>benchmark</td>
     </tr>
     <tr>
       <td>ResearchIntensity(basket=None,rebalance=QE,require_profitable=True,top_n=10)</td>
@@ -3709,6 +4089,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>rejected</td>
     </tr>
     <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.92,rebalance=ME,top_n=8,window=252)</td>
+      <td>chartable</td>
+      <td>4.10</td>
+      <td>0.81</td>
+      <td>1.71</td>
+      <td>25.4%</td>
+      <td>68.3%</td>
+      <td>-86.2%</td>
+      <td>0.29</td>
+      <td>1.00</td>
+      <td>17.74</td>
+      <td>0.08</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.72</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>LowVolatilityTech(basket=None,rebalance=ME,top_n=10,trend_filter=True,vol_window=126)</td>
       <td>factor</td>
       <td>4.09</td>
@@ -3801,6 +4200,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.71</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.85,rebalance=ME,top_n=8,window=252)</td>
+      <td>chartable</td>
+      <td>4.03</td>
+      <td>0.80</td>
+      <td>1.67</td>
+      <td>25.7%</td>
+      <td>66.0%</td>
+      <td>-81.8%</td>
+      <td>0.31</td>
+      <td>1.00</td>
+      <td>17.58</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.72</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -4355,6 +4773,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>TurnOfMonth(basket=None,end_day=5,start_day=28)</td>
+      <td>chartable</td>
+      <td>3.12</td>
+      <td>0.31</td>
+      <td>1.30</td>
+      <td>7.1%</td>
+      <td>25.7%</td>
+      <td>-69.6%</td>
+      <td>0.10</td>
+      <td>1.00</td>
+      <td>23.21</td>
+      <td>0.04</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.16</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>BuyAndHold(ticker=PWR)</td>
       <td>benchmark</td>
       <td>3.09</td>
@@ -4374,25 +4811,6 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
-      <td>BuyAndHold(ticker=SHOP)</td>
-      <td>benchmark</td>
-      <td>3.07</td>
-      <td>0.27</td>
-      <td>1.38</td>
-      <td>6.6%</td>
-      <td>116.0%</td>
-      <td>-86.9%</td>
-      <td>0.08</td>
-      <td>0.98</td>
-      <td>0.03</td>
-      <td>1.00</td>
-      <td>0.75</td>
-      <td>0.00</td>
-      <td>False</td>
-      <td>0.27</td>
-      <td>benchmark</td>
-    </tr>
-    <tr>
       <td>BuyAndHold(ticker=NOW)</td>
       <td>benchmark</td>
       <td>3.07</td>
@@ -4409,6 +4827,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.48</td>
+      <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>BuyAndHold(ticker=SHOP)</td>
+      <td>benchmark</td>
+      <td>3.07</td>
+      <td>0.27</td>
+      <td>1.38</td>
+      <td>6.6%</td>
+      <td>116.0%</td>
+      <td>-86.9%</td>
+      <td>0.08</td>
+      <td>0.98</td>
+      <td>0.03</td>
+      <td>1.00</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.27</td>
       <td>benchmark</td>
     </tr>
     <tr>
@@ -4545,6 +4982,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>TurnOfMonth(basket=None,end_day=5,start_day=26)</td>
+      <td>chartable</td>
+      <td>2.80</td>
+      <td>0.29</td>
+      <td>1.33</td>
+      <td>6.8%</td>
+      <td>29.0%</td>
+      <td>-82.7%</td>
+      <td>0.08</td>
+      <td>1.00</td>
+      <td>23.32</td>
+      <td>0.05</td>
+      <td>0.50</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.15</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>QQQMovingAverage(fallback=IEF,window=200)</td>
       <td>benchmark</td>
       <td>2.79</td>
@@ -4562,6 +5018,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.28</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=3,start_day=28)</td>
+      <td>chartable</td>
+      <td>2.78</td>
+      <td>0.23</td>
+      <td>1.15</td>
+      <td>5.4%</td>
+      <td>20.2%</td>
+      <td>-59.0%</td>
+      <td>0.09</td>
+      <td>0.99</td>
+      <td>23.10</td>
+      <td>0.04</td>
+      <td>0.75</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.06</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>BuyAndHold(ticker=TXN)</td>
@@ -4659,6 +5134,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>benchmark</td>
     </tr>
     <tr>
+      <td>TurnOfMonth(basket=None,end_day=5,start_day=24)</td>
+      <td>chartable</td>
+      <td>2.68</td>
+      <td>0.39</td>
+      <td>1.17</td>
+      <td>9.2%</td>
+      <td>27.4%</td>
+      <td>-85.9%</td>
+      <td>0.11</td>
+      <td>1.00</td>
+      <td>23.43</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.26</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
       <td>BuyAndHold(ticker=TSLA)</td>
       <td>benchmark</td>
       <td>2.67</td>
@@ -4676,6 +5170,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>False</td>
       <td>0.45</td>
       <td>benchmark</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=3,start_day=26)</td>
+      <td>chartable</td>
+      <td>2.58</td>
+      <td>0.20</td>
+      <td>1.18</td>
+      <td>5.1%</td>
+      <td>23.4%</td>
+      <td>-76.2%</td>
+      <td>0.07</td>
+      <td>0.99</td>
+      <td>23.20</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.06</td>
+      <td>rejected</td>
     </tr>
     <tr>
       <td>MarketNeutralMomentum(basket=None,gross=1.0,lookback_days=126,rebalance=ME,skip_days=21,top_n=15)</td>
@@ -4808,6 +5321,25 @@ with spec, data version, git commit and timestamp.</li>
       <td>0.00</td>
       <td>False</td>
       <td>0.40</td>
+      <td>rejected</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=3,start_day=24)</td>
+      <td>chartable</td>
+      <td>2.30</td>
+      <td>0.32</td>
+      <td>1.00</td>
+      <td>7.5%</td>
+      <td>21.8%</td>
+      <td>-80.6%</td>
+      <td>0.09</td>
+      <td>1.00</td>
+      <td>23.31</td>
+      <td>0.05</td>
+      <td>0.62</td>
+      <td>0.00</td>
+      <td>False</td>
+      <td>0.18</td>
       <td>rejected</td>
     </tr>
     <tr>
@@ -5802,6 +6334,18 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.40</td>
       <td>-0.64</td>
       <td>-0.79</td>
+    </tr>
+    <tr>
+      <td>chartable</td>
+      <td>28</td>
+      <td>VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)</td>
+      <td>1.10</td>
+      <td>0.82</td>
+      <td>1.38</td>
+      <td>1.00</td>
+      <td>0.82</td>
+      <td>-0.49</td>
+      <td>-0.64</td>
     </tr>
     <tr>
       <td>factor</td>
@@ -7750,6 +8294,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=150,vol_quantile=0.6,vol_window=21)</td>
+      <td>chartable</td>
+      <td>5.04</td>
+      <td>0.93</td>
+      <td>2.14</td>
+      <td>52.38</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
       <td>ThemeRotation(lookback_days=126,rebalance=ME,top_themes=3)</td>
       <td>factor</td>
       <td>5.01</td>
@@ -7801,6 +8354,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.73</td>
       <td>2.12</td>
       <td>26.52</td>
+      <td>0.06</td>
+    </tr>
+    <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.75,vol_window=21)</td>
+      <td>chartable</td>
+      <td>4.87</td>
+      <td>0.86</td>
+      <td>2.07</td>
+      <td>41.93</td>
       <td>0.06</td>
     </tr>
     <tr>
@@ -7876,6 +8438,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=150,vol_quantile=0.75,vol_window=21)</td>
+      <td>chartable</td>
+      <td>4.74</td>
+      <td>0.87</td>
+      <td>2.04</td>
+      <td>46.08</td>
+      <td>0.06</td>
+    </tr>
+    <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=8,weighting=equal)</td>
       <td>xsmom</td>
       <td>4.72</td>
@@ -7948,6 +8519,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.05</td>
     </tr>
     <tr>
+      <td>QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)</td>
+      <td>chartable</td>
+      <td>4.56</td>
+      <td>0.84</td>
+      <td>1.99</td>
+      <td>51.24</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
       <td>MultiHorizonMomentum(basket=None,horizons=63,126,252,min_agree=2,rebalance=ME,top_n=8,weighting=equal)</td>
       <td>factor</td>
       <td>4.54</td>
@@ -7991,6 +8571,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>2.09</td>
       <td>12.42</td>
       <td>0.09</td>
+    </tr>
+    <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.92,rebalance=ME,top_n=15,window=252)</td>
+      <td>chartable</td>
+      <td>4.49</td>
+      <td>0.86</td>
+      <td>1.88</td>
+      <td>15.07</td>
+      <td>0.05</td>
     </tr>
     <tr>
       <td>PostEarningsDrift(basket=None,hold_days=63,rebalance=W-FRI,top_n=10)</td>
@@ -8045,6 +8634,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>2.03</td>
       <td>14.67</td>
       <td>0.07</td>
+    </tr>
+    <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.85,rebalance=ME,top_n=15,window=252)</td>
+      <td>chartable</td>
+      <td>4.42</td>
+      <td>0.88</td>
+      <td>1.83</td>
+      <td>13.92</td>
+      <td>0.04</td>
     </tr>
     <tr>
       <td>XSMomentumTopN(basket=None,lookback_days=126,rebalance=ME,skip_days=21,top_n=5,weighting=inverse_vol)</td>
@@ -8209,6 +8807,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.67</td>
     </tr>
     <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.92,rebalance=ME,top_n=8,window=252)</td>
+      <td>chartable</td>
+      <td>4.10</td>
+      <td>0.81</td>
+      <td>1.71</td>
+      <td>17.74</td>
+      <td>0.08</td>
+    </tr>
+    <tr>
       <td>LowVolatilityTech(basket=None,rebalance=ME,top_n=10,trend_filter=True,vol_window=126)</td>
       <td>factor</td>
       <td>4.09</td>
@@ -8252,6 +8859,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>1.80</td>
       <td>10.06</td>
       <td>0.07</td>
+    </tr>
+    <tr>
+      <td>FiftyTwoWeekHighProximity(basket=None,min_proximity=0.85,rebalance=ME,top_n=8,window=252)</td>
+      <td>chartable</td>
+      <td>4.03</td>
+      <td>0.80</td>
+      <td>1.67</td>
+      <td>17.58</td>
+      <td>0.05</td>
     </tr>
     <tr>
       <td>DonchianBreakout(entry_window=20,exit_window=20,max_positions=6,regime_filter=True)</td>
@@ -8371,6 +8987,51 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.08</td>
     </tr>
     <tr>
+      <td>TurnOfMonth(basket=None,end_day=5,start_day=28)</td>
+      <td>chartable</td>
+      <td>3.12</td>
+      <td>0.31</td>
+      <td>1.30</td>
+      <td>23.21</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=5,start_day=26)</td>
+      <td>chartable</td>
+      <td>2.80</td>
+      <td>0.29</td>
+      <td>1.33</td>
+      <td>23.32</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=3,start_day=28)</td>
+      <td>chartable</td>
+      <td>2.78</td>
+      <td>0.23</td>
+      <td>1.15</td>
+      <td>23.10</td>
+      <td>0.04</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=5,start_day=24)</td>
+      <td>chartable</td>
+      <td>2.68</td>
+      <td>0.39</td>
+      <td>1.17</td>
+      <td>23.43</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=3,start_day=26)</td>
+      <td>chartable</td>
+      <td>2.58</td>
+      <td>0.20</td>
+      <td>1.18</td>
+      <td>23.20</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
       <td>MarketNeutralMomentum(basket=None,gross=1.0,lookback_days=126,rebalance=ME,skip_days=21,top_n=15)</td>
       <td>longshort</td>
       <td>2.56</td>
@@ -8395,6 +9056,15 @@ in-sample for grid-selected variants; holdout is the untouched final window.</p>
       <td>0.63</td>
       <td>0.93</td>
       <td>80.38</td>
+      <td>0.05</td>
+    </tr>
+    <tr>
+      <td>TurnOfMonth(basket=None,end_day=3,start_day=24)</td>
+      <td>chartable</td>
+      <td>2.30</td>
+      <td>0.32</td>
+      <td>1.00</td>
+      <td>23.31</td>
       <td>0.05</td>
     </tr>
     <tr>

@@ -132,3 +132,48 @@ def test_empty_provider_response_is_a_no_data_error():
             for line in src.splitlines():
                 if phrase in line and "raise" in line:
                     assert "NoDataError" in line, f"{mod.__name__}: {line.strip()}"
+
+
+def test_every_fundamental_field_a_strategy_reads_is_actually_downloaded():
+    """A strategy may not depend on a fundamentals column no provider produces.
+
+    AUD-022. Freeze v4 added strategies reading `rnd`, `net_income` and
+    `assets`, and expanded the EDGAR concept set to fetch them — but the
+    downloader's resume check asked only whether a fundamentals file existed,
+    not which concepts produced it. Every file from the v3 download was
+    therefore skipped and counted as `ok`, the new fields were never fetched,
+    and ResearchIntensity and AccrualQuality refused to run across two
+    consecutive real studies while the manifest reported full SEC coverage.
+
+    This asserts the static half of that contract: every field any strategy
+    passes to pit_fundamental_panel is a column the providers actually emit.
+    The resume half is fixed by the concept-set marker the downloader writes.
+
+    Checked against the SYNTHETIC provider's output on purpose — it is required
+    to mirror the real one field for field, so this fails if either drifts. It
+    deliberately does not check _CONCEPTS, whose keys are the XBRL concepts
+    REQUESTED: `fcf` is derived (ocf - capex) and is a legitimate output column
+    that never appears there.
+    """
+    import re
+    from pathlib import Path
+
+    from aitb.data.synthetic import SyntheticProvider
+
+    produced = set(SyntheticProvider().fetch_fundamentals("NVDA").columns)
+    assert {"revenue", "rnd", "net_income", "assets"} <= produced, (
+        f"the provider stopped emitting fields this test relies on: {produced}")
+
+    root = Path(__file__).parents[1] / "src" / "aitb" / "strategies"
+    pattern = re.compile(r"""pit_fundamental_panel\(\s*md\s*,\s*["\'](\w+)["\']""")
+    used: dict[str, str] = {}
+    for path in sorted(root.glob("*.py")):
+        for field in pattern.findall(path.read_text()):
+            used.setdefault(field, path.name)
+
+    assert used, "found no fundamental field usages — the pattern went stale"
+    missing = {f: where for f, where in used.items() if f not in produced}
+    assert not missing, (
+        f"strategies read fundamental fields no provider emits: {missing}. "
+        f"A strategy requiring an uncollected field can never run — it fails "
+        f"as a refusal, which reads like a data gap rather than a bug.")
