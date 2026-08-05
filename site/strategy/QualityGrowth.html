@@ -129,10 +129,14 @@ dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
 .tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
 .tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
   border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.subnav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 1.4rem}
+.subnav a{font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface);color:var(--ink-2);text-decoration:none}
+.subnav a:hover{border-color:var(--s1);color:var(--s1)}
 .legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
 .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
-</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='../index.html'>Overview</a><a href='../data.html'>The data</a><a href='../experiments.html'>Experiments</a><a href='../strategies.html'>Strategies</a><a href='../compare.html'>Compare</a><a href='../portfolio.html'>Portfolio lab</a><a href='../ideas.html'>Ideas</a><a href='../roadmap.html'>Roadmap</a><a href='../audit.html'>Trust & audit</a></nav><main>
+</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='../index.html'>Overview</a><a href='../data.html'>The data</a><a href='../strategies.html'>Strategies</a><a href='../results.html'>Results</a><a href='../method.html'>Method &amp; trust</a></nav><main>
 <h1>Quality &amp; growth</h1>
 <p class='lede'><i>Compounding fundamentals precede compounding prices.</i></p>
 <p><span class='badge b-core'>core</span> · best result: <span class='badge b-rejected'>rejected</span> · research-quality score
@@ -180,7 +184,7 @@ if it is much worse than the development figure, the idea was over-tuned.</p>
 <ul class='lede'><li>Does the (synthetic-)demonstrated behavior survive the first real-data study?</li><li>Which evidence tier does the strategy earn under the real quality gate?</li><li>What data acquisition would lift the tier (see roadmap)?</li></ul>
 
 <h2>How this idea evolved</h2>
-<p class='note'>No version history recorded yet.</p>
+<h3>(cross-cutting) what can be measured about a company</h3><div class='tree'><div class='node'><b>5 EDGAR fields: revenue, EPS, operating cash flow, capex, shares</b><br><span class='note'>Why: enough for growth and cash-flow screens → superseded</span></div><div class='node'><b>13 EDGAR fields — adds gross profit, cost of revenue, total assets, equity, net income, R&amp;D, debt, cash</b><br><span class='note'>Why: All free, all returned by a companyfacts request already being made; the fields were simply never asked for. Gross profitability was being approximated by a free-cash-flow margin, which conflates profitability with capital intensity — a large error in semiconductors. R&amp;D intensity, the canonical technology-specific quality signal, could not be measured at all. A study of technology companies unable to measure R&amp;D had a gap worth more than another momentum variant. → enables GrossProfitability (true Novy-Marx ratio), ResearchIntensity and AccrualQuality; stores collected before v4 must re-download fundamentals · needed a new freeze</span></div></div>
 
 <h2>Watch it on TradingView</h2>
 <p class='lede'>Not available on TradingView. requires cross-sectional ranking, multi-asset portfolio state, or point-in-time fundamentals — not expressible as a standalone TradingView script</p>
@@ -231,4 +235,4 @@ if it is much worse than the development figure, the idea was over-tuned.</p>
         sel = top_n_selection(z, p[&quot;top_n&quot;], m)
         return rebalance_schedule(equal_weight(sel), p[&quot;rebalance&quot;])
 </pre></details>
-<p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 15:32 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>
+<p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 17:01 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>

@@ -129,10 +129,14 @@ dfn{border-bottom:1px dotted var(--mut);cursor:help;font-style:normal}
 .tree{border-left:2px solid var(--line);margin-left:.4rem;padding-left:1rem}
 .tree .node{margin:.6rem 0;background:var(--surface);border:1px solid var(--line);
   border-radius:10px;padding:.6rem .85rem;font-size:.85rem}
+.subnav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.2rem 0 1.4rem}
+.subnav a{font-size:.82rem;padding:.3rem .7rem;border:1px solid var(--line);
+  border-radius:999px;background:var(--surface);color:var(--ink-2);text-decoration:none}
+.subnav a:hover{border-color:var(--s1);color:var(--s1)}
 .legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.79rem;color:var(--ink-2);margin-top:.6rem}
 .legend span{display:inline-flex;align-items:center;gap:.35rem}
 .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
-</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='index.html'>Overview</a><a href='data.html' class=on>The data</a><a href='experiments.html'>Experiments</a><a href='strategies.html'>Strategies</a><a href='compare.html'>Compare</a><a href='portfolio.html'>Portfolio lab</a><a href='ideas.html'>Ideas</a><a href='roadmap.html'>Roadmap</a><a href='audit.html'>Trust & audit</a></nav><main>
+</style></head><body><nav><span class='brand'>AI &amp; Tech Strategy Research</span><a href='index.html'>Overview</a><a href='data.html' class=on>The data</a><a href='strategies.html'>Strategies</a><a href='results.html'>Results</a><a href='method.html'>Method &amp; trust</a></nav><main>
 <h1>What the study is allowed to look at</h1>
 <p class='lede'>A backtest can only be as honest as the list of companies it is
 shown. This is that list — 113 companies and
@@ -229,18 +233,14 @@ companies and are never joined.</li>
 <div class='chart'><div class='ct'>What is still missing</div>
 <div class='cs'>Honest limitations of this list</div>
 <ul class='lede' style='margin:0;padding-left:1.1rem'>
-<li><b>Real prices.</b> Still the big one. The roster is defined; the download
-has not run.</li>
-<li><b>Free data may not have the dead names.</b> Free providers often serve no
-history at all for delisted tickers. If that happens, the study reports itself
-as survivorship-limited rather than pretending the list above was honoured.</li>
-<li><b>It is not the whole market.</b> 80 live names is a considered
-selection, not every listed technology company. Anything excluded is excluded
-by the list above, which is at least visible and arguable.</li>
-<li><b>Delisting prices are optimistic.</b> A bankruptcy is modelled as a sale
-at the last quoted price. In reality the exit is usually worse.</li>
+<li><b>6 dead companies are missing.</b> 33 of 39 came through; no provider carries the rest. Everything on this site is therefore optimistic by an unknown amount — the missing names are, by definition, ones that failed. Closing this needs a paid source with delisting returns (CRSP, Norgate, EODHD).</li>
+<li><b>Dividends depend on the provider.</b> Yahoo's adjusted close includes them; Stooq's does not. Where the two disagree the difference is recorded rather than averaged away, but a total-return series is only as good as the vendor's adjustments.</li>
+<li><b>Macro data is revised, not real-time.</b> Inflation and unemployment figures are shown as they read today, not as they read at the time. Strategies using them are excluded from the headline results for exactly this reason.</li>
+<li><b>It is not the whole market.</b> 80 live names is a considered selection, not every listed technology company. What is excluded is excluded by the list above, which is at least visible and arguable.</li>
+<li><b>Delisting prices are optimistic.</b> A bankruptcy is modelled as a sale at the last quoted price. In reality the exit is usually worse, and often there is no exit at all.</li>
+<li><b>One market, one sector, one sample.</b> 36 years of US technology is a single history. It cannot tell you whether a result is a property of markets or a property of this particular run of them.</li>
 </ul></div></div>
 <p class='note'>The full machine-readable definition lives in
 <code>configs/universe.yaml</code> and <code>configs/security_master.yaml</code>,
 both fingerprinted by the research freeze — they cannot be edited after results
-exist without the change being detected.</p><p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 15:32 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>
+exist without the change being detected.</p><p class='note' style='margin-top:2.5rem'>Generated 05 Aug 2026 17:01 UTC · a read-only view of the research record · research tool, not investment advice.</p></main><script>document.querySelectorAll('table th').forEach((th,i)=>{th.onclick=()=>{const tb=th.closest('table').tBodies[0];const rows=[...tb.rows];const asc=th.dataset.asc!=='1';th.dataset.asc=asc?'1':'0';rows.sort((a,b)=>{const x=a.cells[i]?.innerText.trim()||'',y=b.cells[i]?.innerText.trim()||'';const nx=parseFloat(x.replace(/[^0-9.-]/g,'')),ny=parseFloat(y.replace(/[^0-9.-]/g,''));return (!isNaN(nx)&&!isNaN(ny))?(asc?nx-ny:ny-nx):(asc?x.localeCompare(y):y.localeCompare(x));});rows.forEach(r=>tb.appendChild(r));};});</script></body></html>

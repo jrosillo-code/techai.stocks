@@ -25,7 +25,7 @@
   },
   {
     "family":"factor",
-    "n_variants":25,
+    "n_variants":27,
     "best_variant":"BreadthGatedBasket(basket=megacap_ai,breadth_window=200,fallback=IEF,min_exposure=0.0,rebalance=W-FRI,smooth_days=21,threshold=0.5)",
     "best_dev_sharpe":1.167,
     "sharpe_ci90_lo":0.866,
@@ -48,6 +48,18 @@
     "mc_mdd_p95":-0.403
   },
   {
+    "family":"longshort",
+    "n_variants":8,
+    "best_variant":"BetaHedgedBasket(basket=megacap_ai,beta_window=252,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",
+    "best_dev_sharpe":1.146,
+    "sharpe_ci90_lo":0.816,
+    "sharpe_ci90_hi":1.477,
+    "deflated_sharpe_prob":0.999,
+    "walkforward_oos_sharpe":1.261,
+    "mc_mdd_median":-0.343,
+    "mc_mdd_p95":-0.464
+  },
+  {
     "family":"meanrev",
     "n_variants":3,
     "best_variant":"ShortTermReversal(lookback_days=5,rebalance=W-FRI,top_n=5,trend_window=200)",
@@ -58,6 +70,18 @@
     "walkforward_oos_sharpe":0.663,
     "mc_mdd_median":-0.637,
     "mc_mdd_p95":-0.798
+  },
+  {
+    "family":"quality",
+    "n_variants":4,
+    "best_variant":"GrossProfitability(basket=None,min_history_q=8,rebalance=QE,top_n=8)",
+    "best_dev_sharpe":0.608,
+    "sharpe_ci90_lo":0.264,
+    "sharpe_ci90_hi":0.938,
+    "deflated_sharpe_prob":0.994,
+    "walkforward_oos_sharpe":0.674,
+    "mc_mdd_median":-0.615,
+    "mc_mdd_p95":-0.774
   },
   {
     "family":"regime",

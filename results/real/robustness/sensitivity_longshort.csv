@@ -1,0 +1,9 @@
+variant,stat,n_days,neighbor_stability
+"BetaHedgedBasket(basket=megacap_ai,beta_window=252,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",1.1459265680029216,6686,0.07239814362035005
+"BetaHedgedBasket(basket=megacap_ai,beta_window=126,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",1.0435401314043875,6686,0.08918926975023254
+"BetaHedgedBasket(basket=target_holdings,beta_window=252,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",0.9682345721750557,6686,0.07836182303843693
+"BetaHedgedBasket(basket=target_holdings,beta_window=126,hedge=QQQ,max_hedge=1.5,rebalance=W-FRI)",0.8868557152740879,6686,0.35350208455300836
+"MarketNeutralMomentum(basket=None,gross=1.0,lookback_days=126,rebalance=ME,skip_days=21,top_n=15)",0.3193311332092886,6686,0.32896143909642933
+"MarketNeutralMomentum(basket=None,gross=1.0,lookback_days=252,rebalance=ME,skip_days=21,top_n=15)",0.3148508670067936,6686,0.024522605519695557
+"MarketNeutralMomentum(basket=None,gross=1.0,lookback_days=252,rebalance=ME,skip_days=21,top_n=10)",0.2747941922439884,6686,0.0253294543722574
+"MarketNeutralMomentum(basket=None,gross=1.0,lookback_days=126,rebalance=ME,skip_days=21,top_n=10)",0.26796473966423434,6686,0.004829152231029893

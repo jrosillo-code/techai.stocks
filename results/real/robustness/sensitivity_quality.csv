@@ -1,0 +1,5 @@
+variant,stat,n_days,neighbor_stability
+"GrossProfitability(basket=None,min_history_q=8,rebalance=QE,top_n=8)",0.6077351442098646,6686,0.0
+"GrossProfitability(basket=None,min_history_q=8,rebalance=QE,top_n=12)",0.6077351442098646,6686,0.10087688857616779
+"PostEarningsDrift(basket=None,hold_days=63,rebalance=W-FRI,top_n=10)",0.43301124788647755,6686,0.1494577666242345
+"PostEarningsDrift(basket=None,hold_days=42,rebalance=W-FRI,top_n=10)",0.3103338139002197,6686,0.0867460454702477
