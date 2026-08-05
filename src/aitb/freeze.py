@@ -160,7 +160,43 @@ log = get_logger("freeze")
 # configs/research_freeze_v5.json and _v6.json are preserved unmodified, and
 # their synthetic cohorts stay in the registry, filtered out of the leaderboard
 # by (universe_hash, freeze_version) rather than deleted.
-FREEZE_VERSION = 7
+#
+# v7 (hash e5a13c8887f98ae693d2eaaa51044e41) ran a synthetic validation and was
+# superseded before any real study, like v5 and v6 before it.
+#
+# v8 (2026-08-05) answers a direct question: which rules suit the AI complex,
+# which suit technology broadly, and what exactly do they say to DO. It adds
+# five documented indicators the study had never tested, all single-symbol with
+# explicit entry and exit:
+#
+#   GaussianTrendBands       buy an ATR-band break, sell back to the centreline
+#   GaussianTrendHold        buy a rising centreline, sell on a wide band break
+#   Supertrend               the ratcheting mid-price band, flip long/flat
+#   ADXTrendStrength         Wilder's trend STRENGTH, which nothing here measured
+#   RelativeStrengthNewHigh  the ratio to the index at a new high (O'Neil line)
+#
+# Three points of method, none of them optional:
+#
+#   * EVERY ONE IS GRIDDED OVER AN AI BASKET *AND* THE FULL 81-NAME ROSTER.
+#     "Good for AI" versus "good for tech generally" is a question the data can
+#     answer by running the same rule over both. Asserting it in a docstring
+#     would be a preference wearing a finding's clothes.
+#   * GaussianTrendBands and GaussianTrendHold are a deliberate PAIR: identical
+#     filter, opposite aggression. Comparing them isolates parameterisation
+#     from the indicator, the same way v6/v7's control arm isolates the volume
+#     filter from the breakout it rides on.
+#   * The Gaussian filter is Ehlers' cascaded-pole form, NOT a centred kernel.
+#     A centred Gaussian weights bars on both sides of the point it smooths,
+#     which on a price series reads the future; it is the most common way a
+#     good-looking band script is silently wrong, and the output looks entirely
+#     normal. tests/test_no_lookahead.py pins the causal behaviour on a unit
+#     step: ~0.008 at the step bar, half-way only 8 bars later.
+#
+# Accounting, unchanged: 307 variants means a larger trial battery and a
+# harsher deflated-Sharpe correction for the WHOLE study, so this raises the
+# bar. The holdout has been opened three times. Genuinely out-of-sample still
+# means forward paper trading and nothing else.
+FREEZE_VERSION = 8
 FREEZE_PATH = CONFIG_DIR / f"research_freeze_v{FREEZE_VERSION}.json"
 
 # Code whose behavior defines the study. Any edit to these invalidates the

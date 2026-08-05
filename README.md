@@ -142,7 +142,7 @@ honoured.
 ## The first frozen real-data study (one command)
 
 The first real run is governed by a **research freeze**
-(`configs/research_freeze_v7.json`, hash `e5a13c8887f98ae693d2eaaa51044e41`):
+(`configs/research_freeze_v8.json`, hash `a9aded291d5223e10b28714a68c5ff98`):
 every strategy grid, benchmark, cost scenario, split, ranking rule, rejection
 rule, and the fingerprints of the 33 code modules that compute, tier, gate or
 record results — hashed before any real result exists. Every real-mode entry
@@ -280,6 +280,62 @@ deflated-Sharpe trial count for the whole study, so they raise the bar rather
 than lower it, the control arm is a real trial and counts as one, and the
 holdout has now been opened twice. Any v6/v7 result on it is a third look and
 is development evidence however it is labelled.
+
+## Freeze v8 — "which rule for AI, which for tech, and what does it say to do"
+
+Five documented indicators the study had never tested, each expressible on one
+chart with explicit BUY and SELL marks:
+
+| Strategy | Buy | Sell |
+|---|---|---|
+| `GaussianTrendBands` | close above the upper ATR band | back to the centreline (fast) |
+| `GaussianTrendHold` | close above a *rising* centreline | close below the lower band (wide) |
+| `Supertrend` | close above the ratcheting band | close below it |
+| `ADXTrendStrength` | +DI over −DI **and** ADX above the floor | either condition fails |
+| `RelativeStrengthNewHigh` | price/index ratio at a new N-bar high | ratio at an N-bar low |
+
+**Every one is gridded over an AI basket *and* the full 81-name roster.**
+Whether a rule suits the AI complex or technology broadly is a question the
+data can answer by running the same rule over both; asserting it in a docstring
+would be a preference wearing a finding's clothes. `basket: null` is all 81
+names, against `megacap_ai`, `ai_compute` and `semiconductors`.
+
+`GaussianTrendBands` and `GaussianTrendHold` are a deliberate **pair**:
+identical filter, opposite aggression — enter hard and exit fast, versus enter
+easily and exit late. Comparing them isolates parameterisation from the
+indicator, the same way v7's control arm isolates the volume filter from the
+breakout it rides on.
+
+### The centred-kernel trap
+
+A "Gaussian filter" in signal processing is a **centred** kernel: it weights
+bars on both sides of the point it smooths. Applied to a price series that
+reads the future — the centreline bends into a reversal *before* the reversal,
+every band entry looks prescient, and the equity curve is fiction. It is the
+most common way a good-looking band script is silently wrong, and nothing about
+the output looks wrong.
+
+This uses Ehlers' cascaded-pole form instead, which is causal by construction,
+and the behaviour is pinned by a test rather than asserted: on a unit step the
+filter reads **0.008 at the step bar** and does not reach half until **8 bars
+later**. A centred kernel reads ~0.5 *on* the step.
+
+### What data actually constrains this
+
+Worth being straight about, since it is the obvious next question: for these
+five, data was **not** the constraint. Every one runs on OHLCV that has been in
+the store since v3 — they had simply never been built. Where data genuinely
+binds is elsewhere, and each of these blocks a class of strategy rather than a
+single rule:
+
+* **FINRA daily short-sale volume** — free, daily, per symbol. The only free
+  read on positioning rather than price. (`IDEA-012`)
+* **Earnings dates with BMO/AMC timing** — blocks the entire event-driven
+  family, which is Tier C by design until it exists. (`IDEA-001`)
+* **Delisting returns** — would move the universe from Tier B to Tier A.
+  (`IDEA-002`)
+* **Options-implied volatility** — would let volatility regimes be measured
+  forward-looking rather than trailing.
 
 ### One hypothesis already refuted, before any real run
 

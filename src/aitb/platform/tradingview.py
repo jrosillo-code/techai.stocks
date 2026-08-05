@@ -532,6 +532,298 @@ alertcondition(longExit, "Turned wild or down", "Left the quiet-uptrend regime")
 """)
 
 
+# Ehlers' N-pole Gaussian filter, shared by both band strategies.
+#
+# The seeding matters more than it looks. pandas' ewm(adjust=False) seeds from
+# the FIRST observation; Pine's nz() would seed from zero, which drags the
+# centreline up from 0 over the first few hundred bars and puts the chart and
+# the study on different numbers exactly where a reader is most likely to
+# scroll. Seeding from close reproduces the Python bar for bar.
+_GAUSS = """
+beta  = (1 - math.cos(2 * math.pi / period)) / (math.pow(2, 1.0 / poles) - 1)
+alpha = -beta + math.sqrt(beta * beta + 2 * beta)
+
+var float g1 = na
+var float g2 = na
+var float g3 = na
+var float g4 = na
+g1 := na(g1[1]) ? close : alpha * close + (1 - alpha) * g1[1]
+g2 := na(g2[1]) ? g1    : alpha * g1    + (1 - alpha) * g2[1]
+g3 := na(g3[1]) ? g2    : alpha * g2    + (1 - alpha) * g3[1]
+g4 := na(g4[1]) ? g3    : alpha * g3    + (1 - alpha) * g4[1]
+centre = poles == 1 ? g1 : poles == 2 ? g2 : poles == 3 ? g3 : g4
+atr = ta.atr(atrLen)
+"""
+
+_GAUSS_NOTE = """
+// WHY THIS IS NOT A NORMAL "GAUSSIAN BAND" SCRIPT. A Gaussian filter in signal
+// processing is a CENTRED kernel — it weights bars on both sides of the point
+// it smooths. On a price series that reads the future: the centreline bends
+// into a reversal before the reversal happens, entries look prescient, and the
+// backtest is fiction. It is the most common way a good-looking band script is
+// silently wrong, and it is invisible unless you go looking.
+//
+// This is Ehlers' form instead: one single-pole recursion applied `poles`
+// times in series. Cascading N one-pole filters approximates a Gaussian
+// response while only ever reading bars that have closed. alpha is solved so
+// the cascade's cutoff lands on `period`, which is why it is not 2/(period+1).
+//
+// Sanity check you can run yourself: on a step from 0 to 1, this reads ~0.008
+// at the step bar and does not reach 0.5 until 8 bars later. A centred kernel
+// reads ~0.5 AT the step.
+"""
+
+
+def _pine_gauss_bands(params: dict) -> str:
+    period = params.get("period", 40)
+    poles = params.get("poles", 4)
+    aw = params.get("atr_window", 22)
+    mult = params.get("band_mult", 1.5)
+    return (_HEADER_EXACT.format(
+        name="GaussianTrendBands",
+        tagline="Buy the volatility-band break; sell back to the centreline.")
+        + _strategy_open(f"AITB Gaussian bands ({period}p, {mult}x ATR break)") + f"""
+period = input.int({period}, "Gaussian period", minval=10)
+poles  = input.int({poles}, "Poles (1-4)", minval=1, maxval=4)
+atrLen = input.int({aw}, "ATR window", minval=5)
+mult   = input.float({mult}, "Band width (ATRs)", step=0.1, minval=0.25)
+{_GAUSS}
+upper = centre + mult * atr
+lower = centre - mult * atr
+
+inPos = strategy.position_size > 0
+// BUY: a close above the upper band — a real volatility expansion, not a
+// drift above an average. SELL: back to the centreline, deliberately tight.
+longEntry = not inPos and close > upper
+longExit  = inPos and close < centre
+
+if longEntry
+    strategy.entry("Long", strategy.long)
+if longExit
+    strategy.close("Long")
+
+plot(centre, "Centreline", color=color.new(color.blue, 0), linewidth=2)
+plot(upper, "Buy above", color=color.new(color.green, 40))
+plot(lower, "Lower band", color=color.new(color.red, 60))
+bgcolor(inPos ? color.new(color.green, 94) : na, title="In position")
+{_MARKERS}
+alertcondition(longEntry, "Band break — BUY", "Closed above the upper volatility band")
+alertcondition(longExit, "Back to centre — SELL", "Closed below the centreline")
+{_TABLE.format(label="Gaussian bands (fast exit)",
+               settings=f"{period}p/{poles}-pole, {mult}x ATR({aw})",
+               tested="AI baskets AND the broad tech roster")}
+{_GAUSS_NOTE}
+// PAIRED with AITB Gaussian trend hold: identical machinery, opposite
+// parameterisation. This one enters hard and exits fast, for names that move
+// violently. That one enters easily and exits late, for steadier compounding.
+// Which suits which universe is decided by the study, not asserted here — both
+// are run over the AI baskets and over all 81 tech names.
+""")
+
+
+def _pine_gauss_hold(params: dict) -> str:
+    period = params.get("period", 60)
+    poles = params.get("poles", 4)
+    aw = params.get("atr_window", 22)
+    mult = params.get("band_mult", 2.5)
+    confirm = params.get("confirm_days", 5)
+    return (_HEADER_EXACT.format(
+        name="GaussianTrendHold",
+        tagline="Hold while the trend holds; sell only when the band breaks down.")
+        + _strategy_open(f"AITB Gaussian trend hold ({period}p, {mult}x ATR stop)") + f"""
+period  = input.int({period}, "Gaussian period", minval=10)
+poles   = input.int({poles}, "Poles (1-4)", minval=1, maxval=4)
+atrLen  = input.int({aw}, "ATR window", minval=5)
+mult    = input.float({mult}, "Stop distance (ATRs)", step=0.1, minval=0.5)
+confirm = input.int({confirm}, "Bars used to judge the slope", minval=1)
+{_GAUSS}
+lower = centre - mult * atr
+
+// Rising over `confirm` bars, not merely above yesterday. A filter that reacts
+// to one day of slope is a filter that whipsaws.
+rising = centre > centre[confirm]
+
+inPos = strategy.position_size > 0
+// BUY: a close above a RISING centreline — no breakout demanded.
+// SELL: only on a close below the lower band, which in a calm name is far away.
+longEntry = not inPos and close > centre and rising
+longExit  = inPos and close < lower
+
+if longEntry
+    strategy.entry("Long", strategy.long)
+if longExit
+    strategy.close("Long")
+
+plot(centre, "Centreline", color=rising ? color.green : color.red, linewidth=2)
+plot(lower, "Sell below", color=color.new(color.red, 20), linewidth=2)
+bgcolor(inPos ? color.new(color.green, 94) : na, title="In position")
+{_MARKERS}
+alertcondition(longEntry, "Trend up — BUY", "Closed above a rising centreline")
+alertcondition(longExit, "Band broke — SELL", "Closed below the lower volatility band")
+{_TABLE.format(label="Gaussian trend hold (wide stop)",
+               settings=f"{period}p/{poles}-pole, {mult}x ATR({aw}), {confirm}-bar slope",
+               tested="AI baskets AND the broad tech roster")}
+{_GAUSS_NOTE}
+// PAIRED with AITB Gaussian bands, which is the same machinery parameterised
+// the opposite way: enter hard, exit fast. This one accepts larger drawdowns
+// in exchange for staying in trends that were intact all along. Expect far
+// fewer trades and a worse-looking drawdown — that is the trade, not a defect.
+""")
+
+
+def _pine_supertrend(params: dict) -> str:
+    aw = params.get("atr_window", 10)
+    am = params.get("atr_mult", 3.0)
+    return (_HEADER_EXACT.format(
+        name="Supertrend",
+        tagline="Flip long above the ratcheting band; out when it breaks.")
+        + _strategy_open(f"AITB Supertrend ({am}x ATR {aw})") + f"""
+atrLen  = input.int({aw}, "ATR window", minval=2)
+atrMult = input.float({am}, "Band distance (ATRs)", step=0.5, minval=0.5)
+
+atr = ta.atr(atrLen)
+var float up = na
+var float dn = na
+var bool  isLong = true
+
+rawUp = hl2 - atrMult * atr
+rawDn = hl2 + atrMult * atr
+// The ratchet: each band only tightens while its side holds, so it never
+// loosens back into an advance the way a plain ATR stop does.
+up := na(up[1]) ? rawUp : (close[1] > up[1] ? math.max(rawUp, up[1]) : rawUp)
+dn := na(dn[1]) ? rawDn : (close[1] < dn[1] ? math.min(rawDn, dn[1]) : rawDn)
+// Flip against YESTERDAY's band — the only one that was known when this bar
+// opened. Testing today's close against today's band cannot trigger correctly.
+isLong := na(dn[1]) ? isLong : (close > dn[1] ? true :
+          close < up[1] ? false : nz(isLong[1], true))
+
+longEntry = isLong and not isLong[1]
+longExit  = not isLong and isLong[1]
+
+if longEntry
+    strategy.entry("Long", strategy.long)
+if longExit
+    strategy.close("Long")
+
+plot(isLong ? up : dn, "Supertrend", color=isLong ? color.green : color.red,
+     linewidth=2, style=plot.style_linebr)
+bgcolor(isLong ? color.new(color.green, 94) : color.new(color.red, 94), title="Trend")
+{_MARKERS}
+alertcondition(longEntry, "Supertrend flipped up — BUY", "Closed above the band")
+alertcondition(longExit, "Supertrend flipped down — SELL", "Closed below the band")
+{_TABLE.format(label="Supertrend", settings=f"{am}x ATR({aw}), ratcheting",
+               tested="AI baskets AND the broad tech roster")}
+// Included because it is ubiquitous. A rule thousands of people trade is worth
+// measuring honestly rather than dismissing — the study is the only way to
+// find out whether the ubiquity is earned. Read the verdict on the Chart-it
+// page before trusting the Strategy Tester curve above.
+""")
+
+
+def _pine_adx(params: dict) -> str:
+    dw = params.get("di_window", 14)
+    aw = params.get("adx_window", 14)
+    lo = params.get("adx_min", 20.0)
+    return (_HEADER_EXACT.format(
+        name="ADXTrendStrength",
+        tagline="Trade direction only when the trend is strong enough to bother.")
+        + _strategy_open(f"AITB ADX trend strength (ADX>{lo:g})") + f"""
+diLen  = input.int({dw}, "DI window", minval=2)
+adxLen = input.int({aw}, "ADX smoothing", minval=2)
+adxMin = input.float({lo}, "Minimum trend strength", step=1.0, minval=5.0)
+
+[plusDI, minusDI, adx] = ta.dmi(diLen, adxLen)
+want = plusDI > minusDI and adx >= adxMin
+
+longEntry = want and not want[1]
+longExit  = not want and want[1]
+
+if longEntry
+    strategy.entry("Long", strategy.long)
+if longExit
+    strategy.close("Long")
+
+hline(adxMin, "Strength floor", color=color.gray)
+plot(adx, "ADX (trend strength)", color=color.blue, linewidth=2)
+plot(plusDI, "+DI", color=color.new(color.green, 30))
+plot(minusDI, "-DI", color=color.new(color.red, 30))
+bgcolor(want ? color.new(color.green, 92) : na, title="Tradeable trend")
+{_MARKERS}
+alertcondition(longEntry, "Strong uptrend — BUY", "+DI above -DI with ADX over the floor")
+alertcondition(longExit, "Trend weakened — SELL", "Lost direction or strength")
+{_TABLE.format(label="ADX trend strength",
+               settings=f"DI({dw}), ADX({aw}) >= {lo:g}",
+               tested="AI baskets AND the broad tech roster")}
+// NOTE: this plots on a separate pane, so set the script to "No scale" or move
+// it below the chart if the price axis compresses.
+//
+// Every other trend rule in this study measures DIRECTION — is price above an
+// average, is it making new highs. None measures STRENGTH: whether there is a
+// trend at all rather than a drift that happens to point up. That gap is the
+// reason this exists. It matters most in a chop, where a moving-average rule
+// stays fully invested through exactly the conditions that hurt it.
+""")
+
+
+def _pine_rs_new_high(params: dict) -> str:
+    bench = params.get("bench", "QQQ")
+    ew = params.get("entry_window", 63)
+    xw = params.get("exit_window", 21)
+    tw = params.get("trend_window", 200)
+    return (_HEADER_EXACT.format(
+        name="RelativeStrengthNewHigh",
+        tagline="Own what is beating the index; sell it when it stops.")
+        + _strategy_open(f"AITB relative strength vs {bench}") + f"""
+benchSym = input.symbol("NASDAQ:{bench}", "Benchmark")
+entryLen = input.int({ew}, "RS new high over N bars", minval=10)
+exitLen  = input.int({xw}, "RS breakdown over N bars", minval=5)
+trendLen = input.int({tw}, "Own-trend filter", minval=20)
+
+// request.security is called with NO lookahead argument, so it defaults to
+// returning only bars that had already closed. Passing the opposite barmerge
+// setting here is the one-line change that would turn this script's backtest
+// into fiction, and it is the single most common defect in published Pine.
+// (The literal flag name is kept out of this file on purpose: a regression
+// test greps every export for it, and a comment must not be able to trip it.)
+benchClose = request.security(benchSym, timeframe.period, close)
+rs = close / benchClose
+
+// New highs on history EXCLUDING this bar, so today's ratio is compared with
+// a level that was knowable before it printed.
+rsHigh = ta.highest(rs[1], entryLen)
+rsLow  = ta.lowest(rs[1], exitLen)
+inTrend = close > ta.sma(close, trendLen)
+
+inPos = strategy.position_size > 0
+longEntry = not inPos and rs > rsHigh and inTrend
+longExit  = inPos and rs < rsLow
+
+if longEntry
+    strategy.entry("Long", strategy.long)
+if longExit
+    strategy.close("Long")
+
+plot(rs, "Relative strength line", color=color.purple, linewidth=2)
+plot(rsHigh, "RS buy level", color=color.new(color.green, 50))
+plot(rsLow, "RS sell level", color=color.new(color.red, 50))
+{_MARKERS}
+alertcondition(longEntry, "RS new high — BUY", "Outperforming the index by more than it has in months")
+alertcondition(longExit, "RS broke down — SELL", "Relative strength gave way")
+{_TABLE.format(label="Relative strength vs index",
+               settings=f"vs {bench}, {ew}-bar RS high in, {xw}-bar low out",
+               tested="AI baskets AND the broad tech roster")}
+// Plot this on its own pane — the RS ratio is not on the price scale.
+//
+// The signal is the RATIO making a new high, not the price. A stock at a new
+// high in a market that is also at a new high has told you nothing; a stock
+// whose ratio is at a new high is being accumulated relative to everything
+// else. O'Neil / Minervini call this the relative-strength line, and it is the
+// closest a single chart gets to the cross-sectional ranking the rest of this
+// study depends on — which is otherwise the main reason a strategy here
+// refuses to export.
+""")
+
+
 def _pine_volume_breakout(params: dict) -> str:
     entry = params.get("entry_window", 55)
     exit_ = params.get("exit_window", 20)
@@ -654,6 +946,14 @@ _GENERATORS = {
     # reads no price at all.
     "VolumeConfirmedBreakout": _pine_volume_breakout,
     "TurnOfMonth": _pine_turn_of_month,
+    # freeze v8 — five more chartable rules, each a documented indicator the
+    # study had never tested, all run over the AI baskets AND all 81 tech names
+    # so the data decides which suits which rather than the docstring asserting it.
+    "GaussianTrendBands": _pine_gauss_bands,
+    "GaussianTrendHold": _pine_gauss_hold,
+    "Supertrend": _pine_supertrend,
+    "ADXTrendStrength": _pine_adx,
+    "RelativeStrengthNewHigh": _pine_rs_new_high,
 }
 
 # Which exports place orders (so TradingView's Strategy Tester runs them and
@@ -661,7 +961,9 @@ _GENERATORS = {
 # and regime gauges are not entry rules, and are not dressed up as if they were.
 BACKTESTABLE = {"QQQMovingAverage", "TrendFollowCash", "DonchianBreakout",
                 "RSIReversion", "ATRTrailingStop", "FiftyTwoWeekHighProximity",
-                "QuietTrend", "VolumeConfirmedBreakout", "TurnOfMonth"}
+                "QuietTrend", "VolumeConfirmedBreakout", "TurnOfMonth",
+                "GaussianTrendBands", "GaussianTrendHold", "Supertrend",
+                "ADXTrendStrength", "RelativeStrengthNewHigh"}
 
 
 def export_pine(class_name: str, params: dict | None = None) -> str | None:

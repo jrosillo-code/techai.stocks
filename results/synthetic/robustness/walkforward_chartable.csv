@@ -1,9 +1,9 @@
 step,selected,train_score
-1995-02-01,"TurnOfMonth(basket=None,end_day=5,start_day=28)",1.5346286290551074
-1996-02-01,"TurnOfMonth(basket=None,end_day=5,start_day=28)",1.8997137404045596
-1997-02-01,"QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)",1.8349723603509056
-1998-02-01,"QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)",2.0495884777426436
-1999-02-01,"QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)",2.27017246306922
+1995-02-01,"RelativeStrengthNewHigh(basket=None,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)",47.92930911110969
+1996-02-01,"RelativeStrengthNewHigh(basket=None,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)",52.292797385601055
+1997-02-01,"RelativeStrengthNewHigh(basket=None,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)",56.7538462514445
+1998-02-01,"RelativeStrengthNewHigh(basket=None,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)",60.805585552147065
+1999-02-01,"RelativeStrengthNewHigh(basket=None,bench=QQQ,entry_window=63,exit_window=21,trend_window=200)",64.22523516201485
 2000-02-01,"QuietTrend(basket=None,lookback=504,trend_window=200,vol_quantile=0.6,vol_window=21)",2.3098364716939344
 2001-02-01,"QuietTrend(basket=None,lookback=504,trend_window=150,vol_quantile=0.6,vol_window=21)",1.9056723433790017
 2002-02-01,"FiftyTwoWeekHighProximity(basket=None,min_proximity=0.92,rebalance=ME,top_n=15,window=252)",1.5539279670207635

@@ -108,6 +108,12 @@ CLASS_LABELS = {
     # added with freeze v6
     "VolumeConfirmedBreakout": "Breakout, but only on heavy volume",
     "TurnOfMonth": "Only around the turn of the month",
+    # added with freeze v8
+    "GaussianTrendBands": "Band break in, centreline out",
+    "GaussianTrendHold": "Ride the trend, wide stop",
+    "Supertrend": "Supertrend flip",
+    "ADXTrendStrength": "Only when the trend is strong",
+    "RelativeStrengthNewHigh": "Beating the index, at a new high",
 }
 
 _BASKETS = {"megacap_ai": "megacap AI", "target_holdings": "your shortlist",

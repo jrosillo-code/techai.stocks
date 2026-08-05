@@ -337,3 +337,33 @@ chartable:
   - {class: TurnOfMonth, status: core,
      hypothesis: "Returns cluster around the turn of the month because contributions, pension inflows and index rebalancing land in a narrow window (Ariel 1987, Lakonishok & Smidt 1988); expected to be weak alone but nearly uncorrelated with every price-driven rule here",
      grid: {start_day: [24, 26, 28], end_day: [3, 5]}}
+
+  # ===================== ADDED UNDER FREEZE v8 =============================
+  # Five documented indicators the study had never tested, each expressible on
+  # one chart with explicit BUY and SELL marks.
+  #
+  # EVERY ONE IS GRIDDED OVER BOTH AN AI BASKET AND THE FULL 81-NAME TECH
+  # ROSTER. The question "which strategy suits AI, and which suits technology
+  # broadly" is answered by running the same rules over both and reading the
+  # result — not by asserting it in a docstring. basket=null is all 81 names.
+  #
+  # GaussianTrendBands and GaussianTrendHold are a deliberate PAIR: identical
+  # machinery, opposite parameterisation. One enters hard on a band break and
+  # exits fast at the centreline; the other enters on a rising centreline and
+  # exits only on a wide band break. Comparing them across baskets isolates
+  # aggression from the indicator itself.
+  - {class: GaussianTrendBands, status: core,
+     hypothesis: "In high-volatility names a band break is information where a drift above an average is not, so demanding the break and exiting fast at the centreline keeps more of each advance than a trend filter",
+     grid: {basket: [null, megacap_ai, ai_compute, semiconductors], band_mult: [1.0, 1.5, 2.0]}}
+  - {class: GaussianTrendHold, status: core,
+     hypothesis: "In steadier names the cost of a false exit exceeds the cost of a late one, so a permissive entry with a wide volatility stop compounds better than a rule that demands confirmation to enter and surrenders it quickly",
+     grid: {basket: [null, megacap_ai, ai_compute, semiconductors], band_mult: [2.0, 3.0]}}
+  - {class: Supertrend, status: core,
+     hypothesis: "A ratcheting mid-price band gives back less at the turn than a stop that re-widens on every volatility spike, because it never loosens while the trend is intact",
+     grid: {basket: [null, megacap_ai, semiconductors], atr_mult: [2.0, 3.0]}}
+  - {class: ADXTrendStrength, status: core,
+     hypothesis: "Requiring trend STRENGTH as well as direction cuts the whipsaw losses that dominate trend following in sideways markets, at the cost of entering late in the moves that do work; the study measures direction everywhere and strength nowhere",
+     grid: {basket: [null, megacap_ai, semiconductors], adx_min: [20.0, 25.0]}}
+  - {class: RelativeStrengthNewHigh, status: core,
+     hypothesis: "Strength measured against the index carries information that strength measured against the stock's own past does not, because it separates the name from the market it sits in (O'Neil / Minervini relative-strength line)",
+     grid: {basket: [null, megacap_ai, semiconductors], entry_window: [63, 126]}}

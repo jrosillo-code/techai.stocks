@@ -49,6 +49,299 @@ def _wilder_atr(high: pd.DataFrame, low: pd.DataFrame, close: pd.DataFrame,
     return tr.ewm(alpha=1.0 / window, adjust=False, min_periods=window).mean()
 
 
+def _gaussian(px: pd.DataFrame, period: int, poles: int = 4) -> pd.DataFrame:
+    """Ehlers' N-pole Gaussian filter — smoother than an EMA at equal lag.
+
+    CAUSALITY, WHICH IS THE WHOLE POINT HERE. A "Gaussian filter" in signal
+    processing is a CENTRED kernel: it weights bars on both sides of the point
+    it is smoothing. Applied to a price series that reads the future, and it is
+    the most common way a good-looking band script is silently wrong — the
+    centreline bends into a reversal before the reversal happens, so entries
+    look prescient and the equity curve is fiction.
+
+    This is Ehlers' formulation instead: a single-pole recursion applied
+    `poles` times in series. Cascading N one-pole filters approximates a
+    Gaussian response by the central limit theorem while only ever reading
+    bars that have closed. `alpha` is solved so the cascade's cutoff lands at
+    `period`, which is why it is not simply 2/(period+1).
+
+        beta  = (1 - cos(2*pi/period)) / (2^(1/poles) - 1)
+        alpha = -beta + sqrt(beta^2 + 2*beta)
+
+    ewm(adjust=False) IS that recursion, and it seeds from the first
+    observation — the Pine version seeds the same way rather than from zero, so
+    the two agree bar for bar instead of only after the transient decays.
+    """
+    beta = (1.0 - np.cos(2.0 * np.pi / period)) / (2.0 ** (1.0 / poles) - 1.0)
+    alpha = -beta + np.sqrt(beta * beta + 2.0 * beta)
+    out = px
+    for _ in range(poles):
+        out = out.ewm(alpha=alpha, adjust=False).mean()
+    return out
+
+
+class GaussianTrendBands(Strategy):
+    """Buy the volatility-band break, sell back to the centreline.
+
+    Built for names that move violently — the AI and semiconductor complex —
+    where the cost of being slow out is larger than the cost of being early in.
+    Entry demands a close ABOVE the upper band, which is a genuine volatility
+    expansion rather than a drift over an average. The exit is deliberately
+    tight: back to the centreline, not to the lower band, because in a name
+    that can lose a third of its value in a month the round trip from the top
+    band to the bottom band is most of the move.
+
+    Paired with GaussianTrendHold, which is the same machinery parameterised
+    the opposite way. Neither is claimed to suit any particular universe — both
+    are run over the AI baskets AND the broad tech roster, and the study says
+    which fits where. That comparison is the reason they exist as a pair.
+    """
+    family = "chartable"
+    hypothesis = ("In high-volatility names a band break is information and a"
+                  " drift above an average is not, so demanding the break and"
+                  " exiting fast at the centreline should keep more of each"
+                  " advance than a trend filter does. Expected to trade more"
+                  " often than a trend rule and to cut drawdown materially.")
+
+    def __init__(self, period: int = 40, poles: int = 4, atr_window: int = 22,
+                 band_mult: float = 1.5, basket: str | None = None):
+        super().__init__(period=period, poles=poles, atr_window=atr_window,
+                         band_mult=band_mult, basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        p = self.params
+        tickers = md.universe.baskets[p["basket"]] if p["basket"] else None
+        mask = investable_mask(md, tickers)
+        cols = list(mask.columns)
+        close = md.adj_close[cols]
+
+        centre = _gaussian(close, p["period"], p["poles"])
+        atr = _wilder_atr(md.high[cols], md.low[cols], close, p["atr_window"])
+        upper = centre + p["band_mult"] * atr
+
+        entry = (close > upper) & mask
+        exit_ = close < centre
+        return equal_weight(_latch(entry, exit_).where(mask, 0.0))
+
+
+class GaussianTrendHold(Strategy):
+    """Hold the trend while it holds; sell only when the band breaks down.
+
+    The mirror image of GaussianTrendBands, and built for steadier compounding
+    names — broad large-cap technology — where the expensive mistake is being
+    shaken out of a trend that was intact. Entry is permissive: a close above a
+    RISING centreline, no breakout required. The exit is wide: a close below
+    the lower band, which in a calm name is a long way down.
+
+    The centreline must be rising, measured over `confirm_days`, not merely
+    above where it was yesterday. A filter that reacts to one day of slope is a
+    filter that whipsaws, which is the failure this parameterisation exists to
+    avoid.
+    """
+    family = "chartable"
+    hypothesis = ("In steadier names the cost of a false exit exceeds the cost"
+                  " of a late one, so a permissive entry with a wide"
+                  " volatility stop should compound better than a rule that"
+                  " demands confirmation to get in and gives it up quickly."
+                  " Expected to trade far less and to hold larger drawdowns.")
+
+    def __init__(self, period: int = 60, poles: int = 4, atr_window: int = 22,
+                 band_mult: float = 2.5, confirm_days: int = 5,
+                 basket: str | None = None):
+        super().__init__(period=period, poles=poles, atr_window=atr_window,
+                         band_mult=band_mult, confirm_days=confirm_days,
+                         basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        p = self.params
+        tickers = md.universe.baskets[p["basket"]] if p["basket"] else None
+        mask = investable_mask(md, tickers)
+        cols = list(mask.columns)
+        close = md.adj_close[cols]
+
+        centre = _gaussian(close, p["period"], p["poles"])
+        atr = _wilder_atr(md.high[cols], md.low[cols], close, p["atr_window"])
+        lower = centre - p["band_mult"] * atr
+
+        rising = centre > centre.shift(p["confirm_days"])
+        entry = (close > centre) & rising & mask
+        exit_ = close < lower
+        return equal_weight(_latch(entry, exit_).where(mask, 0.0))
+
+
+def _wilder_smooth(x: pd.DataFrame, window: int) -> pd.DataFrame:
+    """Wilder's smoothing — the recursion behind ATR, DI and ADX alike."""
+    return x.ewm(alpha=1.0 / window, adjust=False, min_periods=window).mean()
+
+
+class Supertrend(Strategy):
+    """The band that ratchets: flip long on a close above it, out on a break.
+
+    The most widely used trend flip on TradingView, and absent from this study
+    until now. It differs from the Chandelier stop already here in two ways
+    that matter: the basis is the bar's midpoint rather than the close, and the
+    band RATCHETS — once it has moved up it never moves back down while the
+    trend holds, so it tightens into an advance instead of breathing with every
+    volatility spike.
+
+    Included partly because it is ubiquitous. A rule that thousands of people
+    trade is worth measuring honestly rather than dismissing, and the study is
+    the only way to find out whether the ubiquity is earned.
+    """
+    family = "chartable"
+    hypothesis = ("A ratcheting mid-price band gives back less at the turn"
+                  " than a stop that re-widens on every volatility spike,"
+                  " because it never loosens while the trend is intact."
+                  " Expected to beat the Chandelier stop on drawdown and to"
+                  " trade somewhat more.")
+
+    def __init__(self, atr_window: int = 10, atr_mult: float = 3.0,
+                 basket: str | None = None):
+        super().__init__(atr_window=atr_window, atr_mult=atr_mult, basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        p = self.params
+        tickers = md.universe.baskets[p["basket"]] if p["basket"] else None
+        mask = investable_mask(md, tickers)
+        cols = list(mask.columns)
+        close = md.adj_close[cols]
+        high, low = md.high[cols], md.low[cols]
+
+        atr = _wilder_atr(high, low, close, p["atr_window"])
+        hl2 = (high + low) / 2.0
+        raw_up = (hl2 - p["atr_mult"] * atr).to_numpy(dtype=float)
+        raw_dn = (hl2 + p["atr_mult"] * atr).to_numpy(dtype=float)
+        c = close.to_numpy(dtype=float)
+        m = mask.fillna(False).to_numpy(dtype=bool)
+
+        n, k = c.shape
+        up = np.full(k, np.nan)
+        dn = np.full(k, np.nan)
+        trend = np.zeros(k, dtype=bool)          # True = long
+        held = np.zeros((n, k), dtype=bool)
+        for i in range(n):
+            pu, pd_ = up.copy(), dn.copy()
+            up = raw_up[i]
+            dn = raw_dn[i]
+            if i:
+                # Ratchet: the band only tightens while the side holds.
+                keep_u = ~np.isnan(pu) & (c[i - 1] > pu)
+                up = np.where(keep_u, np.fmax(up, pu), up)
+                keep_d = ~np.isnan(pd_) & (c[i - 1] < pd_)
+                dn = np.where(keep_d, np.fmin(dn, pd_), dn)
+                # Flip on yesterday's band, which is the only one that was known.
+                trend = np.where(~np.isnan(pd_) & (c[i] > pd_), True,
+                                 np.where(~np.isnan(pu) & (c[i] < pu), False,
+                                          trend))
+            held[i] = trend & m[i]
+
+        sel = pd.DataFrame(held.astype(float), index=close.index, columns=cols)
+        return equal_weight(sel)
+
+
+class ADXTrendStrength(Strategy):
+    """Trade direction only when the trend is strong enough to be worth it.
+
+    Every trend rule in this study measures DIRECTION — is price above an
+    average, is it making new highs. None measures STRENGTH: whether there is a
+    trend at all, as opposed to a drift that happens to be pointing up. Those
+    are different questions, and Wilder's ADX is the standard answer to the
+    second one.
+
+    The distinction has teeth in a chop: a moving-average rule is fully
+    invested in a sideways market that keeps crossing its own average, which is
+    where trend following does its worst damage. This one declines to
+    participate until ADX says the move has structure.
+    """
+    family = "chartable"
+    hypothesis = ("Requiring trend STRENGTH as well as direction should cut"
+                  " the whipsaw losses that dominate trend following in"
+                  " sideways markets, at the cost of entering late in the"
+                  " moves that do work. Expected to trade much less than a"
+                  " moving-average rule with a better win rate.")
+
+    def __init__(self, di_window: int = 14, adx_window: int = 14,
+                 adx_min: float = 20.0, basket: str | None = None):
+        super().__init__(di_window=di_window, adx_window=adx_window,
+                         adx_min=adx_min, basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        p = self.params
+        tickers = md.universe.baskets[p["basket"]] if p["basket"] else None
+        mask = investable_mask(md, tickers)
+        cols = list(mask.columns)
+        close, high, low = md.adj_close[cols], md.high[cols], md.low[cols]
+
+        up_move = high.diff()
+        down_move = -low.diff()
+        plus_dm = up_move.where((up_move > down_move) & (up_move > 0), 0.0)
+        minus_dm = down_move.where((down_move > up_move) & (down_move > 0), 0.0)
+
+        atr = _wilder_atr(high, low, close, p["di_window"]).replace(0, np.nan)
+        plus_di = 100.0 * _wilder_smooth(plus_dm, p["di_window"]) / atr
+        minus_di = 100.0 * _wilder_smooth(minus_dm, p["di_window"]) / atr
+        dx = 100.0 * (plus_di - minus_di).abs() / (plus_di + minus_di).replace(0, np.nan)
+        adx = _wilder_smooth(dx, p["adx_window"])
+
+        want = (plus_di > minus_di) & (adx >= p["adx_min"])
+        return equal_weight(want.where(mask, False).astype(float))
+
+
+class RelativeStrengthNewHigh(Strategy):
+    """Own what is beating the index, and sell it when it stops.
+
+    Cross-sectional strength is the thing this study most wants to test and
+    least able to put on a chart: ranking 81 names against each other needs 81
+    charts. Strength against a single BENCHMARK is the exception — it is one
+    ratio line, and TradingView draws it from one extra `request.security`
+    call. So this is the one genuinely relative rule in the chartable family.
+
+    The signal is the ratio price/benchmark making a new N-day high, not the
+    price doing so. A stock at a new high in a market that is also at a new
+    high has told you nothing; a stock whose RATIO is at a new high is being
+    accumulated relative to everything else. This is the O'Neil / Minervini
+    relative-strength line, and it is the closest a single chart gets to the
+    cross-sectional momentum the rest of the study relies on.
+    """
+    family = "chartable"
+    hypothesis = ("Strength measured against the index carries information"
+                  " that strength measured against the stock's own past does"
+                  " not, because it separates the name from the market it sits"
+                  " in. Expected to overlap with momentum but to hold up"
+                  " better when the whole index is rising.")
+
+    def __init__(self, bench: str = "QQQ", entry_window: int = 63,
+                 exit_window: int = 21, trend_window: int = 200,
+                 basket: str | None = None):
+        super().__init__(bench=bench, entry_window=entry_window,
+                         exit_window=exit_window, trend_window=trend_window,
+                         basket=basket)
+
+    def build(self, md: MarketData) -> pd.DataFrame:
+        p = self.params
+        if p["bench"] not in md.adj_close.columns:
+            raise ValueError(
+                f"RelativeStrengthNewHigh needs the benchmark {p['bench']!r}, "
+                f"which is not in the loaded panel")
+        tickers = md.universe.baskets[p["basket"]] if p["basket"] else None
+        mask = investable_mask(md, tickers)
+        cols = list(mask.columns)
+        px = md.adj_close[cols]
+        bench = md.adj_close[p["bench"]]
+
+        rs = px.div(bench.replace(0, np.nan), axis=0)
+        # New highs measured on history EXCLUDING today, so today's close is
+        # compared against a level that was knowable before it printed.
+        rs_hi = rs.shift(1).rolling(p["entry_window"]).max()
+        rs_lo = rs.shift(1).rolling(p["exit_window"]).min()
+        # A rising ratio in a falling stock is still a falling stock.
+        in_trend = px > sma(px, p["trend_window"])
+
+        entry = (rs > rs_hi) & in_trend & mask
+        exit_ = rs < rs_lo
+        return equal_weight(_latch(entry, exit_).where(mask, 0.0))
+
+
 class ATRTrailingStop(Strategy):
     """Ride a trend; exit on a volatility-scaled trailing stop (Chandelier).
 

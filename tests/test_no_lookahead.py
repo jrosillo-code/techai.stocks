@@ -164,6 +164,14 @@ V5_STRATEGIES = [
     # weak test of it — see the dedicated test below.
     ("VolumeConfirmedBreakout", dict()),
     ("TurnOfMonth", dict()),
+    # Freeze v8. GaussianTrendBands/Hold carry the filter whose CENTRED form
+    # would read the future; Supertrend carries a hand-rolled ratchet loop,
+    # which is where a peek at today's band hides.
+    ("GaussianTrendBands", dict()),
+    ("GaussianTrendHold", dict()),
+    ("Supertrend", dict()),
+    ("ADXTrendStrength", dict()),
+    ("RelativeStrengthNewHigh", dict()),
 ]
 
 
@@ -378,3 +386,96 @@ def test_ml_purge_gap():
     from aitb.strategies import ml
     src = inspect.getsource(ml.MLRankStrategy.build)
     assert "- 1 - horizon" in src  # purge gap present in split arithmetic
+
+
+def test_gaussian_filter_is_causal_not_a_centred_kernel():
+    """The centreline must lag a move, never anticipate it.
+
+    A Gaussian filter in signal processing is a CENTRED kernel: it weights
+    bars on both sides of the point it smooths. Applied to prices that reads
+    the future — the centreline bends into a reversal before the reversal
+    happens, every band entry looks prescient, and the equity curve is
+    fiction. It is the most common way a good-looking band script is silently
+    wrong, and nothing about the output looks wrong.
+
+    On a unit step, a causal filter is still near zero AT the step and crosses
+    halfway some bars later. A centred kernel is already at ~0.5 on the step
+    bar, because half its weight sits on bars that have not happened.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.strategies.chartable import _gaussian
+
+    step = pd.DataFrame({"a": np.r_[np.zeros(300), np.ones(300)]})
+    f = _gaussian(step, 40, 4)["a"]
+
+    assert f.iloc[300] < 0.05, (
+        f"filter reads {f.iloc[300]:.3f} on the step bar — a causal filter "
+        f"cannot know the step happened yet; this kernel is centred")
+    lag = int((f >= 0.5).idxmax()) - 300
+    assert lag > 0, "filter reached half the step at or before the step bar"
+    assert f.iloc[:300].abs().max() < 1e-9, "filter moved BEFORE the step"
+
+
+def test_supertrend_flips_out_of_a_collapse():
+    """The ratchet must fire. A band that never triggers is the flattering bug.
+
+    Supertrend's whole claim is that it tightens into an advance and so exits
+    early on the turn. If the flip compares today's close to today's band
+    instead of yesterday's, it can ride a collapse to the bottom without ever
+    flipping — and that shows up as an excellent drawdown, not as an error.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.strategies import STRATEGY_CLASSES
+
+    cal = pd.bdate_range("2015-01-01", periods=400, name="date")
+    path = np.concatenate([np.linspace(100, 300, 300), np.linspace(300, 90, 100)])
+    px = pd.DataFrame({"NVDA": path, "MSFT": path}, index=cal)
+
+    w = STRATEGY_CLASSES["Supertrend"](atr_window=10, atr_mult=3.0).build(
+        _toy_md(px))
+    held = w["NVDA"] > 0
+    assert held.any(), "never went long a 300-bar uptrend"
+    assert not held.iloc[-1], "still long at the bottom — the band never flipped"
+
+
+def test_relative_strength_reads_the_ratio_not_the_price():
+    """The signal must come from price/benchmark, not from price alone.
+
+    If the benchmark leg were dropped — a rename, a column that silently
+    became NaN — this degrades into a plain breakout while keeping the name
+    and the claim. So: hold the stock fixed and move only the benchmark. The
+    answer must change.
+    """
+    import numpy as np
+    import pandas as pd
+    from aitb.config import load_universe_config
+    from aitb.data.loader import MarketData
+    from aitb.strategies import STRATEGY_CLASSES
+
+    cal = pd.bdate_range("2015-01-01", periods=600, name="date")
+    rng = np.random.default_rng(11)
+    stock = 100 * np.exp(np.cumsum(rng.normal(0.0006, 0.015, 600)))
+
+    def md_with(bench_path):
+        px = pd.DataFrame({"NVDA": stock, "MSFT": stock * 1.1,
+                           "QQQ": bench_path}, index=cal)
+        return MarketData(open=px, high=px * 1.01, low=px * 0.99, close=px,
+                          adj_close=px,
+                          dollar_volume=pd.DataFrame(1e12, index=cal,
+                                                     columns=px.columns),
+                          macro=pd.DataFrame(index=cal),
+                          fundamentals=pd.DataFrame(),
+                          universe=load_universe_config(), provider_name="toy")
+
+    flat = np.full(600, 100.0)
+    strong = 100 * np.exp(np.cumsum(np.full(600, 0.0012)))   # benchmark beats it
+    cls = STRATEGY_CLASSES["RelativeStrengthNewHigh"]
+    a = cls(bench="QQQ").build(md_with(flat))["NVDA"]
+    b = cls(bench="QQQ").build(md_with(strong))["NVDA"]
+
+    assert a.sum() > 0, "never bought a rising stock against a flat benchmark"
+    assert b.sum() < a.sum(), (
+        "the benchmark got stronger and the rule did not notice — it is "
+        "reading price, not relative strength")

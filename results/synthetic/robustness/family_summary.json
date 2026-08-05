@@ -25,13 +25,13 @@
   },
   {
     "family":"chartable",
-    "n_variants":28,
+    "n_variants":66,
     "best_variant":"VolumeConfirmedBreakout(basket=None,entry_window=100,exit_window=20,vol_mult=2.5,vol_window=50)",
     "best_dev_sharpe":1.097,
     "sharpe_ci90_lo":0.822,
     "sharpe_ci90_hi":1.377,
     "deflated_sharpe_prob":1.0,
-    "walkforward_oos_sharpe":0.817,
+    "walkforward_oos_sharpe":0.55,
     "mc_mdd_median":-0.492,
     "mc_mdd_p95":-0.636
   },
