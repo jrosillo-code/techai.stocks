@@ -1,0 +1,6 @@
+variant,stat,n_days,neighbor_stability
+"RegimeSwitchedTech(cut=0.34,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.1206210279846824,9021,0.028390710044988773
+"RegimeSwitchedTech(cut=0.25,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.0804705007936573,9021,0.044620501322373496
+"RegimeSwitchedTech(cut=0.2,fallback=IEF,flags=('qqq_below_200', 'vix_high', 'rates_rising', 'breadth_weak'),rebalance=W-FRI)",1.031524616981351,9021,0.2695340710637367
+"SemisLeadership(fallback=IEF,lookback_days=126)",0.5910792093507835,9021,0.27056664235336475
+"SemisLeadership(fallback=IEF,lookback_days=63)",0.5390432015772959,9021,0.036795013962514264

@@ -1,0 +1,6 @@
+variant,stat,n_days,neighbor_stability
+"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.2)",1.0037436956449177,9021,0.04819839892862681
+"VolCompressionBreakout(entry_window=40,exit_window=20,max_positions=6,squeeze_pct=0.3)",0.9355808661953848,9021,0.20749829823203145
+"DonchianBreakout(entry_window=100,exit_window=20,max_positions=6,regime_filter=True)",0.6151457046946628,9021,0.19127158878225367
+"DonchianBreakout(entry_window=55,exit_window=20,max_positions=6,regime_filter=True)",0.5944062671192146,9021,0.06221778113643147
+"DonchianBreakout(entry_window=20,exit_window=20,max_positions=6,regime_filter=True)",0.4985189218339412,9021,0.06780259208119352

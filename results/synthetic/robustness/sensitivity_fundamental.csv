@@ -1,0 +1,6 @@
+variant,stat,n_days,neighbor_stability
+"ValuationAwareGrowth(history_days=756,max_ps_own_pct=1.0,rebalance=QE,top_n=8)",0.8563986126070645,9021,0.02855757635495208
+"QualityGrowth(rebalance=QE,top_n=5,w_accel=0.3,w_growth=0.4,w_margin=0.3)",0.8160121008173861,9021,0.0244555997409972
+"QualityGrowth(rebalance=QE,top_n=8,w_accel=0.3,w_growth=0.4,w_margin=0.3)",0.8123112920690506,9021,0.02165991146468635
+"ValuationAwareGrowth(history_days=756,max_ps_own_pct=0.85,rebalance=QE,top_n=8)",0.7767827811977175,9021,0.05765274932113976
+"ValuationAwareGrowth(history_days=756,max_ps_own_pct=0.7,rebalance=QE,top_n=8)",0.6995480250632223,9021,0.05461321980599076

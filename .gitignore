@@ -4,7 +4,22 @@ data/*
 !data/import/
 data/import/*
 !data/import/README.md
-results/
+# Results: the experiment REGISTRY and the derived summary tables are the
+# research record — version-controlled, because they are what makes a study
+# auditable years later. Equity curves are large (~125 MB) and fully
+# regenerable from the registry plus the frozen code, so they stay out.
+results/*
+!results/synthetic/
+results/synthetic/*
+!results/synthetic/experiments.jsonl
+!results/synthetic/strategy_ranking.csv
+!results/synthetic/company_analysis.csv
+!results/synthetic/capacity.csv
+!results/synthetic/robustness/
+results/synthetic/robustness/*
+!results/synthetic/robustness/*.csv
+!results/synthetic/robustness/*.json
+
 reports/
 *.egg-info/
 __pycache__/

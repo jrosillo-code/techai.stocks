@@ -1,0 +1,12 @@
+variant,stat,n_days,neighbor_stability
+"TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=250)",1.1051752686971874,9021,0.0201668232764065
+"TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=200)",1.0766550737097118,9021,0.03541307663845565
+"TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=150)",1.034770653666911,9021,0.03510609318795855
+"AbsoluteMomentum(basket=None,fallback=BIL,lookback_days=252,rebalance=ME)",1.0069113795405564,9021,0.02161497498106906
+"TrendFollowCash(basket=None,fallback=IEF,rebalance=W-FRI,sma_window=100)",0.992213808144626,9021,0.013589093615135809
+"TrendFollowCash(basket=target_holdings,fallback=IEF,rebalance=W-FRI,sma_window=200)",0.9797641989041391,9021,0.009583320837746682
+"TrendFollowCash(basket=megacap_ai,fallback=BIL,rebalance=W-FRI,sma_window=200)",0.9733685622818206,9021,0.061179964500888986
+"AbsoluteMomentum(basket=None,fallback=BIL,lookback_days=126,rebalance=ME)",0.870744426145254,9021,0.1475594059495021
+"DualMomentum(fallback=IEF,lookback_days=63)",0.682426467163133,9021,0.11612607933558207
+"DualMomentum(fallback=IEF,lookback_days=126)",0.6588651907541663,9021,0.05263149807398518
+"DualMomentum(fallback=IEF,lookback_days=252)",0.5817983559556371,9021,0.05449448149062247
