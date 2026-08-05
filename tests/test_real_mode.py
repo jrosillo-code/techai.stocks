@@ -300,3 +300,29 @@ def test_portfolio_analysis_degrades_visibly_without_curves(monkeypatch):
     page = site._portfolio_page("synthetic")
     # The page itself must still explain what is missing and how to get it.
     assert "Nothing to compare yet" in page or "run_all.py" in page
+
+
+def test_synthetic_build_cannot_clobber_a_real_site(tmp_path):
+    """A routine synthetic rebuild must not silently replace a published
+    real-data site with simulated numbers.
+
+    Both modes render to the same directory. A synthetic rebuild once wiped a
+    live real-data site: nothing errored, and the only symptom was the banner
+    reverting to "Simulated data — real study not run" on a site that was
+    showing real results the day before.
+    """
+    import pytest
+    from aitb.platform.site import build_site, _MODE_STAMP
+
+    out = tmp_path / "site"
+    build_site("synthetic", out=out)
+    assert (out / _MODE_STAMP).read_text().strip() == "synthetic"
+
+    # Pretend a real build happened here.
+    (out / _MODE_STAMP).write_text("real\n")
+    with pytest.raises(RuntimeError, match="REAL-data site"):
+        build_site("synthetic", out=out)
+
+    # ...but an explicit downgrade is allowed.
+    build_site("synthetic", out=out, allow_downgrade=True)
+    assert (out / _MODE_STAMP).read_text().strip() == "synthetic"

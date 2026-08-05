@@ -1047,9 +1047,54 @@ renderList();
 
 
 # ------------------------------------------------------------- build all -----
-def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
+_MODE_STAMP = ".site_mode"
+
+
+def build_site(mode: str = "synthetic", out: Path | None = None,
+               allow_downgrade: bool = False) -> Path:
+    """Render the whole site for one data mode.
+
+    Refuses to overwrite a REAL-data site with a synthetic one unless asked
+    explicitly. Both modes render to the same directory, so a routine
+    synthetic rebuild silently replaced a published real-data site with
+    simulated numbers — the site went back to reading "Simulated data — real
+    study not run" after the real study had run and been published. Nothing
+    errored, and the only symptom was a banner nobody had reason to re-read.
+    """
     out = out or SITE_DIR
     out.mkdir(parents=True, exist_ok=True)
+
+    if mode == "real":
+        # A real-mode build reads the price store for coverage. Without it the
+        # pages render confidently and wrongly — "0 companies in the test",
+        # empty correlation analysis — while the banner says "Real market data".
+        # That is worse than not building at all, so it is refused.
+        from ..data import realstore
+        from ..config import results_dir
+        try:
+            have = len(realstore.available("prices"))
+        except Exception:
+            have = 0
+        curves = results_dir("real") / "curves"
+        n_curves = len(list(curves.glob("*.parquet"))) if curves.exists() else 0
+        if have == 0 or n_curves == 0:
+            raise RuntimeError(
+                "cannot build the real-data site here: "
+                f"{have} price series and {n_curves} equity curves are present. "
+                "Both are gitignored (licensed data; 340 MB of regenerable "
+                "output), so the real site must be built on the machine that "
+                "ran the study. From there:\n"
+                "  python -c \"import sys; sys.path.insert(0,'src'); "
+                "from aitb.platform.site import build_site; build_site('real')\"")
+
+    stamp = out / _MODE_STAMP
+    if (mode == "synthetic" and not allow_downgrade
+            and stamp.exists() and stamp.read_text().strip() == "real"):
+        raise RuntimeError(
+            f"{out} currently holds a REAL-data site; refusing to overwrite it "
+            "with simulated results. Rebuild with mode='real', or pass "
+            "allow_downgrade=True if replacing it with the demonstration site "
+            "is genuinely what you want.")
     (out / "strategy").mkdir(exist_ok=True)
     registry = ExperimentRegistry.for_mode(mode)
     stats = platform_stats(mode)
@@ -1151,6 +1196,7 @@ def build_site(mode: str = "synthetic", out: Path | None = None) -> Path:
     # tradingview exports
     export_all(out / "tradingview")
 
+    (out / _MODE_STAMP).write_text(mode + "\n")
     log.info("site built at %s (mode=%s)", out, mode)
     return out
 
