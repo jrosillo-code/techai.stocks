@@ -1,0 +1,48 @@
+{
+  // A full run writes ~1000 equity-curve parquet files totalling ~340 MB into
+  // results/. They are gitignored and fully regenerable, but VS Code does not
+  // know that: by default it watches every one for changes, indexes them for
+  // search, and re-scans them on every git refresh. On a laptop that is enough
+  // to make the editor feel hung during and after a run.
+  //
+  // Excluding them costs nothing — they are binary, nobody greps them, and
+  // deleting the directory is a supported operation (scripts/run_experiments.py
+  // rebuilds it deterministically from the registry).
+  "files.watcherExclude": {
+    "**/results/*/curves/**": true,
+    "**/data/export_bundle/**": true,
+    "**/data/real/**": true,
+    "**/site/**": true,
+    "**/reports/**": true,
+    "**/.pytest_cache/**": true,
+    "**/__pycache__/**": true,
+    "**/*.egg-info/**": true
+  },
+  "search.exclude": {
+    "**/results/*/curves/**": true,
+    "**/data/export_bundle/**": true,
+    "**/data/real/**": true,
+    "**/site/**": true,
+    "**/reports/**": true,
+    "**/__pycache__/**": true
+  },
+  // Keep them visible in the explorer — hiding results entirely makes it hard
+  // to tell whether a run produced anything.
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.egg-info": true,
+    "**/.pytest_cache": true
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"],
+  "python.analysis.exclude": [
+    "**/results/**",
+    "**/site/**",
+    "**/reports/**",
+    "**/data/**"
+  ],
+  "files.trimTrailingWhitespace": true,
+  "[python]": {
+    "editor.rulers": [88]
+  }
+}

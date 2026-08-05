@@ -142,7 +142,7 @@ honoured.
 ## The first frozen real-data study (one command)
 
 The first real run is governed by a **research freeze**
-(`configs/research_freeze_v3.json`, hash `f173a689adb51ed3be8ccb0b96e615af`):
+(`configs/research_freeze_v3.json`, hash `7edd4b56d181956d1d68645b08e03e04`):
 every strategy grid, benchmark, cost scenario, split, ranking rule, rejection
 rule, and the fingerprints of the 31 code modules that compute, tier, gate or
 record results — hashed before any real result exists. Every real-mode entry

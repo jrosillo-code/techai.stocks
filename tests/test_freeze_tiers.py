@@ -86,3 +86,23 @@ def test_decision_brief_cannot_recommend_trading():
     assert 'decision = "PAPER-TRADE' in src
     assert '"TRADE"' not in src.replace("PAPER-TRADE", "")
     assert "Live trading is out of scope" in src
+
+
+def test_readme_quotes_the_actual_freeze_hash():
+    """The README states the governing freeze hash. It must be the real one.
+
+    Every edit to a fingerprinted module changes the hash, so a hardcoded copy
+    in prose rots silently — and a wrong hash in the README is worse than none,
+    because it looks like a verification anyone could perform.
+    """
+    import re
+    from pathlib import Path
+    from aitb.freeze import FREEZE_VERSION, load_freeze
+
+    readme = (Path(__file__).parents[1] / "README.md").read_text()
+    actual = load_freeze()["hash"]
+    quoted = set(re.findall(r"\b[0-9a-f]{32}\b", readme))
+
+    assert actual in quoted, (
+        f"README does not quote the current freeze v{FREEZE_VERSION} hash "
+        f"{actual}; it quotes {sorted(quoted)}")

@@ -44,6 +44,18 @@ class ProviderError(RuntimeError):
     pass
 
 
+class NoDataError(ProviderError):
+    """The provider answered, and the answer is "this does not exist here".
+
+    Distinct from ProviderError, which means the request itself failed and may
+    succeed later. Retrying this one is guaranteed to waste time — which is
+    exactly what happened when the universe grew to 39 delisted names that no
+    free provider carries: four attempts with 2/4/8/16s backoff each, for a
+    symbol that could never resolve, is 30 seconds of sleeping per name per
+    provider. Callers record it as a coverage gap and move on immediately.
+    """
+
+
 class PriceProvider(ABC):
     """Abstract price/macro provider."""
 
@@ -57,9 +69,24 @@ class PriceProvider(ABC):
         raise NotImplementedError(f"{self.name} has no macro series support")
 
 
+# A definitive "no" from the server. Retrying cannot change the answer:
+#   400 the request is malformed for this symbol
+#   403 not entitled (Yahoo does this for some delisted/foreign symbols)
+#   404 no such symbol
+#   410 gone
+# 429 and 5xx are deliberately absent — those are worth retrying.
+_PERMANENT_STATUS = frozenset({400, 403, 404, 410})
+
+
 def _http_get(url: str, params: dict | None = None, retries: int = 4,
               timeout: int = 30, headers: dict | None = None) -> requests.Response:
-    """GET with exponential backoff and basic rate-limit handling."""
+    """GET with exponential backoff, rate-limit handling, and fast failure.
+
+    Backoff applies only to failures that might resolve on a retry. A hard
+    "no such symbol" returns immediately: waiting 30 seconds to be told 404
+    four times is pure cost, and with 39 permanently-delisted names across
+    three providers it added roughly an hour to every download.
+    """
     delay = 2.0
     last: Exception | None = None
     for attempt in range(retries):
@@ -70,13 +97,20 @@ def _http_get(url: str, params: dict | None = None, retries: int = 4,
                 time.sleep(delay)
                 delay *= 2
                 continue
+            if resp.status_code in _PERMANENT_STATUS:
+                raise NoDataError(
+                    f"{url} returned {resp.status_code} — no data for this "
+                    "symbol at this provider (not retried)")
             resp.raise_for_status()
             return resp
+        except NoDataError:
+            raise
         except requests.RequestException as exc:  # includes HTTPError
             last = exc
             log.warning("attempt %d/%d failed for %s: %s", attempt + 1, retries, url, exc)
-            time.sleep(delay)
-            delay *= 2
+            if attempt < retries - 1:      # never sleep after the last attempt
+                time.sleep(delay)
+                delay *= 2
     raise ProviderError(f"failed to fetch {url}: {last}")
 
 
@@ -98,7 +132,7 @@ class StooqProvider(PriceProvider):
                                       "d2": end.strftime("%Y%m%d")})
         df = pd.read_csv(io.StringIO(resp.text))
         if "Close" not in df.columns or df.empty:
-            raise ProviderError(f"stooq returned no data for {ticker}")
+            raise NoDataError(f"stooq returned no data for {ticker}")
         df.columns = [c.lower() for c in df.columns]
         df["date"] = pd.to_datetime(df["date"])
         df = df.set_index("date").sort_index()
@@ -126,7 +160,7 @@ class YahooProvider(PriceProvider):
         payload = resp.json()
         result = payload.get("chart", {}).get("result")
         if not result:
-            raise ProviderError(f"yahoo returned no data for {ticker}")
+            raise NoDataError(f"yahoo returned no data for {ticker}")
         r = result[0]
         ts = pd.to_datetime(r["timestamp"], unit="s").normalize()
         quote = r["indicators"]["quote"][0]

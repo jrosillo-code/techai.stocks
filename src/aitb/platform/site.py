@@ -1426,12 +1426,32 @@ def _data_page(mode: str) -> str:
 
     u = load_universe_config()
     master = load_master()
-    live = [s for s in u.securities if s.delisted is None]
-    dead = sorted((s for s in u.securities if s.delisted is not None),
+
+    # In real mode the page must describe what the study ACTUALLY had, not what
+    # the config asked for. A company whose history no provider carries was
+    # never in any backtest, so listing it here would claim coverage that does
+    # not exist. In synthetic mode every configured name has generated history,
+    # so the two views coincide.
+    configured = list(u.securities)
+    have: set[str] | None = None
+    if mode == "real":
+        try:
+            from ..data import realstore
+            have = set(realstore.available("prices"))
+        except Exception:
+            have = set()
+    securities = ([s for s in configured if s.ticker in have]
+                  if have is not None else configured)
+    dropped = [s for s in configured if s.ticker not in (have or set(s.ticker for s in configured))] \
+        if have is not None else []
+
+    live = [s for s in securities if s.delisted is None]
+    dead = sorted((s for s in securities if s.delisted is not None),
                   key=lambda s: s.delisted)
+    dropped_dead = [s for s in dropped if s.delisted is not None]
 
     by_sector: dict[str, int] = {}
-    for s in u.securities:
+    for s in securities:
         by_sector[s.sector] = by_sector.get(s.sector, 0) + 1
     sector_chart = _hbar(
         [(_SECTOR_LABELS.get(k, k), v, "var(--s1)")
@@ -1547,6 +1567,28 @@ figures. The ten worst of {len(found)} delisted names tested.</p>"""
     except Exception:  # the page must render even before any run exists
         dead_evidence = ""
 
+    # If names were requested but had no history, say so at the top. Dropping
+    # them is the only honest option — a company with no prices cannot be
+    # backtested — but dropping DEAD ones puts survivorship bias straight back
+    # in, and that has to be stated where it cannot be missed.
+    dropped_note = ""
+    if dropped:
+        worst = ", ".join(html.escape(s.ticker) for s in dropped_dead[:12])
+        more = f" and {len(dropped_dead) - 12} more" if len(dropped_dead) > 12 else ""
+        bias = ""
+        if dropped_dead:
+            bias = (f"<p style='margin:.5rem 0 0'><b>{len(dropped_dead)} of them "
+                    f"are companies that died</b> — {worst}{more}. Their absence "
+                    f"is survivorship bias, and it flatters every result on this "
+                    f"site by an unknown amount. Closing it needs a paid data "
+                    f"source that carries delisted history (CRSP, Norgate, "
+                    f"EODHD).</p>")
+        dropped_note = (
+            f"<div class='warnbox' style='border-left-color:var(--critical)'>"
+            f"<b>{len(dropped)} of {len(configured)} companies were requested but "
+            f"had no usable price history, and are excluded from everything on "
+            f"this site.</b> They were not tested, so they are not shown.{bias}</div>")
+
     simulated = mode == "synthetic"
     reality = (
         "<div class='warnbox'><b>This page describes the roster, not real "
@@ -1559,9 +1601,10 @@ figures. The ten worst of {len(found)} delisted names tested.</p>"""
     return f"""
 <h1>What the study is allowed to look at</h1>
 <p class='lede'>A backtest can only be as honest as the list of companies it is
-shown. This is that list — {len(u.securities)} companies and
+shown. This is that list — {len(securities)} companies and
 {len(u.benchmarks)} funds, covering 1990 to 2026.</p>
 {reality}
+{dropped_note}
 
 <div class='stats'>
 <div class='stat'><div class='v'>{len(live)}</div><div class='k'>companies still trading</div>

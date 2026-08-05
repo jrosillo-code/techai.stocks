@@ -1,6 +1,7 @@
 """Integration tests for the synthetic data pipeline and universe."""
 import numpy as np
 import pandas as pd
+import pytest
 
 from aitb.data.validation import validate_prices
 from aitb.portfolio import cap_weights, equal_weight, rebalance_schedule
@@ -70,3 +71,64 @@ def test_equal_weight_and_schedule():
     # from then on the schedule holds the decided weights.
     assert np.allclose(sched.iloc[-20:].to_numpy(), 0.5)
     assert np.allclose(sched.iloc[0].to_numpy(), 0.0)
+
+
+# ------------------- permanent vs transient provider failures ---------------
+def test_permanent_http_failure_is_not_retried(monkeypatch):
+    """A 404 must fail instantly, not after 30 seconds of backoff.
+
+    The universe carries 39 delisted names that free providers do not serve.
+    Retrying each one four times, across three providers, added ~58 minutes of
+    pure sleeping to every download — the whole cost being to be told "no"
+    four times instead of once.
+    """
+    import aitb.data.providers as P
+
+    calls, slept = [], []
+    monkeypatch.setattr(P.time, "sleep", lambda s: slept.append(s))
+
+    class Resp:
+        status_code = 404
+        def raise_for_status(self): raise AssertionError("should not reach here")
+
+    monkeypatch.setattr(P.requests, "get",
+                        lambda *a, **k: (calls.append(1), Resp())[1])
+
+    with pytest.raises(P.NoDataError):
+        P._http_get("https://example.test/nope")
+    assert len(calls) == 1, f"404 was requested {len(calls)} times, expected 1"
+    assert slept == [], f"slept {slept} on a permanent failure"
+
+
+def test_transient_http_failure_is_retried_then_gives_up(monkeypatch):
+    """5xx and connection errors still get the full backoff — and the last
+    attempt must not sleep before raising, which is time nobody waits for."""
+    import aitb.data.providers as P
+
+    calls, slept = [], []
+    monkeypatch.setattr(P.time, "sleep", lambda s: slept.append(s))
+
+    def boom(*a, **k):
+        calls.append(1)
+        raise P.requests.ConnectionError("network down")
+
+    monkeypatch.setattr(P.requests, "get", boom)
+
+    with pytest.raises(P.ProviderError):
+        P._http_get("https://example.test/flaky", retries=4)
+    assert len(calls) == 4
+    assert slept == [2.0, 4.0, 8.0], f"expected 3 sleeps between 4 attempts, got {slept}"
+
+
+def test_empty_provider_response_is_a_no_data_error():
+    """Stooq and Yahoo answer 200 with an empty body for delisted symbols;
+    that is a coverage gap, not a transport failure, and must be typed as one
+    so the caller does not retry it."""
+    import inspect
+    from aitb.data import providers, providers_ext
+    for mod in (providers, providers_ext):
+        src = inspect.getsource(mod)
+        for phrase in ("returned no data for", "no CIK found for"):
+            for line in src.splitlines():
+                if phrase in line and "raise" in line:
+                    assert "NoDataError" in line, f"{mod.__name__}: {line.strip()}"

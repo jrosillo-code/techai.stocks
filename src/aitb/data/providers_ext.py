@@ -24,7 +24,8 @@ import numpy as np
 import pandas as pd
 
 from ..utils import get_logger
-from .providers import PRICE_COLUMNS, PriceProvider, ProviderError, _http_get
+from .providers import (PRICE_COLUMNS, NoDataError, PriceProvider, ProviderError,
+                        _http_get)
 
 log = get_logger("data.providers_ext")
 
@@ -47,7 +48,7 @@ class TiingoProvider(PriceProvider):
             "token": self.key})
         rows = resp.json()
         if not rows:
-            raise ProviderError(f"tiingo returned no data for {ticker}")
+            raise NoDataError(f"tiingo returned no data for {ticker}")
         df = pd.DataFrame(rows)
         df["date"] = pd.to_datetime(df["date"]).dt.tz_localize(None).dt.normalize()
         df = df.set_index("date").sort_index()
@@ -127,7 +128,7 @@ class EdgarFundamentals:
         for row in resp.json().values():
             if row["ticker"].upper() == ticker.upper():
                 return int(row["cik_str"])
-        raise ProviderError(f"no CIK found for {ticker}")
+        raise NoDataError(f"no CIK found for {ticker}")
 
     def _facts(self, concept_names: list[str], facts: dict) -> pd.DataFrame:
         gaap = facts.get("facts", {}).get("us-gaap", {})
@@ -185,7 +186,7 @@ class EdgarFundamentals:
             pub[field] = f[~f.index.duplicated(keep="first")]
 
         if "revenue" not in parts:
-            raise ProviderError(f"EDGAR: no usable revenue facts for {ticker}")
+            raise NoDataError(f"EDGAR: no usable revenue facts for {ticker}")
         idx = parts["revenue"].index
         out = pd.DataFrame({
             "period_end": idx,

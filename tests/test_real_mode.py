@@ -137,3 +137,56 @@ def test_holdout_access_before_freeze_is_violation(tmp_path, monkeypatch):
     st = ho.record_holdout_access("real", "premature peek")
     assert st["compromised"]
     assert st["violations"][0]["kind"] == "access_before_freeze"
+
+
+def test_real_mode_site_cannot_show_synthetic_results(tmp_path, monkeypatch):
+    """Building the site in real mode must read the REAL registry only.
+
+    The two modes share every line of rendering code, so the only thing keeping
+    simulated numbers off a real-data site is that the mode is threaded all the
+    way down. If it is ever dropped on one path, the page silently publishes
+    synthetic results with no warning banner — the single worst failure this
+    project could have.
+    """
+    from aitb.config import results_dir
+    from aitb.platform.catalog import current_registry, load_registry
+
+    synth_root = results_dir("synthetic")
+    real_root = results_dir("real")
+    assert synth_root != real_root, "modes must not share a results root"
+
+    # The real registry is empty (no real study has run). Anything the real
+    # mode reports must therefore be empty too — if it is not, it is reading
+    # the synthetic side.
+    real = load_registry("real")
+    if not real.empty:
+        pytest.skip("a real study exists in this checkout")
+    assert current_registry("real").empty
+    from aitb.platform.catalog import platform_stats
+    stats = platform_stats("real")
+    assert stats["experiments_ok"] == 0, (
+        "real mode reported experiments while the real registry is empty — "
+        "a synthetic result has leaked into the real-data view")
+
+
+def test_real_mode_site_omits_names_with_no_price_history(monkeypatch):
+    """A company the providers could not serve must not appear on the site.
+
+    It was never in any backtest, so listing it would claim coverage that does
+    not exist. The page must also say how many were dropped and how many of
+    those were dead companies, because dropping THOSE reintroduces exactly the
+    survivorship bias the roster exists to prevent.
+    """
+    from aitb.data import realstore
+    from aitb.platform import site
+
+    kept = ["NVDA", "MSFT", "AAPL", "AMZN", "SPY", "QQQ"]
+    monkeypatch.setattr(realstore, "available",
+                        lambda kind, root=None: kept if kind == "prices" else [])
+    html_out = site._data_page("real")
+
+    assert "NVDA" in html_out
+    # A configured name with no history must be absent from the roster tables.
+    assert ">WCOM<" not in html_out and ">NT<" not in html_out
+    assert "had no usable price history" in html_out
+    assert "survivorship bias" in html_out

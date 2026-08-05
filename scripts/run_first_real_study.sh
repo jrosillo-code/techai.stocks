@@ -46,7 +46,7 @@ die() {
   exit 1
 }
 
-step "1/9 Environment validation"
+step "1/10 Environment validation"
 PY=${PYTHON:-python3}
 $PY -c 'import sys; assert sys.version_info >= (3, 11), f"need Python>=3.11, have {sys.version}"' \
   || die "Python >= 3.11 required" "install Python 3.11+ or set PYTHON=/path/to/python3"
@@ -54,12 +54,12 @@ $PY -c 'import pandas, numpy, pyarrow, scipy, sklearn, yaml, jinja2, matplotlib,
   || die "missing packages" "run: $PY -m pip install -e '.[dev]'"
 $PY -m pytest tests/ -q || die "test suite failed" "fix failing tests before running the study"
 
-step "2/9 Research-freeze verification (no tuning permitted)"
+step "2/10 Research-freeze verification (no tuning permitted)"
 $PY -c "import sys; sys.path.insert(0, 'src'); from aitb.freeze import verify_freeze; verify_freeze()" \
   || die "freeze verification failed" \
          "the study spec drifted from the current configs/research_freeze_v*.json — revert the changes, or increment FREEZE_VERSION and create a new freeze for a NEW study"
 
-step "3/9 Environment fingerprint"
+step "3/10 Environment fingerprint"
 $PY - <<'EOF'
 import json, platform, subprocess, sys
 sys.path.insert(0, "src")
@@ -78,32 +78,42 @@ json.dump(fp, open("results/real/run_fingerprint.json", "w"), indent=2)
 print("fingerprint recorded (git_dirty=%s)" % fp["git_dirty"])
 EOF
 
-step "4/9 Real-data download (resumable; failures logged per symbol)"
+step "4/10 Real-data download (resumable; failures logged per symbol)"
 $PY scripts/download_real_data.py --providers $PROVIDERS --start "$START" \
     --output data/export_bundle \
   || die "download failed" "re-run this script: completed symbols are skipped, partial downloads resume"
 
-step "5/9 Checksum-verified import + provider reconciliation"
+step "5/10 Checksum-verified import + provider reconciliation"
 $PY scripts/import_data_bundle.py --input data/export_bundle \
   || die "import failed" "inspect results/real/import_report.json; a checksum failure means the bundle was corrupted in transit — re-download"
 
-step "6/9 Data-quality gate (hard stop on FAIL)"
+step "6/10 Data-quality gate (hard stop on FAIL)"
 $PY scripts/validate_real_data.py \
   || die "quality gate returned FAIL — DO NOT BACKTEST" \
          "read results/real/data_quality.json, fix the fatal findings (or import better data), then re-run"
 
-step "7/9 Frozen real-mode study (backtests, robustness, capacity, companies)"
+step "7/10 Frozen real-mode study (backtests, robustness, capacity, companies)"
 $PY scripts/run_experiments.py --data-mode real \
   || die "experiments failed" "registry is append-only: re-running resumes where it stopped"
 $PY scripts/run_robustness.py --data-mode real
 $PY scripts/run_capacity.py --data-mode real --top 5
 $PY scripts/run_company_analysis.py --data-mode real
 
-step "8/9 Reports (research_report_full.html + decision_brief.html)"
+step "8/10 Reports (research_report_full.html + decision_brief.html)"
 $PY scripts/make_report.py --data-mode real
 $PY scripts/make_decision_brief.py
 
-step "9/9 Shareable results bundle"
+step "9/10 Rebuild the published site on REAL results"
+# Overwrites site/ with real-mode pages. The synthetic warning banner
+# disappears on its own (it is keyed on the mode), and the data page lists only
+# the companies that actually had price history — anything the providers could
+# not serve is excluded and disclosed rather than shown as if it were tested.
+$PY -c "import sys; sys.path.insert(0, 'src'); \
+from aitb.platform.site import build_site; print(build_site('real'))" \
+  || die "site build failed" "results exist; re-run: python scripts/research.py dashboard --data-mode real"
+echo "site/ now reflects the real study — commit and push to publish"
+
+step "10/10 Shareable results bundle"
 STAMP=$(date -u +%Y%m%d_%H%M)
 # Add the final data-store fingerprint to the run fingerprint.
 $PY -c "
