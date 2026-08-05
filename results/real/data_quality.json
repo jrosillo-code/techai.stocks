@@ -1,7 +1,7 @@
 {
   "status": "PASS WITH LIMITATIONS",
   "store_fingerprint": "24cbe2a096f6612d",
-  "validated_at": "2026-08-05T15:11:27.750884+00:00",
+  "validated_at": "2026-08-05T15:32:07.954116+00:00",
   "checks": [
     {
       "check": "universe_coverage",

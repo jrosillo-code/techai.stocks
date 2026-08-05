@@ -43,5 +43,6 @@
     "tzdata==2026.3",
     "urllib3==2.7.0"
   ],
-  "freeze_hash": "7edd4b56d181956d1d68645b08e03e04"
+  "freeze_hash": "7edd4b56d181956d1d68645b08e03e04",
+  "data_store_fingerprint": "24cbe2a096f6612d"
 }
