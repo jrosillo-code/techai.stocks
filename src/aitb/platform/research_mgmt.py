@@ -248,24 +248,36 @@ def assistant_review(mode: str = "synthetic",
                                   "possible overfit to the development window"))
 
     # 2. Duplicated strategies: near-identical monthly return streams.
+    #
+    # This was a pairwise loop doing a concat + corr per pair. At 999 records
+    # in the current cohort that is ~500,000 Python-level pandas calls and it
+    # took 106 of the site build's 118 seconds — and it is QUADRATIC, so each
+    # study made it worse. A build slow enough to skip is a build that gets
+    # skipped, which is how a stale site gets published.
+    #
+    # One aligned frame and one .corr() computes the same numbers in C. The
+    # min_periods threshold reproduces the old `len(joined) > 24` guard: pairs
+    # overlapping by 24 months or fewer come back NaN and are dropped.
     curves = {}
     for r in ok.to_dict("records"):
         c = registry.load_curve(r["id"])
         if c is not None:
             curves[r["strategy"]] = (1 + c["returns"]).resample("ME").prod() - 1
-    names = sorted(curves)
-    for i, a in enumerate(names):
-        for b in names[i + 1:]:
-            if a.split("(")[0] == b.split("(")[0]:
-                continue      # same class, nearby params: correlation expected
-            joined = pd.concat([curves[a], curves[b]], axis=1, join="inner").dropna()
-            if len(joined) > 24:
-                rho = float(joined.iloc[:, 0].corr(joined.iloc[:, 1]))
-                if rho > corr_threshold:
-                    out.append(Suggestion("duplicate", f"{a} ~ {b}",
-                                          f"monthly-return correlation {rho:.3f} — "
-                                          "consider consolidating; they are not "
-                                          "independent evidence"))
+    if len(curves) > 1:
+        monthly = pd.DataFrame(curves).sort_index()
+        corr = monthly.corr(min_periods=25).to_numpy()
+        names = list(monthly.columns)
+        classes = np.array([n.split("(")[0] for n in names])
+        iu, ju = np.triu_indices(len(names), k=1)
+        # Same class with nearby parameters is expected to correlate and is
+        # not evidence of duplication, so those pairs never enter the result.
+        keep = (classes[iu] != classes[ju]) & np.isfinite(corr[iu, ju]) \
+            & (corr[iu, ju] > corr_threshold)
+        for i, j in zip(iu[keep], ju[keep]):
+            out.append(Suggestion("duplicate", f"{names[i]} ~ {names[j]}",
+                                  f"monthly-return correlation "
+                                  f"{corr[i, j]:.3f} — consider consolidating; "
+                                  "they are not independent evidence"))
 
     # 3. Missing robustness artifacts per family.
     rob = registry.root / "robustness"

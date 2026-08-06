@@ -325,3 +325,39 @@ def test_deprecated_variants_are_recorded_but_never_run():
             f"{c['class']} is described as a control arm but is deprecated, so "
             f"run_experiments.py will never execute it and the comparison it "
             f"exists for will be silently empty")
+
+
+def test_no_generated_page_links_to_a_page_that_is_not_generated(tmp_path):
+    """Every internal link must resolve to something the build actually writes.
+
+    The tab consolidation merged audit and roadmap into method.html but left
+    two links pointing at audit.html and roadmap.html. Those files stayed
+    committed and served, so the links kept "working" — onto stale pages
+    carrying the old nine-tab navigation, with no route back. Nothing errored,
+    and the only way to notice was to click them on the live site.
+
+    Deleting the stale files without this test would have turned the same two
+    links into 404s, which is a different failure, not a fix.
+    """
+    import re
+
+    from aitb.platform.site import build_site
+
+    out = build_site("synthetic", out=tmp_path / "site")
+    written = {p.name for p in out.glob("*.html")}
+    assert written, "the build produced no pages at all"
+
+    broken = []
+    for page in sorted(out.glob("*.html")):
+        for href in re.findall(r"href='([^']+)'", page.read_text()):
+            if href.startswith(("http", "#", "mailto:", "../")):
+                continue
+            target = href.split("#")[0]
+            if not target or target.endswith("/"):
+                continue
+            if target.endswith(".html") and target not in written:
+                # strategy/ and tradingview/ live in subdirectories
+                if "/" in target and (out / target).exists():
+                    continue
+                broken.append(f"{page.name} -> {href}")
+    assert not broken, f"links to pages the build never writes: {broken}"

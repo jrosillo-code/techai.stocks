@@ -706,7 +706,7 @@ subtracts for it.</li>
 <li><b>One test is not proof.</b> Even a perfect run would only justify
 paper-trading, never real money on its own.</li>
 </ul></div></div>
-<p class='note'><a href='audit.html'>Full audit and governance detail →</a></p>"""
+<p class='note'><a href='method.html#audit'>Full audit and governance detail →</a></p>"""
 
     return (hero + _mode_banner(mode)
             + "<h2>Where this stands</h2>"
@@ -719,7 +719,7 @@ paper-trading, never real money on its own.</li>
             + "<h2>What happens next</h2>"
             + "<p class='lede'>The top priorities, generated from what the data "
               "is currently missing:</p><ol class='lede'>" + road_html
-            + "</ol><p class='note'><a href='roadmap.html'>Full roadmap →</a></p>")
+            + "</ol><p class='note'><a href='method.html#next'>Full roadmap →</a></p>")
 
 
 # ----------------------------------------------------- experiment explorer ---

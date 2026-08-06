@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 import pandas as pd
 
@@ -75,6 +76,27 @@ class StrategyEntry:
 
 
 
+@lru_cache(maxsize=4)
+def _load_registry_cached(mode: str) -> pd.DataFrame:
+    """Parse the registry once per process. See load_registry for why.
+
+    The registry is 40 MB and 7,800 records after eleven freezes, and it grows
+    by roughly a thousand records per study. A full site build reads it once
+    per strategy page — 52 of them — so re-parsing made the build O(strategies
+    x registry size) and pushed it past two minutes, which is how a publish
+    step starts getting skipped.
+
+    Safe to cache because every consumer of this module is read-only over the
+    registry by design (tested byte-for-byte), and nothing appends to it while
+    a site is being rendered. `load_registry` hands out copies so a caller that
+    mutates its result cannot corrupt the cache for the next one.
+    """
+    df = ExperimentRegistry.for_mode(mode).load()
+    if df.empty or "id" not in df.columns:
+        return df
+    return df.drop_duplicates("id", keep="first")
+
+
 def load_registry(mode: str) -> pd.DataFrame:
     """Registry records, de-duplicated by experiment id (first write wins).
 
@@ -85,10 +107,7 @@ def load_registry(mode: str) -> pd.DataFrame:
     is fingerprinted by the research freeze and must not be edited, so the
     display layer de-duplicates instead.
     """
-    df = ExperimentRegistry.for_mode(mode).load()
-    if df.empty or "id" not in df.columns:
-        return df
-    return df.drop_duplicates("id", keep="first")
+    return _load_registry_cached(mode).copy()
 
 
 def current_registry(mode: str) -> pd.DataFrame:
